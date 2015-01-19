@@ -1,0 +1,5 @@
+[client]
+database = physdb
+user = PhysicsGame
+password = CatTrap67
+default-character-set = utf8

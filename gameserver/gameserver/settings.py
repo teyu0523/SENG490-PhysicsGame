@@ -1,5 +1,5 @@
 """
-Django settings for Server project.
+Django settings for gameserver project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.7/topics/settings/
@@ -42,16 +42,18 @@ INSTALLED_APPS = (
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'Server.disable.DisableCSRF',
+    #'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfResponseMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'Server.urls'
+ROOT_URLCONF = 'gameserver.urls'
 
-WSGI_APPLICATION = 'Server.wsgi.application'
+WSGI_APPLICATION = 'gameserver.wsgi.application'
 
 
 # Database
@@ -81,8 +83,8 @@ USE_L10N = True
 
 USE_TZ = True
 
-SESSION_COOKIE_SECURE = True;
-CSRF_COOKIE_SECURE = True;
+SESSION_COOKIE_SECURE = False;
+CSRF_COOKIE_SECURE = False;
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/

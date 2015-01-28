@@ -1,4 +1,7 @@
+from django.conf import settings
 from django.conf.urls import patterns, include, url
+from django.conf.urls.static import static
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
 from rest_framework.authtoken import views
 
@@ -16,3 +19,4 @@ urlpatterns = patterns('',
     url(r'^$', 'game.views.home', name='home'),
     url(r'^game/test/$', 'game.views.test_auth_call'),
 )
+urlpatterns += staticfiles_urlpatterns()

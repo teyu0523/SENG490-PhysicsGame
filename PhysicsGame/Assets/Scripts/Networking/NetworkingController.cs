@@ -5,6 +5,17 @@ using SimpleJSON;
 
 public class NetworkingController : MonoBehaviour {
 
+	// Singleton creation, allowing access from anywheres!
+	private NetworkingController m_instance;
+
+	public NetworkingController instance {
+		get{return m_instance;}
+	}
+
+	public void Awake() {
+		m_instance = this;
+	}
+
 	// Set debug to log all server calls.
 	public bool debug = false;
 
@@ -74,21 +85,6 @@ public class NetworkingController : MonoBehaviour {
 				callback(www.text, null);
 			}
 		}
-	}
-
-	public IEnumerator test() {
-		Debug.Log("Making Auth Test Call");
-		WWW www = new WWW(server + "/game/test", null, generateAuthHeaders());
-		yield return www;
-
-		if (!string.IsNullOrEmpty(www.error)) {
-			Debug.Log(www.error);
-		}
-		else 
-		{
-
-		}
-		Debug.Log(www.text);
 	}
 
 	private Dictionary<string, string> generateAuthHeaders() {

@@ -30,26 +30,57 @@ class AuthorListFilter(InstructorListFilter):
 admin.site.unregister(User)
 
 @admin.register(Admin)
-class InstructorAdmin(UserAdmin):
-	# Override response_change to fix dat 404!
-    def get_queryset(self, request):
-        qs = super(UserAdmin, self).queryset(request)
-        qs = qs.filter(is_superuser=True)
-        return qs
+class SystemAdmin(UserAdmin):
+	# Forces group relations based on user state.
+	def update_groups(self, new_object):
+		g = Group.objects.get(name='instructor')
+		if(new_object.is_staff == True):
+			g.user_set.add(new_object)
+		else:
+			g.user_set.remove(new_object)
+
+	# Overridden to automatically give instructors proper permissions set
+	def save_related(self, request, form, formsets, change):
+		super(UserAdmin, self).save_related(request, form, formsets, change)
+		self.update_groups(form.instance)
+
+	# Overridden to redirect to different lists when user type is changed
+	def response_change(self, request, obj):
+		result = super(UserAdmin, self).response_change(request, obj);
+		if "_continue" in request.POST:
+			redirect = result['Location'].split("/")
+			if(obj.is_superuser and obj.is_staff):
+				redirect[3] = "admin"
+			elif(not obj.is_superuser and obj.is_staff):
+				redirect[3] = "instructor"
+			else:
+				redirect[3] = "student"
+			redirect = "/".join(redirect)
+			result['Location'] = redirect;
+		
+		return result;
+
+	# Overridden to limit results to correct users
+	def get_queryset(self, request):
+		qs = super(UserAdmin, self).get_queryset(request)
+		qs = qs.filter(is_superuser=True)
+		return qs
 
 @admin.register(Instructor)
-class InstructorAdmin(UserAdmin):
+class InstructorAdmin(SystemAdmin):
+	# Overridden to limit results to correct users
     def get_queryset(self, request):
-        qs = super(UserAdmin, self).queryset(request)
+        qs = super(UserAdmin, self).get_queryset(request)
         qs = qs.filter(is_staff=True, is_superuser=False)
         return qs
 
 @admin.register(Student)
-class StudentAdmin(UserAdmin):
-    def get_queryset(self, request):
-        qs = super(UserAdmin, self).queryset(request)
-        qs = qs.filter(is_staff=False, is_superuser=False)
-        return qs
+class StudentAdmin(SystemAdmin):
+	# Overridden to limit results to correct users
+	def get_queryset(self, request):
+		qs = super(UserAdmin, self).get_queryset(request)
+		qs = qs.filter(is_staff=False, is_superuser=False)
+		return qs
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
@@ -70,6 +101,26 @@ class CourseAdmin(admin.ModelAdmin):
 		return obj.__str__().upper()
 	course_details.short_description = 'Course'
 
+	# Overridden to limit results to correct users
+	def formfield_for_foreignkey(self, db_field, request, **kwargs):
+		if db_field.name == "instructor":
+			kwargs["queryset"] = User.objects.filter(is_staff=True, is_superuser=False)
+		return super(CourseAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+	# Overridden to limit results to correct users
+	def formfield_for_manytomany(self, db_field, request, **kwargs):
+		if db_field.name == "students":
+			kwargs["queryset"] = User.objects.filter(is_staff=False, is_superuser=False)
+		return super(CourseAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
+
+	# Limit edits to specific users
+	#ModelAdmin.has_add_permission(request)
+	#ModelAdmin.has_change_permission(request, obj=None)
+	#ModelAdmin.has_delete_permission(request, obj=None)
+
+	# Change query set based on signed in user
+	# ModelAdmin.get_queryset(request)
+
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
 	list_display = ('lesson_details', 'course', 'author',)
@@ -78,3 +129,9 @@ class LessonAdmin(admin.ModelAdmin):
 	def lesson_details(self, obj):
 		return obj.__str__()
 	lesson_details.short_description = 'Lesson'
+
+	# Overridden to limit results to correct users
+	def formfield_for_foreignkey(self, db_field, request, **kwargs):
+		if db_field.name == "author":
+			kwargs["queryset"] = User.objects.filter(is_staff=True, is_superuser=False)
+		return super(LessonAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)

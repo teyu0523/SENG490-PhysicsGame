@@ -1,3 +1,42 @@
-.DS_Store
+# ================ #
+# Django Generated #
+# ================ #
 *.pyc
-PhysicsGame/Temp/*
+
+# =============== #
+# Unity generated #
+# =============== #
+PhysicsGame/[Tt]emp/
+PhysicsGame/[Oo]bj/
+PhysicsGame/[Bb]uild
+PhysicsGame/[Ll]ibrary/
+PhysicsGame/sysinfo.txt
+ 
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+[Ee]xported[Oo]bj/
+/*.userprefs
+/*.csproj
+/*.pidb
+/*.suo
+/*.sln*
+/*.user
+/*.unityproj
+/*.booproj
+ 
+# ============ #
+# OS generated #
+# ============ #
+.DS_Store*
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+[Tt]humbs.db
+
+# ================== #
+# Include Meta Files #
+# ================== #
+!*.*.meta

@@ -3,7 +3,6 @@ using System.Collections;
 
 
 public class LoginMenu : MonoBehaviour {
-	private NetworkingController netControl;
 	private string username; 
 	private string password;
 	private string passwordMask;
@@ -14,9 +13,7 @@ public class LoginMenu : MonoBehaviour {
 		username = "username";
 		passwordMask = "password";
 		password = "";
-		netControl = new NetworkingController();
 		scrollPosition = Vector2.zero;
-		
 	}
 	
 	void OnGUI(){
@@ -45,7 +42,7 @@ public class LoginMenu : MonoBehaviour {
 		    "Login")) 
 		{
 			print (password);
-			netControl.Login(username, password, null);
+			NetworkingController.Instance.Login(username, password, null);
 		}
 
 

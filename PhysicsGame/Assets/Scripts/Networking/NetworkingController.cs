@@ -6,14 +6,23 @@ using SimpleJSON;
 public class NetworkingController : MonoBehaviour {
 
 	// Singleton creation, allowing access from anywheres!
-	private static NetworkingController m_instance;
+	private static NetworkingController m_instance = null;
 
-	public static NetworkingController instance {
+	public static NetworkingController Instance {
 		get{return m_instance;}
 	}
 
 	public void Awake() {
-		m_instance = this;
+		// If this is the first networking controller it becomes the singleton
+		// The first networking controller will not be destroyed on a scene change.
+		Debug.Log(m_instance);
+		if(m_instance == null) {
+			m_instance = this;
+			DontDestroyOnLoad(gameObject);
+		} else {
+			// If this is not the first instance. Destroy it.
+			Object.Destroy(gameObject);
+		}
 	}
 
 	// Set debug to log all server calls.
@@ -32,13 +41,13 @@ public class NetworkingController : MonoBehaviour {
 	void Start() {
 
 		// Using a lambda function as a callback for when the WWW request finishes.
-		NetworkingController.instance.Login("geoff", "pass", (login_result, login_error) => {
+		NetworkingController.Instance.Login("geoff", "pass", (login_result, login_error) => {
 			if(login_result != null) {
 				// Success will be returned as data for now, you do not need to know the token.
 				// The authentication information will be stored in this controller.
 				Debug.Log(login_result);
 				// Calling a function on this object as the callback for when WWW finishes.
-				NetworkingController.instance.GetLessons(lessonsResult);
+				NetworkingController.Instance.GetLessons(lessonsResult);
 			} else {
 				Debug.LogError(login_error);
 			}

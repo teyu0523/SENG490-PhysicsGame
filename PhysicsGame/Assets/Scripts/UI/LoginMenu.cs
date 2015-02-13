@@ -45,7 +45,7 @@ public class LoginMenu : MonoBehaviour {
 		    "Login")) 
 		{
 			print (password);
-			netControl.login(username, password, null);
+			netControl.Login(username, password, null);
 		}
 
 

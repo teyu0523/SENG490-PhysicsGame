@@ -3,6 +3,12 @@ from game.models import *
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 
+# ========================================================== #
+# ==============                            ================ #
+# ==============       Custom Classes       ================ #
+# ==============                            ================ #
+# ========================================================== #
+
 class InstructorListFilter(admin.SimpleListFilter):
 	title = 'instructor'
 	parameter_name = 'instructor'
@@ -25,7 +31,38 @@ class AuthorListFilter(InstructorListFilter):
 			return queryset.filter(author__pk=self.value())
 		else:
 			return queryset
-		
+
+class ReadOnlyStackedInline(admin.StackedInline):
+	def __init__(self, *args, **kwargs):
+		super(ReadOnlyAdmin, self).__init__(*args, **kwargs)
+		readonly_fields = self.model._meta.get_all_field_names()
+	
+	def has_add_permission(self, request, obj=None):
+		return False
+	def has_delete_permission(self, request, obj=None):
+		return False
+
+def custom_titled_filter(title):
+    class Wrapper(admin.FieldListFilter):
+        def __new__(cls, *args, **kwargs):
+            instance = admin.FieldListFilter.create(*args, **kwargs)
+            instance.title = title
+            return instance
+    return Wrapper
+
+def custom_titled_relation_filter(title):
+    class Wrapper(admin.RelatedFieldListFilter):
+        def __new__(cls, *args, **kwargs):
+            instance = admin.FieldListFilter.create(*args, **kwargs)
+            instance.title = title
+            return instance
+    return Wrapper
+
+# ========================================================== #
+# ==============                            ================ #
+# ==============         User Admin         ================ #
+# ==============                            ================ #
+# ========================================================== #
 
 admin.site.unregister(User)
 
@@ -82,6 +119,12 @@ class StudentAdmin(SystemAdmin):
 		qs = qs.filter(is_staff=False, is_superuser=False)
 		return qs
 
+# ========================================================== #
+# ==============                            ================ #
+# ==============     Application Admin      ================ #
+# ==============                            ================ #
+# ========================================================== #
+
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
 	fieldsets = (
@@ -124,7 +167,11 @@ class CourseAdmin(admin.ModelAdmin):
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
 	list_display = ('lesson_details', 'course', 'author',)
-	list_filter = ('course__name', 'course__year', AuthorListFilter,)
+	list_filter = (
+		('course__name', custom_titled_relation_filter("course")),
+		'course__year',
+		AuthorListFilter,
+	)
 	
 	def lesson_details(self, obj):
 		return obj.__str__()
@@ -135,3 +182,49 @@ class LessonAdmin(admin.ModelAdmin):
 		if db_field.name == "author":
 			kwargs["queryset"] = User.objects.filter(is_staff=True, is_superuser=False)
 		return super(LessonAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+class CannonsQuestionInline(admin.StackedInline):
+	model = CannonsQuestion
+
+	def has_add_permission(self, request, obj=None):
+		return False
+	def has_delete_permission(self, request, obj=None):
+		return False
+
+@admin.register(Question)
+class QuestionAdmin(admin.ModelAdmin):
+	list_display = ('question_details', 'question_type',)
+	list_filter = (
+		('lesson__course__name', custom_titled_relation_filter("course")),
+		'question_type',
+	)
+	inlines = ()
+
+	def question_details(self, obj):
+		return obj.__str__()
+	question_details.short_description = 'Question'	
+
+	def change_view(self, request, object_id, form_url='', extra_context=None):
+		instance = Question.objects.get(pk=object_id)
+		if instance.question_type == Question.CANNONS:
+			self.inlines = (CannonsQuestionInline, )
+		return super(QuestionAdmin, self).change_view(request, object_id)
+
+class CannonsAnswerInline(ReadOnlyStackedInline):
+	model = CannonsAnswer
+
+@admin.register(Answer)
+class AnswerAdmin(admin.ModelAdmin):
+	list_display = ('question', 'lesson_results', 'total_tries', 'weighted_mark',)
+	readonly_fields = ('question', 'lesson_results', 'weighted_mark')
+
+	def change_view(self, request, object_id, form_url='', extra_context=None):
+		instance = Question.objects.get(pk=object_id)
+		if instance.question.question_type == Question.CANNONS:
+			self.inlines = (CannonsAnswerInline, )
+		return super(QuestionAdmin, self).change_view(request, object_id)
+
+	def has_add_permission(self, request, obj=None):
+		return False
+	def has_delete_permission(self, request, obj=None):
+		return False

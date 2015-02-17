@@ -32,6 +32,8 @@ class AuthorListFilter(InstructorListFilter):
 		else:
 			return queryset
 
+
+
 class ReadOnlyStackedInline(admin.StackedInline):
 	def __init__(self, *args, **kwargs):
 		super(ReadOnlyAdmin, self).__init__(*args, **kwargs)
@@ -41,6 +43,8 @@ class ReadOnlyStackedInline(admin.StackedInline):
 		return False
 	def has_delete_permission(self, request, obj=None):
 		return False
+
+
 
 def custom_titled_filter(title):
     class Wrapper(admin.FieldListFilter):
@@ -83,7 +87,7 @@ class SystemAdmin(UserAdmin):
 
 	# Overridden to redirect to different lists when user type is changed
 	def response_change(self, request, obj):
-		result = super(UserAdmin, self).response_change(request, obj);
+		result = super(UserAdmin, self).response_change(request, obj)
 		if "_continue" in request.POST:
 			redirect = result['Location'].split("/")
 			if(obj.is_superuser and obj.is_staff):
@@ -93,9 +97,9 @@ class SystemAdmin(UserAdmin):
 			else:
 				redirect[3] = "student"
 			redirect = "/".join(redirect)
-			result['Location'] = redirect;
+			result['Location'] = redirect
 		
-		return result;
+		return result
 
 	# Overridden to limit results to correct users
 	def get_queryset(self, request):
@@ -121,9 +125,13 @@ class StudentAdmin(SystemAdmin):
 
 # ========================================================== #
 # ==============                            ================ #
-# ==============     Application Admin      ================ #
+# ==============      Questions Admin       ================ #
 # ==============                            ================ #
 # ========================================================== #
+
+class WeightedLessonInline(admin.StackedInline):
+	model = WeightedLesson
+	extra = 1
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
@@ -139,6 +147,7 @@ class CourseAdmin(admin.ModelAdmin):
 	filter_horizontal = ('students',)
 	list_display = ('course_details', 'year',)
 	list_filter = (InstructorListFilter, 'year')
+	inlines = (WeightedLessonInline, )
 
 	def course_details(self, obj):
 		return obj.__str__().upper()
@@ -164,24 +173,31 @@ class CourseAdmin(admin.ModelAdmin):
 	# Change query set based on signed in user
 	# ModelAdmin.get_queryset(request)
 
+
+
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
-	list_display = ('lesson_details', 'course', 'author',)
+	list_display = ('lesson_details', 'author',)
 	list_filter = (
-		('course__name', custom_titled_relation_filter("course")),
-		'course__year',
 		AuthorListFilter,
 	)
+	readonly_fields = ('total_marks', )
 	
 	def lesson_details(self, obj):
 		return obj.__str__()
 	lesson_details.short_description = 'Lesson'
+
+	def total_marks(self, instance):
+		return instance.get_total_marks()
+	total_marks.integer=True
 
 	# Overridden to limit results to correct users
 	def formfield_for_foreignkey(self, db_field, request, **kwargs):
 		if db_field.name == "author":
 			kwargs["queryset"] = User.objects.filter(is_staff=True, is_superuser=False)
 		return super(LessonAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+
 
 class CannonsQuestionInline(admin.StackedInline):
 	model = CannonsQuestion
@@ -195,7 +211,8 @@ class CannonsQuestionInline(admin.StackedInline):
 class QuestionAdmin(admin.ModelAdmin):
 	list_display = ('question_details', 'question_type',)
 	list_filter = (
-		('lesson__course__name', custom_titled_relation_filter("course")),
+		'lesson__topic',
+		('lesson__courses__name', custom_titled_relation_filter("name")),
 		'question_type',
 	)
 	inlines = ()
@@ -210,13 +227,65 @@ class QuestionAdmin(admin.ModelAdmin):
 			self.inlines = (CannonsQuestionInline, )
 		return super(QuestionAdmin, self).change_view(request, object_id)
 
+
+# ========================================================== #
+# ==============                            ================ #
+# ==============        Grades Admin        ================ #
+# ==============                            ================ #
+# ========================================================== #
+
+class LessonGradeInline(admin.TabularInline):
+	model = LessonGrade
+	fields = ('lesson', 'lesson_state', 'course_grade', 'grade', 'answered_questions')
+	readonly_fields = ('lesson', 'lesson_state', 'course_grade', 'grade', 'answered_questions')
+	min_num = 0
+	extra = 0
+
+	def has_add_permission(self, request, obj=None):
+		return False
+	def has_delete_permission(self, request, obj=None):
+		return False
+
+	def lesson_state(self, instance):
+		return instance.get_lesson_state_display(instance.lesson_state)
+	lesson_state.string = True
+
+	def grade(self, instance):
+		aggregates = instance.get_grades()
+		return "%.2f/%d" % (aggregates['grade'], aggregates['grade_max'])
+	grade.string = True
+
+	def answered_questions(self, instance):
+		if instance.id is not None:
+			aggregates = instance.get_grades()
+			return "%d/%d" % (aggregates['answered_questions'], aggregates['total_questions'])
+		return "---"
+	answered_questions.string = True
+
+@admin.register(Grade)
+class GradeAdmin(admin.ModelAdmin):
+	list_display = ('course', 'student')
+	list_filter = (('course__name', custom_titled_relation_filter("course")),)
+	readonly_fields = ('student', 'course', 'final_grade')
+
+	inlines = (LessonGradeInline,)
+
+	def has_add_permission(self, request, obj=None):
+		return False
+	def has_delete_permission(self, request, obj=None):
+		return False
+
+	def final_grade(self, instance):
+		return instance.get_final_grade()
+	final_grade.float = True
+
 class CannonsAnswerInline(ReadOnlyStackedInline):
 	model = CannonsAnswer
 
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
-	list_display = ('question', 'lesson_results', 'total_tries', 'weighted_mark',)
-	readonly_fields = ('question', 'lesson_results', 'weighted_mark')
+	list_display = ('question', 'lesson_grade', 'total_tries', 'grade_percent',)
+	readonly_fields = ('question', 'lesson_grade', 'grade', 'grade_max')
 
 	def change_view(self, request, object_id, form_url='', extra_context=None):
 		instance = Question.objects.get(pk=object_id)
@@ -228,3 +297,11 @@ class AnswerAdmin(admin.ModelAdmin):
 		return False
 	def has_delete_permission(self, request, obj=None):
 		return False
+
+	def grade_percent(self, instance):
+		return instance.grade / instance.question.marks
+	grade_percent.float=True
+
+	def grade_max(self, instance):
+		return instance.question.marks
+	grade_max.integer=True

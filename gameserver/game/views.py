@@ -1,7 +1,5 @@
-from django.http import JsonResponse
-from django.views.generic import View
+from django.http import JsonResponse, HttpResponseBadRequest
 
-from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -9,8 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 # from rest_framework.parsers import JSONParser
 
 # from game.mixins import *
-from game.serializers import LessonGradeSerializer
-from game.models import Grade, LessonGrade, WeightedLesson
+from game.models import Grade, LessonGrade, WeightedLesson, Question
 
 
 class StudentListLessons(APIView):
@@ -63,14 +60,63 @@ class StudentListLessons(APIView):
         return JsonResponse(course_structure)
 
 
-class StudentLessonDetails(generics.RetrieveAPIView):
+class StudentLessonDetails(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
-    serializer_class = LessonGradeSerializer
 
-    def get_queryset(self):
-        c = LessonGrade.objects.select_related('lesson').prefetch_related('answers').select_related('grade')
-        return c.get(grade__student_id=self.request.user.id, lesson_id=self.request['lesson_id'])
+    def getLesson(self, request):
+        if 'id' in request.GET:
+            return LessonGrade.objects.get(id=request.GET['id'])
+        elif 'lesson_id' in request.GET:
+            return LessonGrade.objects.get(course_grade__student_id=request.user.id, lesson_id=request.GET['lesson_id'])
+
+    def get(self, request):
+        lesson_grade = self.getLesson(request)
+        if lesson_grade is None:
+            return HttpResponseBadRequest()
+
+        lesson_structure = {}
+        lesson_structure['id'] = lesson_grade.id
+        lesson_structure['lesson_id'] = lesson_grade.lesson.id
+        lesson_structure['weight'] = WeightedLesson.objects.get(lesson_id=lesson_grade.lesson_id, course_id=grade.course_id).weight
+        lesson_structure['lesson_state'] = lesson_grade.get_lesson_state_display()
+        lesson_structure['total_questions'] = lesson_grade.get_grades()['total_questions']
+        lesson_structure['answered_questions'] = lesson_grade.get_grades()['answered_questions']
+        if(lesson_grade.get_grades()['grade_max'] > 0):
+            lesson_structure['grade'] = str(lesson_grade.get_grades()['grade']/lesson_grade.get_grades()['grade_max'])
+        else:
+            lesson_structure['grade'] = 'N/A'
+        lesson_structure['type'] = lesson_grade.lesson.get_lesson_type_display()
+        lesson_structure['name'] = lesson_grade.lesson.topic
+        lesson_structure['retakes_allowed'] = lesson_grade.lesson.retakes
+        lesson_structure['closable'] = lesson_grade.lesson.one_sitting
+
+        questions = []
+
+        for question in lesson_grade.lesson.included_questions.all():
+            question_structure = {}
+            question_structure['id'] = question.id
+            question_structure['type'] = question.get_question_type_display()
+            question_structure['order'] = question.order
+            question_structure['marks'] = question.marks
+            question_structure['max_tries'] = question.max_tries
+            question_structure['playable'] = question.playable
+
+            if question.question_type == Question.CANNONS:
+                question_structure['player_tank_pos_x'] = question.cannons_extension.player_tank_pos_x
+                question_structure['player_tank_pos_y'] = question.cannons_extension.player_tank_pos_y
+                question_structure['player_tank_angle'] = question.cannons_extension.player_tank_angle
+                question_structure['player_tank_velocity'] = question.cannons_extension.player_tank_velocity
+                question_structure['enemy_tank_pos_x'] = question.cannons_extension.enemy_tank_pos_x
+                question_structure['enemy_tank_pos_y'] = question.cannons_extension.enemy_tank_pos_y
+                question_structure['enemy_tank_angle'] = question.cannons_extension.enemy_tank_angle
+                question_structure['enemy_tank_velocity'] = question.cannons_extension.enemy_tank_velocity
+
+            questions.append(question_structure)
+
+        lesson_structure['questions'] = questions
+
+        return JsonResponse(lesson_structure)
 
 student_list_lessons = StudentListLessons.as_view()
 student_lesson_details = StudentLessonDetails.as_view()

@@ -248,10 +248,6 @@ class Grade(models.Model):
                 final_grade += (aggregates['grade']/aggregates['grade_max'])
         return final_grade
 
-    def save(self, *args, **kwargs):
-        self.grade_percent = self.grade / self.grade_max
-        super(Grade, self).save(*args, **kwargs)
-
     def __str__(self):
         return "%s (%d) - %s" % (self.course.name, self.course.year, self.student.username)
 
@@ -283,8 +279,9 @@ class LessonGrade(models.Model):
         # Also lazy loads!
         if not hasattr(self, 'aggregates'):
             self.aggregates = {}
-            self.aggregates['answered_questions'] = self.question_results.all().count()
-            self.aggregates['total_questions'] = self.lesson.included_questions.all().count()
+            self.aggregates['answered_questions'] = self.question_results.count()
+            print(self.id)
+            self.aggregates['total_questions'] = self.lesson.included_questions.count()
             self.aggregates['grade_max'] = self.lesson.get_total_marks()
             if self.aggregates['grade_max'] == None:
                 self.aggregates['grade_max'] = 0

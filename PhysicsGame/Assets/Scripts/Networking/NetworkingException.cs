@@ -20,4 +20,13 @@ public class NetworkingException : System.Exception, ISerializable {
 
 [Serializable]
 public class AuthenticationException : NetworkingException, ISerializable {
+
+	public AuthenticationException() {
+	}
+	public AuthenticationException(string message) : base(message) {
+	}
+	public AuthenticationException(string message, Exception innerException) : base(message, innerException) {
+	}
+	protected AuthenticationException(SerializationInfo info, StreamingContext context): base(info, context) {
+	}
 }

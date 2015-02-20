@@ -1,9 +1,8 @@
 from django.contrib import admin
-from django.models import Group
 from game.models import Student, Instructor, Admin
 from game.models import Course, Lesson, WeightedLesson, Question, CannonsQuestion
 from game.models import Grade, LessonGrade, Answer, CannonsAnswer
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin
 
 # ========================================================== #
@@ -151,7 +150,6 @@ class CourseAdmin(admin.ModelAdmin):
             'fields': ('number', 'name', 'year', 'instructor',)
         }),
         ('Students', {
-            'classes': ('collapse',),
             'fields': ('students',)
         }),
     )
@@ -271,8 +269,10 @@ class LessonGradeInline(admin.TabularInline):
     grade.string = True
 
     def grade_max(self, instance):
-        aggregates = instance.get_grades()
-        return aggregates['grade_max']
+        if instance.id is not None:
+            aggregates = instance.get_grades()
+            return aggregates['grade_max']
+        return 0
     grade_max.integer = True
 
     def weight(self, instance):

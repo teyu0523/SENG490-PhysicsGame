@@ -75,6 +75,7 @@ public class NetworkingController : MonoBehaviour {
 				if(lesson_result != null) {
 					Debug.Log(lesson_result);
 					JSONNode lesson_node = JSON.Parse(lesson_result);
+					Debug.Log(lesson_node.ToString());
 
 					// Lets get the question id from the results.
 					int question_id = lesson_node["questions"][0]["id"].AsInt;
@@ -183,11 +184,27 @@ public class NetworkingController : MonoBehaviour {
 	/// <param name="question_id">The id of the question.</param>
 	/// <param name="callback">The callback to be called on completion or error</param>
 	public void GetPreviousAnswer(int question_id, WWWDelegate callback) {
-		StartCoroutine(answer_coroutine(question_id, callback));
+		StartCoroutine(get_answer_coroutine(question_id, callback));
 	}
-	private IEnumerator answer_coroutine(int question_id, WWWDelegate callback) {
-		log(System.String.Format("{0}/game/lesson/answer/{1}/", server, question_id));
+	private IEnumerator get_answer_coroutine(int question_id, WWWDelegate callback) {
 		WWW www = new WWW(System.String.Format("{0}/game/lesson/answer/{1}/", server, question_id), null, generateAuthHeaders());
+		yield return www;
+		
+		executeCallback(www, callback);
+	}
+
+
+	/// <summary>
+	/// Submits an answer to the server for a specific question. The server should validate the provided answer.
+	/// </summary>
+	/// <param name="question_id">The id of the question..</param>
+	/// <param name="answer_json">The string representation of the JSON answer format.</param>
+	/// <param name="callback">The callback to be called on completion or error.</param>
+	public void SubmitAnswer(int question_id, string answer_json, WWWDelegate callback) {
+		StartCoroutine(set_answer_coroutine(question_id, answer_json, callback));
+	}
+	private IEnumerator set_answer_coroutine(int question_id, string answer_json, WWWDelegate callback) {
+		WWW www = new WWW(System.String.Format("{0}/game/lesson/answer/{1}/", server, question_id), System.Text.Encoding.UTF8.GetBytes(answer_json), generateJSONPostHeaders());
 		yield return www;
 		
 		executeCallback(www, callback);
@@ -205,13 +222,13 @@ public class NetworkingController : MonoBehaviour {
 	}
 
 	/// <summary>
-	/// A quick helper to allow easily disabling of logging on the networking controller.
+	/// Generates json content type auth headers for a WWW request.
 	/// </summary>
-	/// <param name="data">Data.</param>
-	private void log(string data) {;
-		if(debug) {
-			Debug.Log(data);
-		}
+	/// <returns>The generated headers.</returns>
+	private Dictionary<string, string> generateJSONPostHeaders() {
+		Dictionary<string, string> headers = generateAuthHeaders();
+		headers.Add("Content-Type", "application/json");
+		return headers;
 	}
 
 	/// <summary>
@@ -234,6 +251,17 @@ public class NetworkingController : MonoBehaviour {
 			if(callback != null) {
 				callback(www_result.text, null);
 			}
+		}
+	}
+
+
+	/// <summary>
+	/// A quick helper to allow easily disabling of logging on the networking controller.
+	/// </summary>
+	/// <param name="data">Data.</param>
+	private void log(string data) {;
+		if(debug) {
+			Debug.Log(data);
 		}
 	}
 }

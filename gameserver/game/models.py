@@ -280,7 +280,6 @@ class LessonGrade(models.Model):
         if not hasattr(self, 'aggregates'):
             self.aggregates = {}
             self.aggregates['answered_questions'] = self.question_results.count()
-            print(self.id)
             self.aggregates['total_questions'] = self.lesson.included_questions.count()
             self.aggregates['grade_max'] = self.lesson.get_total_marks()
             if self.aggregates['grade_max'] == None:

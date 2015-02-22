@@ -29,18 +29,18 @@ public class LoginMenu : MonoBehaviour {
 //			GUILayout.Height(Screen.height)
 //			);
 		GUI.Label (
-			new Rect(Screen.width/2-85, Screen.height/2-30, 70, 20), 
+			new Rect(Screen.width/2-100, Screen.height/2-30, 70, 20), 
 			"Username:"); // top -= width/2 to get to center
 		GUI.Label (
-			new Rect (Screen.width/2-85, Screen.height/2+30, 70, 20), 
+			new Rect (Screen.width/2-100, Screen.height/2+30, 70, 20), 
 		    "Password:");
 		GUI.SetNextControlName ("username_val");
 		username = GUI.TextField (
-			new Rect (Screen.width/2+15, Screen.height/2-30, 100, 20), 
+			new Rect (Screen.width/2-20, Screen.height/2-30, 120, 20), 
 			username);
 		GUI.SetNextControlName ("password_val");
 		passwordMask = GUI.TextField (
-			new Rect (Screen.width/2+15, Screen.height/2+30, 100, 20), 
+			new Rect (Screen.width/2-20, Screen.height/2+30, 120, 20), 
 			passwordMask);
 
 		maskPass ();
@@ -48,11 +48,10 @@ public class LoginMenu : MonoBehaviour {
 			new Rect (Screen.width/2-30, Screen.height/2+100, 60, 25), 
 		    "Login")) 
 		{
-			netControl.Login("geoff", "pass", (login_result, login_error) => {
-				if(login_result != null) {
-					// Success will be returned as data for now, you do not need to know the token.
-					// The authentication information will be stored in this controller.
-					print(login_result);
+			//netControl.Login("geoff", "pass", (login_result, login_error) => {
+			netControl.Login(username, password, (login_result, login_error) => {
+				if(login_result != "success") {
+					Application.LoadLevel ("MainMenu"); 
 				} else {
 					print(login_error);
 				}

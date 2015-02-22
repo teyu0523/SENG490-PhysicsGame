@@ -1,10 +1,10 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Networking/NetworkingController.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\UI\DropMenu.cs">
     <Files>
-      <File FileName="Assets/Scripts/Networking/WWWExtended.cs" Line="5" Column="32" />
-      <File FileName="Assets/Scripts/Networking/NetworkingController.cs" Line="41" Column="61" />
-      <File FileName="Assets/Scripts/Networking/NetworkingException.cs" Line="9" Column="2" />
+      <File FileName="Assets\Scripts\UI\LoginMenu.cs" Line="52" Column="28" />
+      <File FileName="Assets\Scripts\UI\DropMenu.cs" Line="40" Column="1" />
+      <File FileName="Assets\Scripts\Networking\NetworkingController.cs" Line="128" Column="5" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

@@ -11,9 +11,8 @@ public class DropMenu : MonoBehaviour {
 	private string[] questions;
 	private string[] descriptions;
 	private bool[] clicked;
-	private float yButton, yBoxArea, yButtonDefault, panelTop;
+	private float yButton, yBoxArea, panelTop;
 	private float totalHeight; // total height of all UI
-	private float barValue;	// scroll bar current value
 	private Vector2 scrollPosition = Vector2.zero;
 	private Vector2[] scrollPositions;
 	public NetworkingController networkingController;
@@ -29,6 +28,7 @@ public class DropMenu : MonoBehaviour {
 				// Success will be returned as data for now, you do not need to know the token.
 				// The authentication information will be stored in this controller.
 				print(lesson_result);
+				Application.LoadLevel("MainMenu");
 			}else{
 				print (lesson_error);
 			}
@@ -36,9 +36,7 @@ public class DropMenu : MonoBehaviour {
 
 
 		heightSpace = 10;
-		yButtonDefault = 5;
 		heightButton = 30;
-		barValue = 0;
 		questions = new string[numQues];
 		descriptions = new string[numQues];
 		clicked = new bool[numQues];

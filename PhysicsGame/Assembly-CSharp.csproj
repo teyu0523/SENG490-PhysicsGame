@@ -49,6 +49,7 @@
      <Compile Include="Assets\Scripts\Networking\NetworkingController.cs" />
      <Compile Include="Assets\Scripts\Networking\NetworkingException.cs" />
      <Compile Include="Assets\Scripts\Networking\WWWExtended.cs" />
+     <Compile Include="Assets\Scripts\RemoveOutsideOfScreen.cs" />
      <Compile Include="Assets\Scripts\UI\DropMenu.cs" />
      <Compile Include="Assets\Scripts\UI\LoginMenu.cs" />
  <Reference Include="UnityEngine.UI">

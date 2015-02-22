@@ -8,6 +8,8 @@ public class NetworkingController : MonoBehaviour {
 	// Singleton creation, allowing access from anywheres!
 	private static NetworkingController m_instance = null;
 
+	public BoxCollider2D box_collider;
+
 	public static NetworkingController Instance {
 		get{return m_instance;}
 	}
@@ -15,7 +17,6 @@ public class NetworkingController : MonoBehaviour {
 	public void Awake() {
 		// If this is the first networking controller it becomes the singleton
 		// The first networking controller will not be destroyed on a scene change.
-		Debug.Log(m_instance);
 		if(m_instance == null) {
 			m_instance = this;
 			DontDestroyOnLoad(gameObject);

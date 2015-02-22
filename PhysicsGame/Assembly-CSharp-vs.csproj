@@ -46,9 +46,14 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\GameBase\AssignmentController.cs" />
+     <Compile Include="Assets\Scripts\GameBase\GameController.cs" />
      <Compile Include="Assets\Scripts\Networking\NetworkingController.cs" />
      <Compile Include="Assets\Scripts\Networking\NetworkingException.cs" />
      <Compile Include="Assets\Scripts\Networking\WWWExtended.cs" />
+     <Compile Include="Assets\Scripts\UI\DropMenu.cs" />
+     <Compile Include="Assets\Scripts\UI\LoginMenu.cs" />
+     <Compile Include="Assets\Scripts\Utility\RemoveOutsideOfScreen.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/GUISystem/4.6.1/UnityEngine.UI.dll</HintPath>
  </Reference>

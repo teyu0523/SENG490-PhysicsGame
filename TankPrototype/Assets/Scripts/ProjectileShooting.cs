@@ -4,21 +4,18 @@ using System.Collections;
 public class ProjectileShooting : MonoBehaviour {
 
 	public float velocity;
-
-	Vector2 shooting;
+	public Rigidbody2D barrelRigidbody;
+	
 	Rigidbody2D shotRigidbody;
-	Transform shotSpawn;
 
 
 	void Awake(){
 		shotRigidbody = GetComponent<Rigidbody2D> ();
-		shotSpawn = GetComponent<Transform> ();
 	
 
 	}
 	void Start () {
-		shooting.Set (velocity, 0f);
-		shotRigidbody.velocity = shooting;
+		shotRigidbody.velocity = (barrelRigidbody.rotation * Vector3.right) * velocity;
 	}
 
 }

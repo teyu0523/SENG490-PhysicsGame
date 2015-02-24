@@ -8,14 +8,18 @@
       <File FileName="Assets\Scripts\Networking\NetworkingController.cs" Line="128" Column="5" />
 =======
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Prefabs/RemoveOutsideOfScreen.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Networking/NetworkingController.cs">
     <Files>
+<<<<<<< HEAD
       <File FileName="Assets/Scripts/Networking/WWWExtended.cs" Line="5" Column="32" />
       <File FileName="Assets/Scripts/Networking/NetworkingController.cs" Line="11" Column="36" />
       <File FileName="Assets/Scripts/Networking/NetworkingException.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/UI/LoginMenu.cs" Line="1" Column="1" />
       <File FileName="Assets/Prefabs/RemoveOutsideOfScreen.cs" Line="7" Column="27" />
 >>>>>>> 476219e484e14e786c9ba9ff1acc4725c8e4f463
+=======
+      <File FileName="Assets/Scripts/Networking/NetworkingController.cs" Line="78" Column="40" />
+>>>>>>> 223363880a13e148753b991037347f3d5eceee5a
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

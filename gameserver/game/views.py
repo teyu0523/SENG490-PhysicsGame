@@ -14,7 +14,7 @@ class StudentListLessons(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request):
+    def get(self, request, format=None):
         course_structure = {}
 
         course_structure['username'] = request.user.username
@@ -64,16 +64,13 @@ class StudentLessonDetails(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    def getLesson(self, request):
-        if 'id' in request.GET:
-            return LessonGrade.objects.get(id=request.GET['id'])
-        elif 'lesson_id' in request.GET:
-            return LessonGrade.objects.get(course_grade__student_id=request.user.id, lesson_id=request.GET['lesson_id'])
+    def getLesson(self, request, lesson_id):
+        return LessonGrade.objects.get(course_grade__student_id=request.user.id, lesson_id=lesson_id)
 
-    def get(self, request):
-        lesson_grade = self.getLesson(request)
+    def get(self, request, lesson_id, format=None):
+        lesson_grade = self.getLesson(request, lesson_id)
         if lesson_grade is None:
-            return HttpResponseBadRequest()
+            return HttpResponseBadRequest("Student is not signed up for this lesson!")
 
         lesson_structure = {}
         lesson_structure['id'] = lesson_grade.id
@@ -123,8 +120,8 @@ class StudentAnswer(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request):
-        (answer, created) = Answer.objects.get_or_create(question_id=request.GET['id'], lesson_grade__course_grade__student_id=request.user.id)
+    def get(self, request, question_id, format=None):
+        (answer, created) = Answer.objects.get_or_create(question_id=question_id, lesson_grade=LessonGrade.objects.get(lesson__included_questions__pk=question_id, course_grade__student_id=2)) #request.user.id
         if created:
             if answer.question.question_type == Question.CANNONS:
                 CannonsAnswer.objects.create(answer=answer)
@@ -146,39 +143,41 @@ class StudentAnswer(APIView):
 
         return JsonResponse(answer_structure)
 
-    def post(self, request):
+    def post(self, request, question_id, format=None):
         try:
-            LessonGrade.objects.get(course_grade__student_id=request.user.id, lesson_id=Question.objects.get(request.GET['id']).lesson_id)
+            LessonGrade.objects.get(course_grade__student_id=request.user.id, lesson_id=Question.objects.get(id=question_id).lesson_id)
         except:
             return HttpResponseBadRequest('total_tries is a required field')
 
-        (answer, created) = Answer.objects.get_or_create(question_id=request.GET['id'], lesson_grade__course_grade__student_id=request.user.id)
+        (answer, created) = Answer.objects.get_or_create(question_id=request.query_params['id'], lesson_grade__course_grade__student_id=request.user.id)
         if created:
             if answer.question.question_type == Question.CANNONS:
                 CannonsAnswer.objects.create(answer=answer)
 
+        # Important to note! All incomming data is in string format right now. Limitation of SimpleJSON...
+
         if 'total_tries' in request.DATA:
-            answer.total_tries = request.DATA['total_tries']
+            answer.total_tries = int(request.DATA['total_tries'])
             answer.calculate_grade()
         else:
             return HttpResponseBadRequest('total_tries is a required field')
         if answer.question.question_type == Question.CANNONS:
             if 'player_tank_pos_x' in request.DATA:
-                answer.cannons_extension.player_tank_pos_x = request.DATA['player_tank_pos_x']
+                answer.cannons_extension.player_tank_pos_x = float(request.DATA['player_tank_pos_x'])
             if 'player_tank_pos_y' in request.DATA:
-                answer.cannons_extension.player_tank_pos_y = request.DATA['player_tank_pos_y']
+                answer.cannons_extension.player_tank_pos_y = float(request.DATA['player_tank_pos_y'])
             if 'player_tank_angle' in request.DATA:
-                answer.cannons_extension.player_tank_angle = request.DATA['player_tank_angle']
+                answer.cannons_extension.player_tank_angle = float(request.DATA['player_tank_angle'])
             if 'player_tank_velocity' in request.DATA:
-                answer.cannons_extension.player_tank_velocity = request.DATA['player_tank_velocity']
+                answer.cannons_extension.player_tank_velocity = float(request.DATA['player_tank_velocity'])
             if 'enemy_tank_pos_x' in request.DATA:
-                answer.cannons_extension.enemy_tank_pos_x = request.DATA['enemy_tank_pos_x']
+                answer.cannons_extension.enemy_tank_pos_x = float(request.DATA['enemy_tank_pos_x'])
             if 'enemy_tank_pos_y' in request.DATA:
-                answer.cannons_extension.enemy_tank_pos_y = request.DATA['enemy_tank_pos_y']
+                answer.cannons_extension.enemy_tank_pos_y = float(request.DATA['enemy_tank_pos_y'])
             if 'enemy_tank_angle' in request.DATA:
-                answer.cannons_extension.enemy_tank_angle = request.DATA['enemy_tank_angle']
+                answer.cannons_extension.enemy_tank_angle = float(request.DATA['enemy_tank_angle'])
             if 'enemy_tank_velocity' in request.DATA:
-                answer.cannons_extension.enemy_tank_velocity = request.DATA['enemy_tank_velocity']
+                answer.cannons_extension.enemy_tank_velocity = float(request.DATA['enemy_tank_velocity'])
             answer.cannons_extension.save()
         answer.save()
 
@@ -186,4 +185,4 @@ class StudentAnswer(APIView):
 
 student_list_lessons = StudentListLessons.as_view()
 student_lesson_details = StudentLessonDetails.as_view()
-student_answer = StudentAnswer.as_view()
+student_answer_details = StudentAnswer.as_view()

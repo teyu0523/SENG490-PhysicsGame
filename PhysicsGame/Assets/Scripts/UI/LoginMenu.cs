@@ -3,26 +3,29 @@ using System.Collections;
 
 
 public class LoginMenu : MonoBehaviour {
-	public NetworkingController netControl;
+	public NetworkingController networkingController;
 	private string username; 
 	private string password;
 	private string passwordMask;
 	private Vector2 scrollPosition;
+	private string loginFailer;
 //	private string login_result;
 //	private string login_error;
 
 	// Use this for initialization
 	void Start () {
-		username = "username";
-		passwordMask = "password";
+		username = "Username";
+		passwordMask = "Password";
 		password = "";
 		scrollPosition = Vector2.zero;
-
+		loginFailer = "";
 	}
 	
 	void OnGUI(){
 		GUILayout.BeginArea (new Rect (0, 0, Screen.width, Screen.height));
-
+		GUI.Label(
+			new Rect(Screen.width/2-70, Screen.height/2-80,70,20),
+			loginFailer);
 //		scrollPosition = GUILayout.BeginScrollView (
 //			scrollPosition,
 //			GUILayout.Width(Screen.width), 
@@ -43,17 +46,18 @@ public class LoginMenu : MonoBehaviour {
 			new Rect (Screen.width/2-20, Screen.height/2+30, 120, 20), 
 			passwordMask);
 
-		maskPass ();
+		//maskPass ();
 		if (GUI.Button (
 			new Rect (Screen.width/2-30, Screen.height/2+100, 60, 25), 
 		    "Login")) 
 		{
 			//netControl.Login("geoff", "pass", (login_result, login_error) => {
-			netControl.Login(username, password, (login_result, login_error) => {
-				if(login_result != "success") {
+			networkingController.Login(username, password, (login_result, login_error) => {
+				if(login_result == "success") {
+					//networkingController.GetLessons(networkingController.lessonsResult);
 					Application.LoadLevel ("MainMenu"); 
 				} else {
-					print(login_error);
+					loginFailer = login_error;
 				}
 			});
 		}

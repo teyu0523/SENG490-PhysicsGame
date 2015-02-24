@@ -11,32 +11,30 @@ public class DropMenu : MonoBehaviour {
 	private string[] questions;
 	private string[] descriptions;
 	private bool[] clicked;
-	private float yButton, yBoxArea, panelTop;
+	private float yButton, yBoxArea, panelHeight, panelTop, panelLeft, panelWidth;
 	private float totalHeight; // total height of all UI
 	private Vector2 scrollPosition = Vector2.zero;
 	private Vector2[] scrollPositions;
 	public NetworkingController networkingController;
 	private RectTransform panelRectTransform;
-
+	public GUISkin mySkin = null;// = new GUISkin("areaStyle");
+	public Texture arrowUp = null;
 	// Use this for initialization
 	public void Start () 
 	{
 		panelRectTransform = GetComponent<RectTransform> ();
-		panelTop = Screen.height - panelRectTransform.rect.height; // the rect Top value
 		networkingController.GetLessons((lesson_result, lesson_error) => {
 			if(lesson_result != null) {
 				// Success will be returned as data for now, you do not need to know the token.
 				// The authentication information will be stored in this controller.
 				print(lesson_result);
-				Application.LoadLevel("MainMenu");
 			}else{
 				print (lesson_error);
 			}
 		});
-
-
-		heightSpace = 10;
-		heightButton = 30;
+        
+        heightSpace = 3;
+		heightButton = 50;
 		questions = new string[numQues];
 		descriptions = new string[numQues];
 		clicked = new bool[numQues];
@@ -46,8 +44,8 @@ public class DropMenu : MonoBehaviour {
 		{
 			scrollPositions[i] = Vector2.zero;
 		}
-		questions[0] = "Click";
-		questions[1] = "Click2";
+		questions[0] = "Assignment 1";
+		questions[1] = "Assignment";
 		questions[2] = "Click2";
 		questions[3] = "Click2";
 		questions[4] = "Click2";
@@ -61,16 +59,18 @@ public class DropMenu : MonoBehaviour {
 		questions[12] = "Click2";
 		questions[13] = "Click2";
 		questions[14] = "Click2";
-		questions[15] = "Click2";
-		questions[16] = "Click2";
-		questions[17] = "Click2";
-		questions[18] = "Click2";
+		questions[15] = "Click4444";
+		questions[16] = "Click44";
+		questions[17] = "Click3";
+		questions[18] = "Click4";
 		questions[19] = "Click5";
 		
 		descriptions[0] = "danny is bored";
 		descriptions[1] = "mikko spenikko spends o spends money\nmikko spends money\nmikko spends money\n";
-		descriptions[2] = "mikko spends money\nmikko spends money\nmikko spends money\nmikko spends money\nmikko spends money\n";
-
+		descriptions[2] = "mikko spends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjmoney\nmikko spends money\nmikko spends money\nmikko spends money\nmikko spends money\n";
+		for(int i=3; i<numQues; i++){
+			descriptions[i] = "";
+		}
 	}
 	
 	// Update is called once per frame
@@ -79,19 +79,26 @@ public class DropMenu : MonoBehaviour {
 	}
 
 	public void OnGUI() 
-	{ 
+	{ 	
+		if(mySkin != null);
+		GUI.skin = mySkin;
+		
+		panelTop = panelRectTransform.offsetMax.y*-1;
+		panelHeight = panelRectTransform.rect.height; // the rect Top value
+		panelLeft = panelRectTransform.offsetMin.x;
+		panelWidth = panelRectTransform.rect.width;
 		scrollPosition = GUI.BeginScrollView (
-			new Rect(0, panelTop+5, Screen.width, Screen.height-panelTop-10), 
+			new Rect(panelLeft, panelTop, panelWidth, panelHeight), 
 			scrollPosition, 
-			new Rect(00, panelTop+5, Screen.width-20, yButton-panelTop-10)
+			new Rect(panelLeft, panelTop, panelWidth-40, yButton)
 			);
 
-		heightTextArea = Screen.height/5;
-		yButton = panelTop+5; 
+		heightTextArea = Screen.height/4;
+		yButton = panelTop+20; 
 		//yTextArea = yTextAreaDefault;
 		widthButton = (float)(Screen.width/2 + Screen.width/4);
 		widthTextArea = (float)(Screen.width/2 + Screen.width/4);
-
+		
 		for(int i=0; i<numQues; i++)
 		{
 			if(GUI.Button(
@@ -116,36 +123,42 @@ public class DropMenu : MonoBehaviour {
 				yButton += heightButton+3;
 				if(clicked[i] == true)
 				{
-					GUIStyle style = new GUIStyle("areaStyle");
 					GUILayout.BeginArea(
 						new Rect(
 						Screen.width/2 - (2*(Screen.width) + Screen.width)/8, 
 						yButton,
 						widthTextArea, 
-						heightTextArea),
-						style
+						heightTextArea-heightSpace)
 						);
+					
 					scrollPositions[i] = GUILayout.BeginScrollView(
 						scrollPositions[i],
 						GUILayout.Width(widthTextArea), 
-						GUILayout.Height(heightTextArea));
-					GUILayout.Label(
-						descriptions[i]);
+						GUILayout.Height(heightTextArea-heightSpace));
+//					GUILayout.Space (-4);
+//					GUILayout.Box(arrowUp);
+//					GUILayout.Space (-8);
+					
+					//GUILayout.Label("", GUILayoutOption);
+					if(descriptions[i] != null && descriptions[i] != "" )
+					{
+						GUILayout.Label(descriptions[i]);
+						GUILayout.Space (-4);
+					}
 					GUILayout.Button("Start");
 					GUILayout.EndScrollView();
 					GUILayout.EndArea();
-					yButton += heightTextArea;
+					yButton += heightTextArea + heightSpace;
 				}
 			}
-			yButton += heightSpace;
+			yButton = yButton - heightSpace;
 		}
-	
 		GUI.EndScrollView();
 	}
 
-	public void MoveInHierarchy(int delta) {
-		print ("im here");
-		int index = transform.GetSiblingIndex();
-		transform.SetSiblingIndex (index + delta);
-	}
+//	public void MoveInHierarchy(int delta) {
+//		print ("im here");
+//		int index = transform.GetSiblingIndex();
+//		transform.SetSiblingIndex (index + delta);
+//	}
 }

@@ -3,11 +3,9 @@ from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-# from rest_framework.renderers import JSONRenderer
-# from rest_framework.parsers import JSONParser
 
 # from game.mixins import *
-from game.models import Grade, LessonGrade, WeightedLesson, Question, Answer, CannonsAnswer
+from game.models import Grade, LessonGrade, WeightedLesson, Question, Answer, CannonsAnswer, NumericAnswer
 
 
 class StudentListLessons(APIView):
@@ -99,7 +97,10 @@ class StudentLessonDetails(APIView):
             question_structure['max_tries'] = question.max_tries
             question_structure['playable'] = question.playable
 
-            if question.question_type == Question.CANNONS:
+            if question.question_type == Question.NUMERIC:
+                question_structure['question_text'] = question.numeric_extension.question_text
+                question_structure['required_answer'] = question.numeric_extension.expected_answer
+            elif question.question_type == Question.CANNONS:
                 question_structure['player_tank_pos_x'] = question.cannons_extension.player_tank_pos_x
                 question_structure['player_tank_pos_y'] = question.cannons_extension.player_tank_pos_y
                 question_structure['player_tank_angle'] = question.cannons_extension.player_tank_angle
@@ -117,21 +118,29 @@ class StudentLessonDetails(APIView):
 
 
 class StudentAnswer(APIView):
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    #authentication_classes = (TokenAuthentication,)
+    #permission_classes = (IsAuthenticated,)
 
     def get(self, request, question_id, format=None):
-        (answer, created) = Answer.objects.get_or_create(question_id=question_id, lesson_grade=LessonGrade.objects.get(lesson__included_questions__pk=question_id, course_grade__student_id=2)) #request.user.id
+        (answer, created) = Answer.objects.get_or_create(question_id=question_id,
+                                                         lesson_grade=LessonGrade.objects.get(lesson__included_questions__pk=question_id,
+                                                                                              course_grade__student_id=2)) #request.user.id
         if created:
-            if answer.question.question_type == Question.CANNONS:
-                CannonsAnswer.objects.create(answer=answer)
+            if answer.question.question_type == Question.NUMERIC:
+                extension = NumericAnswer.objects.create(answer=answer)
+                extension.save()
+            elif answer.question.question_type == Question.CANNONS:
+                extension = CannonsAnswer.objects.create(answer=answer)
+                extension.save()
 
         answer_structure = {}
         answer_structure['id'] = answer.id
         answer_structure['question_id'] = answer.question.id
         answer_structure['grade'] = answer.grade
         answer_structure['total_tries'] = answer.total_tries
-        if answer.question.question_type == Question.CANNONS:
+        if answer.question.question_type == Question.NUMERIC:
+            answer_structure['submitted_answer'] = answer.numeric_extension.submitted_answer
+        elif answer.question.question_type == Question.CANNONS:
             answer_structure['player_tank_pos_x'] = answer.cannons_extension.player_tank_pos_x
             answer_structure['player_tank_pos_y'] = answer.cannons_extension.player_tank_pos_y
             answer_structure['player_tank_angle'] = answer.cannons_extension.player_tank_angle
@@ -144,15 +153,22 @@ class StudentAnswer(APIView):
         return JsonResponse(answer_structure)
 
     def post(self, request, question_id, format=None):
+        print(question_id)
+        print(request.DATA)
+
         try:
             LessonGrade.objects.get(course_grade__student_id=request.user.id, lesson_id=Question.objects.get(id=question_id).lesson_id)
         except:
-            return HttpResponseBadRequest('total_tries is a required field')
+            return HttpResponseBadRequest('No assignment exists for the provided student and question combination')
 
-        (answer, created) = Answer.objects.get_or_create(question_id=request.query_params['id'], lesson_grade__course_grade__student_id=request.user.id)
+        (answer, created) = Answer.objects.get_or_create(question_id=question_id, lesson_grade__course_grade__student_id=request.user.id)
         if created:
-            if answer.question.question_type == Question.CANNONS:
-                CannonsAnswer.objects.create(answer=answer)
+            if answer.question.question_type == Question.NUMERIC:
+                extension = NumericAnswer.objects.create(answer=answer)
+                extension.save()
+            elif answer.question.question_type == Question.CANNONS:
+                extension = CannonsAnswer.objects.create(answer=answer)
+                extension.save()
 
         # Important to note! All incomming data is in string format right now. Limitation of SimpleJSON...
 
@@ -161,7 +177,16 @@ class StudentAnswer(APIView):
             answer.calculate_grade()
         else:
             return HttpResponseBadRequest('total_tries is a required field')
-        if answer.question.question_type == Question.CANNONS:
+
+        if answer.question.question_type == Question.NUMERIC:
+            if 'submitted_answer' in request.DATA:
+                answer.numeric_extension.submitted_answer = int(request.DATA['submitted_answer'])
+            else:
+                return HttpResponseBadRequest('submitted_answer is a required field for numeric type questions')
+            answer.numeric_extension.save()
+
+        elif answer.question.question_type == Question.CANNONS:
+            print("numeric type")
             if 'player_tank_pos_x' in request.DATA:
                 answer.cannons_extension.player_tank_pos_x = float(request.DATA['player_tank_pos_x'])
             if 'player_tank_pos_y' in request.DATA:
@@ -181,7 +206,7 @@ class StudentAnswer(APIView):
             answer.cannons_extension.save()
         answer.save()
 
-        return HttpResponse()
+        return HttpResponse("success")
 
 student_list_lessons = StudentListLessons.as_view()
 student_lesson_details = StudentLessonDetails.as_view()

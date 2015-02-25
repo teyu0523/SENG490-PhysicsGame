@@ -2,12 +2,15 @@
 using System.Collections;
 using SimpleJSON;
 
-public class AssignmentController : MonoBehaviour {
+public class LessonController : MonoBehaviour {
 
 	private bool m_running = false;
 
 	private JSONNode m_lesson = null;
 	private int m_question_index = 0;
+
+	private JSONNode m_question = null;
+	private JSONNode m_previous_answer = null;
 
 
 	/// <summary>
@@ -76,13 +79,10 @@ public class AssignmentController : MonoBehaviour {
 	private void launchNextQuestion(string result, string error) {
 		if(result != null)
 		{
-			JSONNode question = m_lesson["questions"][m_question_index];
-			JSONNode previous_answer = JSON.Parse(result);
+			m_question = m_lesson["questions"][m_question_index];
+			m_previous_answer = JSON.Parse(result);
 			
-			Application.LoadLevel(question["type"]);
-
-			GameController controller = GameObject.FindGameObjectWithTag("game_controller").GetComponent<GameController>();
-			controller.initializeGame(question, previous_answer);
+			Application.LoadLevel(m_question["type"]+"Game");
 		}
 		else
 		{
@@ -93,6 +93,14 @@ public class AssignmentController : MonoBehaviour {
 		}
 	}
 
+	public void OnLevelWasLoaded()
+	{
+		GameObject controller = GameObject.FindGameObjectWithTag("GameController");
+		if(controller != null && controller.GetComponent<GameController>() != null)
+			controller.GetComponent<GameController>().initializeGame(m_question, m_previous_answer);
+		else
+			prepareNextQuestion();
+	}
 
 	/// <summary>
 	/// Submits an answer to a question to the server.
@@ -116,6 +124,7 @@ public class AssignmentController : MonoBehaviour {
 	/// Launches the lesson results screen for the user to review.
 	/// </summary>
 	private void displayLessonResults() {
+		Debug.Log("Displaying Lesson Results");
 		// TODO
 		//Application.LoadLevel("ResultsScreen");
 	}

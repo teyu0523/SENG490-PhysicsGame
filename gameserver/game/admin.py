@@ -1,7 +1,7 @@
 from django.contrib import admin
 from game.models import Student, Instructor, Admin
-from game.models import Course, Lesson, WeightedLesson, Question, CannonsQuestion
-from game.models import Grade, LessonGrade, Answer, CannonsAnswer
+from game.models import Course, Lesson, WeightedLesson, Question, NumericQuestion, CannonsQuestion
+from game.models import Grade, LessonGrade, Answer, NumericAnswer, CannonsAnswer
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin
 
@@ -174,14 +174,6 @@ class CourseAdmin(admin.ModelAdmin):
             kwargs["queryset"] = User.objects.filter(is_staff=False, is_superuser=False)
         return super(CourseAdmin, self).formfield_for_manytomany(db_field, request, **kwargs)
 
-    # Limit edits to specific users
-    # ModelAdmin.has_add_permission(request)
-    # ModelAdmin.has_change_permission(request, obj=None)
-    # ModelAdmin.has_delete_permission(request, obj=None)
-
-    # Change query set based on signed in user
-    # ModelAdmin.get_queryset(request)
-
 
 @admin.register(Lesson)
 class LessonAdmin(admin.ModelAdmin):
@@ -204,6 +196,16 @@ class LessonAdmin(admin.ModelAdmin):
         if db_field.name == "author":
             kwargs["queryset"] = User.objects.filter(is_staff=True, is_superuser=False)
         return super(LessonAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+class NumericQuestionInline(admin.StackedInline):
+    model = NumericQuestion
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class CannonsQuestionInline(admin.StackedInline):
@@ -232,7 +234,9 @@ class QuestionAdmin(admin.ModelAdmin):
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         instance = Question.objects.get(pk=object_id)
-        if instance.question_type == Question.CANNONS:
+        if instance.question_type == Question.NUMERIC:
+            self.inlines = (NumericQuestionInline, )
+        elif instance.question_type == Question.CANNONS:
             self.inlines = (CannonsQuestionInline, )
         return super(QuestionAdmin, self).change_view(request, object_id)
 
@@ -307,6 +311,10 @@ class GradeAdmin(admin.ModelAdmin):
     final_grade.float = True
 
 
+class NumericAnswerInline(ReadOnlyStackedInline):
+    model = NumericAnswer
+
+
 class CannonsAnswerInline(ReadOnlyStackedInline):
     model = CannonsAnswer
 
@@ -317,10 +325,12 @@ class AnswerAdmin(admin.ModelAdmin):
     readonly_fields = ('question', 'lesson_grade', 'grade', 'grade_max')
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
-        instance = Question.objects.get(pk=object_id)
+        instance = Answer.objects.get(pk=object_id)
+        if instance.question.question_type == Question.NUMERIC:
+            self.inlines = (NumericAnswerInline, )
         if instance.question.question_type == Question.CANNONS:
             self.inlines = (CannonsAnswerInline, )
-        return super(QuestionAdmin, self).change_view(request, object_id)
+        return super(AnswerAdmin, self).change_view(request, object_id)
 
     def has_add_permission(self, request, obj=None):
         return False

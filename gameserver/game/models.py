@@ -309,7 +309,7 @@ class Answer(models.Model):
         super(Answer, self).save(*args, **kwargs)
 
     def calculate_grade(self):
-        grade_percent = 0.5 + (float(self.question.max_tries - self.total_tries) / self.question.max_tries)/2
+        grade_percent = 0.5 + (float(self.question.max_tries - self.total_tries + 1) / self.question.max_tries)/2
         if self.total_tries > self.question.max_tries:
             grade_percent = 0
         self.grade = grade_percent * self.question.marks

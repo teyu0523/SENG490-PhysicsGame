@@ -307,7 +307,7 @@ class GradeAdmin(admin.ModelAdmin):
         return False
 
     def final_grade(self, instance):
-        return instance.get_final_grade()
+        return instance.get_final_grade()*100
     final_grade.float = True
 
 
@@ -339,7 +339,7 @@ class AnswerAdmin(admin.ModelAdmin):
         return False
 
     def grade_percent(self, instance):
-        return instance.grade / instance.question.marks
+        return instance.grade / instance.question.marks * 100
     grade_percent.float = True
 
     def grade_max(self, instance):

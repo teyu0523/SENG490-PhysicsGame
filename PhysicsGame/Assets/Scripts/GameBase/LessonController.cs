@@ -63,7 +63,7 @@ public class LessonController : MonoBehaviour {
 	/// </summary>
 	private void prepareNextQuestion() {
 		if(m_question_index >= m_lesson["questions"].AsArray.Count) {
-			NetworkingController.Instance.GetLesson(m_lesson_id, displayLessonResults);
+			NetworkingController.Instance.GetLessonResults(m_lesson_id, displayLessonResults);
 		}
 		else 
 		{

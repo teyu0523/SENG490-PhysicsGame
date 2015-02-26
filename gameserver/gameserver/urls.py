@@ -14,6 +14,7 @@ urlpatterns = patterns('',
                        url(r'^game/auth', views.obtain_auth_token),
                        url(r'^game/lessons/$', 'game.views.student_list_lessons'),
                        url(r'^game/lesson/(?P<lesson_id>\d+)/$', 'game.views.student_lesson_details'),
+                       url(r'^game/lesson/(?P<lesson_id>\d+)/results/$', 'game.views.student_lesson_results'),
                        url(r'^game/lesson/answer/(?P<question_id>[\d]+)/$', 'game.views.student_answer_details'),
                        )
 urlpatterns += staticfiles_urlpatterns()

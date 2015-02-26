@@ -119,6 +119,7 @@ public class NetworkingController : MonoBehaviour {
 		login_form.AddField("username", username);
 		login_form.AddField("password", password);
 
+		log(System.String.Format("{0}/game/auth", server));
 		WWW www = new WWW(System.String.Format("{0}/game/auth", server), login_form);
 		yield return www;
 
@@ -155,6 +156,7 @@ public class NetworkingController : MonoBehaviour {
 		StartCoroutine(lessons_coroutine(callback));
 	}
 	private IEnumerator lessons_coroutine(WWWDelegate callback) {
+		log(System.String.Format("{0}/game/lessons", server));
 		WWW www = new WWW(System.String.Format("{0}/game/lessons", server), null, generateAuthHeaders());
 		yield return www;
 
@@ -175,6 +177,23 @@ public class NetworkingController : MonoBehaviour {
 		WWW www = new WWW(System.String.Format("{0}/game/lesson/{1}/", server, lesson_id), null, generateAuthHeaders());
 		yield return www;
 
+		executeCallback(www, callback);
+	}
+
+
+	/// <summary>
+	/// Gets the logged in user's lesson specific results.
+	/// </summary>
+	/// <param name="lesson_id">Lesson_id.</param>
+	/// <param name="callback">Callback.</param>
+	public void GetLessonResults(int lesson_id, WWWDelegate callback) {
+		StartCoroutine(lesson_results_coroutine(lesson_id, callback));
+	}
+	private IEnumerator lesson_results_coroutine(int lesson_id, WWWDelegate callback) {
+		log(System.String.Format("{0}/game/lesson/{1}/results/", server, lesson_id));
+		WWW www = new WWW(System.String.Format("{0}/game/lesson/{1}/results/", server, lesson_id), null, generateAuthHeaders());
+		yield return www;
+		
 		executeCallback(www, callback);
 	}
 
@@ -206,6 +225,7 @@ public class NetworkingController : MonoBehaviour {
 		StartCoroutine(set_answer_coroutine(question_id, answer_json, callback));
 	}
 	private IEnumerator set_answer_coroutine(int question_id, string answer_json, WWWDelegate callback) {
+		log(System.String.Format("{0}/game/lesson/answer/{1}/", server, question_id));
 		WWW www = new WWW(System.String.Format("{0}/game/lesson/answer/{1}/", server, question_id), System.Text.Encoding.UTF8.GetBytes(answer_json), generateJSONPostHeaders());
 		yield return www;
 		

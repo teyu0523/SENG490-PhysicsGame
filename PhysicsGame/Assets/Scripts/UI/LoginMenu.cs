@@ -3,7 +3,6 @@ using System.Collections;
 
 
 public class LoginMenu : MonoBehaviour {
-	public NetworkingController networkingController;
 	private string username; 
 	private string password;
 	private string passwordMask;
@@ -63,8 +62,7 @@ public class LoginMenu : MonoBehaviour {
 			new Rect (Screen.width/2-30, Screen.height/2+100, 60, 25), 
 		    "Login")) 
 		{
-			//netControl.Login("geoff", "pass", (login_result, login_error) => {
-			networkingController.Login(username, password, (login_result, login_error) => {
+			NetworkingController.Instance.Login(username, password, (login_result, login_error) => {
 				if(login_result == "success") {
 					//networkingController.GetLessons(networkingController.lessonsResult);
 					Application.LoadLevel ("MainMenu"); 

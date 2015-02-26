@@ -70,6 +70,10 @@ class StudentLessonDetails(APIView):
         if lesson_grade is None:
             return HttpResponseBadRequest("Student is not signed up for this lesson!")
 
+        if lesson_grade.lesson_state == LessonGrade.NOTSTARTED:
+            lesson_grade.lesson_state = LessonGrade.STARTED
+            lesson_grade.save()
+
         lesson_structure = {}
         lesson_structure['id'] = lesson_grade.id
         lesson_structure['lesson_id'] = lesson_grade.lesson.id
@@ -78,7 +82,7 @@ class StudentLessonDetails(APIView):
         lesson_structure['total_questions'] = lesson_grade.get_grades()['total_questions']
         lesson_structure['answered_questions'] = lesson_grade.get_grades()['answered_questions']
         if(lesson_grade.get_grades()['grade_max'] > 0):
-            lesson_structure['grade'] = str(lesson_grade.get_grades()['grade']/lesson_grade.get_grades()['grade_max'])
+            lesson_structure['grade'] = str(lesson_grade.get_grades()['grade']/lesson_grade.get_grades()['grade_max']*100)
         else:
             lesson_structure['grade'] = 'N/A'
         lesson_structure['type'] = lesson_grade.lesson.get_lesson_type_display()
@@ -113,6 +117,51 @@ class StudentLessonDetails(APIView):
             questions.append(question_structure)
 
         lesson_structure['questions'] = questions
+
+        return JsonResponse(lesson_structure)
+
+
+class StudentLessonResults(APIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def getLesson(self, request, lesson_id):
+        return LessonGrade.objects.get(course_grade__student_id=request.user.id, lesson_id=lesson_id)
+
+    def get(self, request, lesson_id, format=None):
+        lesson_grade = self.getLesson(request, lesson_id)
+        if lesson_grade is None:
+            return HttpResponseBadRequest("Student is not signed up for this lesson!")
+
+        lesson_structure = {}
+        lesson_structure['id'] = lesson_grade.id
+        lesson_structure['lesson_id'] = lesson_grade.lesson.id
+        lesson_structure['weight'] = WeightedLesson.objects.get(lesson_id=lesson_grade.lesson_id, course_id=lesson_grade.course_grade.course_id).weight
+        lesson_structure['lesson_state'] = lesson_grade.get_lesson_state_display()
+        lesson_structure['total_questions'] = lesson_grade.get_grades()['total_questions']
+        lesson_structure['answered_questions'] = lesson_grade.get_grades()['answered_questions']
+        if(lesson_grade.get_grades()['grade_max'] > 0):
+            lesson_structure['grade'] = str(lesson_grade.get_grades()['grade']/lesson_grade.get_grades()['grade_max']*100)
+        else:
+            lesson_structure['grade'] = 'N/A'
+        lesson_structure['type'] = lesson_grade.lesson.get_lesson_type_display()
+        lesson_structure['name'] = lesson_grade.lesson.topic
+        lesson_structure['retakes_allowed'] = lesson_grade.lesson.retakes
+        lesson_structure['closable'] = lesson_grade.lesson.one_sitting
+
+        answers = []
+
+        for answer in lesson_grade.question_results.all():
+            answer_structure = {}
+            answer_structure['id'] = answer.id
+            answer_structure['name'] = answer.question.name
+            answer_structure['type'] = answer.question.get_question_type_display()
+            answer_structure['order'] = answer.question.order
+            answer_structure['mark'] = "%.2f/%d" % (answer.grade, answer.question.marks)
+
+            answers.append(answer_structure)
+
+        lesson_structure['answers'] = answers
 
         return JsonResponse(lesson_structure)
 
@@ -206,8 +255,14 @@ class StudentAnswer(APIView):
             answer.cannons_extension.save()
         answer.save()
 
+        aggregates = answer.lesson_grade.get_grades()
+        if aggregates['answered_questions'] == aggregates['total_questions']:
+            answer.lesson_grade.lesson_state = LessonGrade.FINISHED
+            answer.save()
+
         return HttpResponse("success")
 
 student_list_lessons = StudentListLessons.as_view()
 student_lesson_details = StudentLessonDetails.as_view()
+student_lesson_results = StudentLessonResults.as_view()
 student_answer_details = StudentAnswer.as_view()

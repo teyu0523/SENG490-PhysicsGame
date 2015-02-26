@@ -19,6 +19,7 @@ public class DropMenu : MonoBehaviour {
 	private RectTransform panelRectTransform;
 	public GUISkin mySkin = null;// = new GUISkin("areaStyle");
 	public Texture arrowUp = null;
+	private string lesson_result = null;
 	// Use this for initialization
 	public void Start () 
 	{
@@ -32,7 +33,27 @@ public class DropMenu : MonoBehaviour {
 				print (lesson_error);
 			}
 		});
-        
+//		if(lesson_result != null)
+//		{
+//			Debug.Log(lesson_result);
+//			
+//			JSONNode courses_node = JSON.Parse(success);
+//			foreach(JSONNode course_node in courses_node["courses"].AsArray)
+//			{
+//				if(course_node["name"].Value.ToLower() == "intro to inuco")
+//				{
+//					foreach(JSONNode lesson_node in course_node["lessons"].AsArray)
+//					{
+//						if(lesson_node["name"].Value.ToLower() == "entering numbers")
+//						{
+//							Debug.Log("Found lesson: " + lesson_node["lesson_id"]);
+//							LessonController controller = ((GameObject)GameObject.Instantiate(m_assignment_controller_prefab)).GetComponent<LessonController>();
+//							controller.startLesson(lesson_node["lesson_id"].AsInt);
+//						}
+//					}
+//				}
+//			}
+//		}
         heightSpace = 3;
 		heightButton = 50;
 		questions = new string[numQues];

@@ -7,6 +7,7 @@ public class LessonController : MonoBehaviour {
 	private bool m_running = false;
 
 	private JSONNode m_lesson = null;
+	private JSONNode m_result = null;
 	private int m_question_index = 0;
 
 	private JSONNode m_question = null;
@@ -60,7 +61,7 @@ public class LessonController : MonoBehaviour {
 	/// </summary>
 	private void prepareNextQuestion() {
 		if(m_question_index >= m_lesson["questions"].AsArray.Count) {
-			displayLessonResults();
+			NetworkingController.Instance.GetLesson(m_lesson["id"].AsInt, displayLessonResults);
 		}
 		else 
 		{
@@ -93,13 +94,34 @@ public class LessonController : MonoBehaviour {
 		}
 	}
 
+	/// <summary>
+	/// Called when a level completes loading. Deals with populating the new scene with lesson data.
+	/// </summary>
 	public void OnLevelWasLoaded()
 	{
-		GameObject controller = GameObject.FindGameObjectWithTag("GameController");
-		if(controller != null && controller.GetComponent<GameController>() != null)
-			controller.GetComponent<GameController>().initializeGame(m_question, m_previous_answer);
+		if(m_question_index < m_lesson["questions"].AsArray.Count) {
+			GameObject controller = GameObject.FindGameObjectWithTag("GameController");
+			if(controller != null && controller.GetComponent<GameController>() != null)
+				controller.GetComponent<GameController>().initializeGame(m_question, m_previous_answer);
+			else
+				prepareNextQuestion();
+		}
+		else if(m_question_index == m_lesson["questions"].AsArray.Count) {
+			GameObject controller = GameObject.FindGameObjectWithTag("GameController");
+			if(controller != null && controller.GetComponent<LessonReviewController>() != null)
+			{
+				controller.GetComponent<LessonReviewController>().populateResults(m_result);
+				Object.Destroy(this);
+			}
+			else
+			{
+				m_question_index++;
+				Application.LoadLevel("MainMenu");
+				Object.Destroy(this);
+			}
+		}
 		else
-			prepareNextQuestion();
+			Object.Destroy(this);
 	}
 
 	/// <summary>
@@ -123,9 +145,17 @@ public class LessonController : MonoBehaviour {
 	/// <summary>
 	/// Launches the lesson results screen for the user to review.
 	/// </summary>
-	private void displayLessonResults() {
-		Debug.Log("Displaying Lesson Results");
-		// TODO
-		//Application.LoadLevel("ResultsScreen");
+	private void displayLessonResults(string result, string error) {
+		if(result != null)
+		{
+			m_result = JSON.Parse(result);
+			Application.LoadLevel("LessonReview");
+		}
+		else
+		{
+			m_question_index++;
+			Application.LoadLevel("MainMenu");
+			Object.Destroy(this);
+		}
 	}
 }

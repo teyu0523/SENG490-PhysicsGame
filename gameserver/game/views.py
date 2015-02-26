@@ -118,13 +118,13 @@ class StudentLessonDetails(APIView):
 
 
 class StudentAnswer(APIView):
-    #authentication_classes = (TokenAuthentication,)
-    #permission_classes = (IsAuthenticated,)
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request, question_id, format=None):
         (answer, created) = Answer.objects.get_or_create(question_id=question_id,
                                                          lesson_grade=LessonGrade.objects.get(lesson__included_questions__pk=question_id,
-                                                                                              course_grade__student_id=2)) #request.user.id
+                                                                                              course_grade__student_id=request.user.id))
         if created:
             if answer.question.question_type == Question.NUMERIC:
                 extension = NumericAnswer.objects.create(answer=answer)

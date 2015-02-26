@@ -119,7 +119,6 @@ public class NetworkingController : MonoBehaviour {
 		login_form.AddField("username", username);
 		login_form.AddField("password", password);
 
-		Debug.Log (System.String.Format("{0}/game/auth", server));
 		WWW www = new WWW(System.String.Format("{0}/game/auth", server), login_form);
 		yield return www;
 

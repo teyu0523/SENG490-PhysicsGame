@@ -19,9 +19,9 @@ public class LessonReviewController : MonoBehaviour {
 		foreach (JSONNode node in lesson_results["answers"].AsArray) {
 			GameObject new_answer = Instantiate (m_answer_prefab) as GameObject;
 			AnswerDisplayContainer container = new_answer.GetComponent<AnswerDisplayContainer>();
-			container.m_name_label.text = node["name"];
-			container.m_type_label.text = node["type"];
-			container.m_mark_label.text = node["mark"];
+			container.m_name_label.text = node["name"].Value;
+			container.m_type_label.text = node["type"].Value;
+			container.m_mark_label.text = node["mark"].Value;
 			new_answer.transform.SetParent(m_answer_list_container.transform);
 		}
 	}

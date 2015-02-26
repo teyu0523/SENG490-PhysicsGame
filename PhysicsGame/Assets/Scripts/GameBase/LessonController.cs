@@ -6,6 +6,7 @@ public class LessonController : MonoBehaviour {
 
 	private bool m_running = false;
 
+	private int m_lesson_id = 0;
 	private JSONNode m_lesson = null;
 	private JSONNode m_result = null;
 	private int m_question_index = 0;
@@ -26,6 +27,7 @@ public class LessonController : MonoBehaviour {
 			return false;
 		}
 		m_running = true;
+		m_lesson_id = lesson_id;
 		DontDestroyOnLoad(gameObject);
 
 		NetworkingController.Instance.GetLesson(lesson_id, lessonDetailCallback);
@@ -61,7 +63,7 @@ public class LessonController : MonoBehaviour {
 	/// </summary>
 	private void prepareNextQuestion() {
 		if(m_question_index >= m_lesson["questions"].AsArray.Count) {
-			NetworkingController.Instance.GetLesson(m_lesson["id"].AsInt, displayLessonResults);
+			NetworkingController.Instance.GetLesson(m_lesson_id, displayLessonResults);
 		}
 		else 
 		{
@@ -111,17 +113,18 @@ public class LessonController : MonoBehaviour {
 			if(controller != null && controller.GetComponent<LessonReviewController>() != null)
 			{
 				controller.GetComponent<LessonReviewController>().populateResults(m_result);
-				Object.Destroy(this);
+				Object.Destroy(gameObject);
 			}
 			else
 			{
+				Debug.Log("Lesson Results scene not properly loaded!");
 				m_question_index++;
 				Application.LoadLevel("MainMenu");
-				Object.Destroy(this);
+				Object.Destroy(gameObject);
 			}
 		}
 		else
-			Object.Destroy(this);
+			Object.Destroy(gameObject);
 	}
 
 	/// <summary>
@@ -153,9 +156,10 @@ public class LessonController : MonoBehaviour {
 		}
 		else
 		{
+			Debug.Log("Lesson Results do not exist!");
 			m_question_index++;
 			Application.LoadLevel("MainMenu");
-			Object.Destroy(this);
+			Object.Destroy(gameObject);
 		}
 	}
 }

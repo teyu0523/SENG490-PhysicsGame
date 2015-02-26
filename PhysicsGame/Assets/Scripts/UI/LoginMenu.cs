@@ -29,6 +29,10 @@ public class LoginMenu : MonoBehaviour {
 			{
 				loginFailer = "Currently there are server technical difficulties, thank you for your patience.";
 			}
+//			else if(loginFailer == "")
+//			{
+//			
+//			}
 		}
 		
 		GUI.Label(

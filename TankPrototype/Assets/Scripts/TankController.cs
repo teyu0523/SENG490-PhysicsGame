@@ -4,15 +4,19 @@ using System.Collections;
 public class TankController : MonoBehaviour {
 	//speed constant for tank and barrel movenment
 	public float speed = 6f;
+	public float velocity = 100f;
 
 	//need a public variable for distance from enemy tank
 	public float currentBarrelAngle;
 
+	public Transform projectileSpawn;
 	public GameObject projectile;
 	public Rigidbody2D barrelRigidbody;
 
 	Vector2 movement;
 	Rigidbody2D tankRigidbody;
+	GameObject bullet;
+
 
 	void Awake(){
 		tankRigidbody = GetComponent<Rigidbody2D> ();
@@ -22,8 +26,11 @@ public class TankController : MonoBehaviour {
 	void Update(){
 		
 		if(Input.GetButton("Jump")){
-			
-			Instantiate(projectile, barrelRigidbody.position, barrelRigidbody.transform.rotation);
+
+			if (bullet == null){
+				bullet = (GameObject) Instantiate(projectile, projectileSpawn.position, projectileSpawn.transform.rotation);
+				bullet.rigidbody2D.velocity = (Quaternion.Euler(0, 0, currentBarrelAngle) * Vector3.right) * velocity;
+			}
 		}
 	}
 
@@ -49,9 +56,13 @@ public class TankController : MonoBehaviour {
 	//move tank berrel
 	void Rotate(float z){
 		currentBarrelAngle = barrelRigidbody.rotation;
-		
-		barrelRigidbody.MoveRotation (currentBarrelAngle + z * speed * Time.deltaTime);
-		
+
+		if(currentBarrelAngle + z < 0){
+			barrelRigidbody.MoveRotation (0);
+		}
+		else{
+			barrelRigidbody.MoveRotation (currentBarrelAngle + z * speed * Time.deltaTime);
+		}
 	}
 
 }

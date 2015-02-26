@@ -3,58 +3,61 @@ using System.Collections;
 
 
 public class LoginMenu : MonoBehaviour {
-	public NetworkingController netControl;
+	public NetworkingController networkingController;
 	private string username; 
 	private string password;
 	private string passwordMask;
 	private Vector2 scrollPosition;
+	private string loginFailer;
 //	private string login_result;
 //	private string login_error;
 
 	// Use this for initialization
 	void Start () {
-		username = "username";
-		passwordMask = "password";
+		username = "Username";
+		passwordMask = "Password";
 		password = "";
 		scrollPosition = Vector2.zero;
-
+		loginFailer = "";
 	}
 	
 	void OnGUI(){
 		GUILayout.BeginArea (new Rect (0, 0, Screen.width, Screen.height));
-
+		GUI.Label(
+			new Rect(Screen.width/2-70, Screen.height/2-80,70,20),
+			loginFailer);
 //		scrollPosition = GUILayout.BeginScrollView (
 //			scrollPosition,
 //			GUILayout.Width(Screen.width), 
 //			GUILayout.Height(Screen.height)
 //			);
 		GUI.Label (
-			new Rect(Screen.width/2-85, Screen.height/2-30, 70, 20), 
+			new Rect(Screen.width/2-100, Screen.height/2-30, 70, 20), 
 			"Username:"); // top -= width/2 to get to center
 		GUI.Label (
-			new Rect (Screen.width/2-85, Screen.height/2+30, 70, 20), 
+			new Rect (Screen.width/2-100, Screen.height/2+30, 70, 20), 
 		    "Password:");
 		GUI.SetNextControlName ("username_val");
 		username = GUI.TextField (
-			new Rect (Screen.width/2+15, Screen.height/2-30, 100, 20), 
+			new Rect (Screen.width/2-20, Screen.height/2-30, 120, 20), 
 			username);
 		GUI.SetNextControlName ("password_val");
 		passwordMask = GUI.TextField (
-			new Rect (Screen.width/2+15, Screen.height/2+30, 100, 20), 
+			new Rect (Screen.width/2-20, Screen.height/2+30, 120, 20), 
 			passwordMask);
 
-		maskPass ();
+		//maskPass ();
 		if (GUI.Button (
 			new Rect (Screen.width/2-30, Screen.height/2+100, 60, 25), 
 		    "Login")) 
 		{
-			netControl.Login("geoff", "pass", (login_result, login_error) => {
-				if(login_result != null) {
-					// Success will be returned as data for now, you do not need to know the token.
-					// The authentication information will be stored in this controller.
-					print(login_result);
+			//netControl.Login("geoff", "pass", (login_result, login_error) => {
+			networkingController.Login(username, password, (login_result, login_error) => {
+				if(login_result == "success") {
+					//networkingController.GetLessons(networkingController.lessonsResult);
+					Application.LoadLevel ("MainMenu"); 
 				} else {
-					print(login_error);
+					loginFailer = login_error;
 				}
 			});
 		}

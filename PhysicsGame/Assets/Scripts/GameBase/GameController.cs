@@ -4,7 +4,7 @@ using SimpleJSON;
 
 public abstract class GameController : MonoBehaviour {
 
-	private AssignmentController m_assignment_controller = null;
+	private LessonController m_assignment_controller = null;
 	private static GameController m_instance = null;
 
 
@@ -21,10 +21,10 @@ public abstract class GameController : MonoBehaviour {
 	/// Awake for this controller.
 	/// </summary>
 	public virtual void Awake() {
-		GameObject assignment_controller_object = GameObject.FindGameObjectWithTag("assignment_controller");
+		GameObject assignment_controller_object = GameObject.FindGameObjectWithTag("LessonController");
 		if(assignment_controller_object != null) 
 		{
-			AssignmentController m_assignment_controller = assignment_controller_object.GetComponent<AssignmentController>();
+			m_assignment_controller = assignment_controller_object.GetComponent<LessonController>();
 		}
 		GameController.m_instance = this;
 	}
@@ -47,6 +47,10 @@ public abstract class GameController : MonoBehaviour {
 		if(m_assignment_controller != null)
 		{
 			m_assignment_controller.submitAnswer(new_answer);
+		}
+		else
+		{
+
 		}
 		GameController.m_instance = null;
 	}

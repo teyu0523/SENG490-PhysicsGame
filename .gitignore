@@ -11,19 +11,25 @@ PhysicsGame/[Oo]bj/
 PhysicsGame/[Bb]uild
 PhysicsGame/[Ll]ibrary/
 PhysicsGame/sysinfo.txt
+
+TankPrototype/[Tt]emp/
+TankPrototype/[Oo]bj/
+TankPrototype/[Bb]uild/
+TankPrototype/[Ll]ibrary/
+TankPrototype/sysinfo.txt
  
 # ===================================== #
 # Visual Studio / MonoDevelop generated #
 # ===================================== #
 [Ee]xported[Oo]bj/
-/*.userprefs
-/*.csproj
-/*.pidb
-/*.suo
-/*.sln*
-/*.user
-/*.unityproj
-/*.booproj
+*.userprefs
+*.csproj
+*.pidb
+*.suo
+*.sln*
+*.user
+*.unityproj
+*.booproj
  
 # ============ #
 # OS generated #

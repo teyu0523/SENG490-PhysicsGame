@@ -127,7 +127,7 @@ def post_save_course_relation(sender, instance=None, created=False, **kwargs):
     # Creating grades when a lesson is added to a course
     if created:
         student_grades = instance.course.grades.values_list('id', flat=True)
-        LessonGrade.objects.bulk_create([Grade(lesson_id=instance.lesson_id, course_grade_id=grade_id) for grade_id in student_grades])
+        LessonGrade.objects.bulk_create([LessonGrade(lesson_id=instance.lesson_id, course_grade_id=grade_id) for grade_id in student_grades])
 
 
 @receiver(pre_delete, sender=WeightedLesson)
@@ -161,8 +161,10 @@ def students_changed(sender, **kwargs):
 
 
 class Question(models.Model):
+    NUMERIC = 'NUM'
     CANNONS = 'CAN'
     QUESTION_TYPES = (
+        (NUMERIC, "Numeric"),
         (CANNONS, "Cannons"),
     )
     name = models.CharField(max_length=128, default="")
@@ -222,6 +224,12 @@ def post_save_question(sender, instance=None, created=False, **kwargs):
     if instance.question_type == Question.CANNONS:
         CannonsQuestion.objects.create(question=instance)
     # elif:
+
+
+class NumericQuestion(models.Model):
+    question = models.OneToOneField(Question, related_name='numeric_extension')
+    question_text = models.CharField(max_length=256)
+    expected_answer = models.IntegerField()
 
 
 class CannonsQuestion(models.Model):
@@ -308,6 +316,11 @@ class Answer(models.Model):
 
     def __str__(self):
         return "%s - %s" % (self.question, self.lesson_grade.course_grade.student.username)
+
+
+class NumericAnswer(models.Model):
+    answer = models.OneToOneField(Answer, related_name='numeric_extension')
+    submitted_answer = models.IntegerField(null=True)
 
 
 class CannonsAnswer(models.Model):

@@ -187,6 +187,7 @@ public class NetworkingController : MonoBehaviour {
 		StartCoroutine(get_answer_coroutine(question_id, callback));
 	}
 	private IEnumerator get_answer_coroutine(int question_id, WWWDelegate callback) {
+		log(System.String.Format("{0}/game/lesson/answer/{1}/", server, question_id));
 		WWW www = new WWW(System.String.Format("{0}/game/lesson/answer/{1}/", server, question_id), null, generateAuthHeaders());
 		yield return www;
 		

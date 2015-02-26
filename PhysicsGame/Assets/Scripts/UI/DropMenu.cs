@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Image = UnityEngine.UI.Image;
+using SimpleJSON;
 
 
 public class DropMenu : MonoBehaviour {
@@ -15,7 +16,6 @@ public class DropMenu : MonoBehaviour {
 	private float totalHeight; // total height of all UI
 	private Vector2 scrollPosition = Vector2.zero;
 	private Vector2[] scrollPositions;
-	public NetworkingController networkingController;
 	private RectTransform panelRectTransform;
 	public GUISkin mySkin = null;// = new GUISkin("areaStyle");
 	public Texture arrowUp = null;
@@ -23,7 +23,7 @@ public class DropMenu : MonoBehaviour {
 	public void Start () 
 	{
 		panelRectTransform = GetComponent<RectTransform> ();
-		networkingController.GetLessons((lesson_result, lesson_error) => {
+		NetworkingController.Instance.GetLessons((lesson_result, lesson_error) => {
 			if(lesson_result != null) {
 				// Success will be returned as data for now, you do not need to know the token.
 				// The authentication information will be stored in this controller.
@@ -44,7 +44,7 @@ public class DropMenu : MonoBehaviour {
 		{
 			scrollPositions[i] = Vector2.zero;
 		}
-		questions[0] = "Assignment 1";
+		/*questions[0] = "Assignment 1";
 		questions[1] = "Assignment";
 		questions[2] = "Click2";
 		questions[3] = "Click2";
@@ -70,7 +70,7 @@ public class DropMenu : MonoBehaviour {
 		descriptions[2] = "mikko spends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjends jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjmoney\nmikko spends money\nmikko spends money\nmikko spends money\nmikko spends money\n";
 		for(int i=3; i<numQues; i++){
 			descriptions[i] = "";
-		}
+		}*/
 	}
 	
 	// Update is called once per frame

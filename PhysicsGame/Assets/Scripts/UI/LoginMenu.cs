@@ -23,8 +23,16 @@ public class LoginMenu : MonoBehaviour {
 	
 	void OnGUI(){
 		GUILayout.BeginArea (new Rect (0, 0, Screen.width, Screen.height));
+		if(loginFailer != "")
+		{
+			if(loginFailer == "couldn't connect to host")
+			{
+				loginFailer = "Currently there are server technical difficulties, thank you for your patience.";
+			}
+		}
+		
 		GUI.Label(
-			new Rect(Screen.width/2-70, Screen.height/2-80,70,20),
+			new Rect(Screen.width/2-200, Screen.height/2-80,450,20),
 			loginFailer);
 //		scrollPosition = GUILayout.BeginScrollView (
 //			scrollPosition,
@@ -46,7 +54,7 @@ public class LoginMenu : MonoBehaviour {
 			new Rect (Screen.width/2-20, Screen.height/2+30, 120, 20), 
 			passwordMask);
 
-		//maskPass ();
+		maskPass ();
 		if (GUI.Button (
 			new Rect (Screen.width/2-30, Screen.height/2+100, 60, 25), 
 		    "Login")) 
@@ -65,19 +73,19 @@ public class LoginMenu : MonoBehaviour {
 		{
 			if (GUI.GetNameOfFocusedControl () == "password_val")
 			{
-				if (passwordMask == "password") passwordMask = "";
+				if (passwordMask == "Password") passwordMask = "";
 			}
 			else
 			{
-				if (passwordMask == "") passwordMask = "password";
+				if (passwordMask == "") passwordMask = "Password";
 			}
 			if (GUI.GetNameOfFocusedControl () == "username_val")
 			{
-				if (username == "username") username = "";
+				if (username == "Username") username = "";
 			}
 			else
 			{
-				if (username == "") username = "username";
+				if (username == "") username = "Username";
 			}
 		}
 //		GUILayout.EndScrollView ();
@@ -91,7 +99,7 @@ public class LoginMenu : MonoBehaviour {
 
 	private void maskPass()
 	{
-		if (passwordMask == "password") 
+		if (passwordMask == "Password") 
 		{
 			return;
 		}

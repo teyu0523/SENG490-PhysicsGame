@@ -307,8 +307,8 @@ class GradeAdmin(admin.ModelAdmin):
         return False
 
     def final_grade(self, instance):
-        return instance.get_final_grade()*100
-    final_grade.float = True
+        return "%g%%" % (round(instance.get_final_grade()*100, 2))
+    final_grade.string = True
 
 
 class NumericAnswerInline(ReadOnlyStackedInline):
@@ -322,7 +322,7 @@ class CannonsAnswerInline(ReadOnlyStackedInline):
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
     list_display = ('question', 'lesson_grade', 'total_tries', 'grade_percent',)
-    readonly_fields = ('question', 'lesson_grade', 'grade', 'grade_max')
+    readonly_fields = ('question', 'lesson_grade', 'grade', 'grade_max', 'grade_percent',)
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         instance = Answer.objects.get(pk=object_id)
@@ -339,8 +339,8 @@ class AnswerAdmin(admin.ModelAdmin):
         return False
 
     def grade_percent(self, instance):
-        return instance.grade / instance.question.marks * 100
-    grade_percent.float = True
+        return "%g%%" % (round(instance.grade / instance.question.marks * 100, 2))
+    grade_percent.string = True
 
     def grade_max(self, instance):
         return instance.question.marks

@@ -2,20 +2,23 @@
 using System.Collections;
 
 public class SideMenu : MonoBehaviour {
-
-	public GUIStyle styleArea;
-	public Texture2D texArea = null;
+	public float moveLeft;
+	public GUIStyle guistyleArea;
+	//public Texture2D texArea = null;
+	public GUIStyle guistyleParameter;
 	private bool buttonPress = false;
-
+	private bool showSide = false;
+	private Vector2 scrollPosition = Vector2.zero;
 	// Use this for initialization
 	void Start () {
-		if (texArea != null){
-			styleArea.normal.background = texArea;
-		}
+		moveLeft = -1;
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		if(moveLeft==-1){
+			moveLeft = Screen.width;
+		}
 		if(Input.GetKeyDown(KeyCode.P))
 		{
 			if(buttonPress){
@@ -24,22 +27,46 @@ public class SideMenu : MonoBehaviour {
 			} else {
 				Time.timeScale = 0;
 				buttonPress = true;
+				showSide = true;
 			}
 		}
+		if(buttonPress == true)
+		{
+			if(moveLeft > Screen.width/2){
+				moveLeft -= 10;
+			}else{
+				moveLeft = Screen.width/2;
+			}
+		} else {
+			if(moveLeft < Screen.width){
+				moveLeft += 10;
+			}else{
+				moveLeft = Screen.width;
+				showSide = false;
+			}
+		}
+
 	}
 
 	void OnGUI() 
 	{
-		if(buttonPress)
+		if(showSide)
 		{
-			//GUILayout.BeginArea(new Rect(Screen.width/2,0,Screen.width/2,Screen.height),styleArea);
-			GUILayout.BeginArea(new Rect(Screen.width/2,20,Screen.width/2,Screen.height-20),styleArea);
-			GUILayout.BeginHorizontal();
-			GUILayout.Label("lalala",styleArea);
-			GUILayout.Label("lalala2",styleArea);
-			GUILayout.EndHorizontal();    
+			//GUILayout.BeginArea(new Rect(moveLeft,0,Screen.width/2,Screen.height),guistyleArea);
+			GUILayout.BeginArea(new Rect(moveLeft+20,20,Screen.width/2-20,Screen.height-40),guistyleArea);
+			scrollPosition = GUILayout.BeginScrollView(scrollPosition);
+			GUILayout.Space(10);
+			for(int i=0; i<50; i++)
+			{
+				GUILayout.BeginHorizontal();
+				GUILayout.Label("lalala",guistyleParameter);
+				GUILayout.TextField("?");
+				GUILayout.EndHorizontal(); 
+				GUILayout.Space(10);
+			}
+			GUILayout.EndScrollView();
 			GUILayout.EndArea();
-			//	GUILayout.EndArea();
+			//GUILayout.EndArea();
 		}
 	}
 }

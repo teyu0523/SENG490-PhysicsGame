@@ -8,11 +8,19 @@ public class LoginMenu : MonoBehaviour {
 	private string passwordMask;
 	//private Vector2 scrollPosition;
 	private string loginFailer;
-	public GUISkin mySkin = null;
 	private bool draw_gui = true;
+	public GUIStyle guiStyle;
+	public GUISkin mySkin = null;// = new GUISkin("areaStyle");
+
+
+//	private string login_result;
+//	private string login_error;
 
 	// Use this for initialization
 	void Start () {
+
+
+
 		username = "Username";
 		passwordMask = "Password";
 		password = "";
@@ -36,29 +44,41 @@ public class LoginMenu : MonoBehaviour {
 			{
 				loginFailer = "Currently there are server technical difficulties, thank you for your patience.";
 			}
+			else if(loginFailer == "400 BAD REQUEST")
+			{
+			
+				loginFailer = "Incorrect username or password";
+			}
+			print (loginFailer);
 		}
 		
 		GUI.Label(
-			new Rect(Screen.width/2-200, Screen.height/2-80,450,20),
-			loginFailer);
+			new Rect(Screen.width/2-225, Screen.height/2-80,450,20),
+			loginFailer, guiStyle);
+//		scrollPosition = GUILayout.BeginScrollView (
+//			scrollPosition,
+//			GUILayout.Width(Screen.width), 
+//			GUILayout.Height(Screen.height)
+//			);
+
 		GUI.Label (
-			new Rect(Screen.width/2-100, Screen.height/2-30, 70, 20), 
-			"Username:"); // top -= width/2 to get to center
+			new Rect(Screen.width/2-100, Screen.height/2-30, 90, 25), 
+			"Username"); // top -= width/2 to get to center
 		GUI.Label (
-			new Rect (Screen.width/2-100, Screen.height/2+30, 70, 20), 
-		    "Password:");
+			new Rect (Screen.width/2-100, Screen.height/2+30, 90, 25), 
+		    "Password");
 		GUI.SetNextControlName ("username_val");
 		username = GUI.TextField (
-			new Rect (Screen.width/2-20, Screen.height/2-30, 120, 20), 
+			new Rect (Screen.width/2+10, Screen.height/2-24, 120, 20), 
 			username);
 		GUI.SetNextControlName ("password_val");
 		passwordMask = GUI.TextField (
-			new Rect (Screen.width/2-20, Screen.height/2+30, 120, 20), 
+			new Rect (Screen.width/2+10, Screen.height/2+36, 120, 20), 
 			passwordMask);
 
 		maskPass ();
 		if (GUI.Button (
-			new Rect (Screen.width/2-30, Screen.height/2+100, 60, 25), 
+			new Rect (Screen.width/2-40, Screen.height/2+100, 80, 38), 
 		    "Login")) 
 		{
 			draw_gui = false;

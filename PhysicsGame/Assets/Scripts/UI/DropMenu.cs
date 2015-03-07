@@ -174,7 +174,7 @@ public class DropMenu : MonoBehaviour {
 					}
 					else
 					{
-						yButton += heightButton+3;
+						yButton += heightButton;
 						if(courses[courseClick].clicked[i] == true)
 						{
 							GUILayout.BeginArea(

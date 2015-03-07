@@ -7,8 +7,8 @@ using SimpleJSON;
 
 
 public class DropMenu : MonoBehaviour {
-	private int numLessons = 0;
-	private int numCourses = 0;
+	//private int numLessons = 0;
+	//private int numCourses = 0;
 	private GUIStyle styleBox;
 	private float heightTextArea ,heightSpace, heightButton;
 	private float widthTextArea, widthButton;
@@ -30,6 +30,8 @@ public class DropMenu : MonoBehaviour {
 	public string val;
 	//private string lesson_result = null;
 	// Use this for initialization
+
+	private bool draw_gui = true;
 
 	public struct Course
 	{
@@ -61,6 +63,8 @@ public class DropMenu : MonoBehaviour {
 	public List<Course> courses = new List<Course>();
 	public void OnLessonsReturn(string lesson_result, string lesson_error)
 	{
+		draw_gui = true;
+		LoadingController.Instance.hide();
 		int j, i;
 
 		if(lesson_result != null){
@@ -88,6 +92,8 @@ public class DropMenu : MonoBehaviour {
 	public void Start () 
 	{
 		panelRectTransform = GetComponent<RectTransform> ();
+		LoadingController.Instance.show();
+		draw_gui = false;
 		NetworkingController.Instance.GetLessons(OnLessonsReturn);
         heightSpace = 3;
 		heightButton = 50;
@@ -101,9 +107,13 @@ public class DropMenu : MonoBehaviour {
 
 	public void OnGUI() 
 	{ 	
-		if(mySkin != null);
-		GUI.skin = mySkin;
+		if(!draw_gui) {
+			return;
+		}
 
+		if(mySkin != null) {
+			GUI.skin = mySkin;
+		}
 		
 		panelTop = panelRectTransform.offsetMax.y*-1;
 		panelHeight = panelRectTransform.rect.height; // the rect Top value
@@ -203,6 +213,7 @@ public class DropMenu : MonoBehaviour {
 							{
 								LessonController controller = ((GameObject)GameObject.Instantiate(m_assignment_controller_prefab)).GetComponent<LessonController>();
 								controller.startLesson(courses[courseClick].lessonId[i]);
+								draw_gui = false;
 							}
 							GUILayout.EndScrollView();
 							GUILayout.EndArea();

@@ -6,21 +6,29 @@ public class LoginMenu : MonoBehaviour {
 	private string username; 
 	private string password;
 	private string passwordMask;
-	private Vector2 scrollPosition;
+	//private Vector2 scrollPosition;
 	private string loginFailer;
-//	private string login_result;
-//	private string login_error;
+	public GUISkin mySkin = null;
+	private bool draw_gui = true;
 
 	// Use this for initialization
 	void Start () {
 		username = "Username";
 		passwordMask = "Password";
 		password = "";
-		scrollPosition = Vector2.zero;
+		//scrollPosition = Vector2.zero;
 		loginFailer = "";
 	}
 	
 	void OnGUI(){
+		if(!draw_gui) {
+			return;
+		}
+
+		if(mySkin != null) {
+			GUI.skin = mySkin;
+		}
+
 		GUILayout.BeginArea (new Rect (0, 0, Screen.width, Screen.height));
 		if(loginFailer != "")
 		{
@@ -28,20 +36,11 @@ public class LoginMenu : MonoBehaviour {
 			{
 				loginFailer = "Currently there are server technical difficulties, thank you for your patience.";
 			}
-//			else if(loginFailer == "")
-//			{
-//			
-//			}
 		}
 		
 		GUI.Label(
 			new Rect(Screen.width/2-200, Screen.height/2-80,450,20),
 			loginFailer);
-//		scrollPosition = GUILayout.BeginScrollView (
-//			scrollPosition,
-//			GUILayout.Width(Screen.width), 
-//			GUILayout.Height(Screen.height)
-//			);
 		GUI.Label (
 			new Rect(Screen.width/2-100, Screen.height/2-30, 70, 20), 
 			"Username:"); // top -= width/2 to get to center
@@ -62,11 +61,14 @@ public class LoginMenu : MonoBehaviour {
 			new Rect (Screen.width/2-30, Screen.height/2+100, 60, 25), 
 		    "Login")) 
 		{
+			draw_gui = false;
+			LoadingController.Instance.show();
 			NetworkingController.Instance.Login(username, password, (login_result, login_error) => {
+				LoadingController.Instance.hide();
 				if(login_result == "success") {
-					//networkingController.GetLessons(networkingController.lessonsResult);
 					Application.LoadLevel ("MainMenu"); 
 				} else {
+					draw_gui = true;
 					loginFailer = login_error;
 				}
 			});

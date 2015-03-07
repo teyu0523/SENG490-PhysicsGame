@@ -30,6 +30,7 @@ public class LessonController : MonoBehaviour {
 		m_lesson_id = lesson_id;
 		DontDestroyOnLoad(gameObject);
 
+		LoadingController.Instance.show ();
 		NetworkingController.Instance.GetLesson(lesson_id, lessonDetailCallback);
 
 		return m_running;
@@ -43,6 +44,7 @@ public class LessonController : MonoBehaviour {
 	/// <param name="error">An error message if the WWW call fails.</param>
 	private void lessonDetailCallback(string result, string error)
 	{
+		LoadingController.Instance.hide();
 		if(result != null)
 		{
 			m_lesson = JSON.Parse(result);
@@ -62,6 +64,7 @@ public class LessonController : MonoBehaviour {
 	/// Loads the users previous answer for the next question. If all questions have been answered, loads the results screen.
 	/// </summary>
 	private void prepareNextQuestion() {
+		LoadingController.Instance.show ();
 		if(m_question_index >= m_lesson["questions"].AsArray.Count) {
 			NetworkingController.Instance.GetLessonResults(m_lesson_id, displayLessonResults);
 		}
@@ -89,6 +92,7 @@ public class LessonController : MonoBehaviour {
 		}
 		else
 		{
+			LoadingController.Instance.hide();
 			Debug.LogError(error);
 			Debug.LogError("Request question does not exist!");
 			m_question_index++;
@@ -101,6 +105,7 @@ public class LessonController : MonoBehaviour {
 	/// </summary>
 	public void OnLevelWasLoaded()
 	{
+		LoadingController.Instance.hide ();
 		if(m_question_index < m_lesson["questions"].AsArray.Count) {
 			GameObject controller = GameObject.FindGameObjectWithTag("GameController");
 			if(controller != null && controller.GetComponent<GameController>() != null)
@@ -132,9 +137,11 @@ public class LessonController : MonoBehaviour {
 	/// </summary>
 	/// <param name="new_answer">A Json object to submit.</param>
 	public void submitAnswer(JSONNode new_answer) {
+		LoadingController.Instance.show ();
 		string answer_string = new_answer.ToString();
 		int question_id = m_lesson["questions"][m_question_index]["id"].AsInt;
 		NetworkingController.Instance.SubmitAnswer(question_id, answer_string, (result, error) => {
+			LoadingController.Instance.hide ();
 			if(error != null) {
 				Debug.LogError("Error Submitting Answer: " + error);
 			}
@@ -149,9 +156,11 @@ public class LessonController : MonoBehaviour {
 	/// Launches the lesson results screen for the user to review.
 	/// </summary>
 	private void displayLessonResults(string result, string error) {
+		LoadingController.Instance.hide ();
 		if(result != null)
 		{
 			m_result = JSON.Parse(result);
+			LoadingController.Instance.show ();
 			Application.LoadLevel("LessonReview");
 		}
 		else

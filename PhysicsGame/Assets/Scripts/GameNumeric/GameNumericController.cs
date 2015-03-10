@@ -9,6 +9,7 @@ public class GameNumericController : GameController {
 	public InputField m_input_field = null;
 	public Button m_submit_button = null;
 	public Text m_tries_text = null;
+	public Image m_background_image = null;
 
 	public float m_color_flash_time = 0.1f;
 	public float m_color_pause_time = 0.2f;
@@ -20,7 +21,7 @@ public class GameNumericController : GameController {
 	private int m_current_answer = 0;
 	private int m_number_tries = 0;
 
-	private Color m_background_color_normal = new Color(.2471f, .251f, .8392f);
+	private Color m_background_color_normal = Color.white;
 	private Color m_background_color_correct = Color.green;
 	private Color m_background_color_incorrect = Color.red;
 	private Color m_background_color_target = Color.white;
@@ -45,23 +46,25 @@ public class GameNumericController : GameController {
 		m_number_tries = 0;
 	}
 
-	public void Update()
+	public override void Update()
 	{
+		base.Update();
+
 		if(m_flash_time < m_color_flash_time)
 		{
-			Camera.main.backgroundColor = Color.Lerp(m_background_color_normal, m_background_color_target, m_flash_time/m_color_flash_time);
+			m_background_image.color = Color.Lerp(m_background_color_normal, m_background_color_target, m_flash_time/m_color_flash_time);
 		}
 		else if(m_flash_time < m_color_flash_time + m_color_pause_time)
 		{
-			Camera.main.backgroundColor = m_background_color_target;
+			m_background_image.color = m_background_color_target;
 		}
 		else if(m_flash_time < m_color_flash_time + m_color_pause_time + m_color_flash_time)
 		{
-			Camera.main.backgroundColor = Color.Lerp(m_background_color_target, m_background_color_normal, (m_flash_time-m_color_flash_time-m_color_pause_time)/m_color_flash_time);
+			m_background_image.color = Color.Lerp(m_background_color_target, m_background_color_normal, (m_flash_time-m_color_flash_time-m_color_pause_time)/m_color_flash_time);
 		}
 		else
 		{
-			Camera.main.backgroundColor = m_background_color_normal;
+			m_background_image.color = m_background_color_normal;
 		}
 		m_flash_time += Time.deltaTime;
 	}

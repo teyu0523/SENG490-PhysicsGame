@@ -194,6 +194,8 @@ def pre_save_question(sender, instance=None, **kwargs):
         # Remove the old question extension entry
         if old_instance.question_type != instance.question_type:
             old_instance.answers.all().delete()
+            if old_instance.question_type == Question.NUMERIC:
+                NumericQuestion.objects.get(question__pk=old_instance.id).delete()
             if old_instance.question_type == Question.CANNONS:
                 CannonsQuestion.objects.get(question__pk=old_instance.id).delete()
             # elif:
@@ -215,21 +217,28 @@ def pre_save_question(sender, instance=None, **kwargs):
 def post_save_question(sender, instance=None, created=False, **kwargs):
     if not created:
         # cancel if an instance already exists
-        if instance.question_type == Question.CANNONS:
+        if instance.question_type == Question.NUMERIC:
+            if NumericQuestion.objects.filter(question__id=instance.id).exists():
+                return
+        elif instance.question_type == Question.CANNONS:
             if CannonsQuestion.objects.filter(question__id=instance.id).exists():
                 return
         # elif:
 
     # Create an extension instance for this question.
-    if instance.question_type == Question.CANNONS:
+    if instance.question_type == Question.NUMERIC:
+        NumericQuestion.objects.create(question=instance)
+    elif instance.question_type == Question.CANNONS:
         CannonsQuestion.objects.create(question=instance)
     # elif:
 
 
 class NumericQuestion(models.Model):
     question = models.OneToOneField(Question, related_name='numeric_extension')
-    question_text = models.CharField(max_length=256)
-    expected_answer = models.IntegerField()
+    question_text = models.CharField(max_length=256, default="")
+    question_text_mobile = models.CharField(max_length=256, default="")
+    question_hint = models.CharField(max_length=256, default="hint")
+    expected_answer = models.IntegerField(default=0)
 
 
 class CannonsQuestion(models.Model):

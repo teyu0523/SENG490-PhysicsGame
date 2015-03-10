@@ -85,13 +85,13 @@ public class StatsDisplayPanelController: MonoBehaviour {
 	/// <param name="display">True if the panel should be visible.</param>
 	public void display(bool display)
 	{
-		if(display) {
+		if(display && !gameObject.activeSelf) {
 			gameObject.SetActive(display);
 			m_time = 0;
 			m_target_alpha = 1.0f;
 			m_start_alpha = 0.0f;
 		}
-		else {
+		else if(gameObject.activeSelf) {
 			m_time = 0;
 			m_target_alpha = 0.0f;
 			m_start_alpha = 1.0f;

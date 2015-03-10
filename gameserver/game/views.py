@@ -103,6 +103,8 @@ class StudentLessonDetails(APIView):
 
             if question.question_type == Question.NUMERIC:
                 question_structure['question_text'] = question.numeric_extension.question_text
+                question_structure['question_text_mobile'] = question.numeric_extension.question_text_mobile
+                question_structure['question_hint'] = question.numeric_extension.question_hint
                 question_structure['required_answer'] = question.numeric_extension.expected_answer
             elif question.question_type == Question.CANNONS:
                 question_structure['player_tank_pos_x'] = question.cannons_extension.player_tank_pos_x

@@ -14,6 +14,8 @@ public class GameNumericController : GameController {
 	public float m_color_flash_time = 0.1f;
 	public float m_color_pause_time = 0.2f;
 
+	private StatsDisplayPanelController m_question_hint = null;
+
 	private int m_question_id = 0;
 	private int m_expected_answer = 0;
 	private int m_max_tries = 0;
@@ -31,19 +33,29 @@ public class GameNumericController : GameController {
 	public override void Awake ()
 	{
 		base.Awake ();
-		m_submit_button.enabled = false;
+		m_submit_button.interactable = false;
 		m_flash_time = 2*m_color_flash_time + m_color_pause_time;
 	}
 
 	public override void initializeGame(JSONNode question, JSONNode previous_answer)
 	{
 		m_question_id = question["id"].AsInt;
-		m_question_text.text = question["question_text"];
+		// Displaying differently on mobile platforms.
+		if(Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.BlackBerryPlayer) {
+			m_question_text.text = question["question_text_mobile"];
+		} else {
+			m_question_text.text = question["question_text"];
+		}
 		m_expected_answer = question["required_answer"].AsInt;
 		m_max_tries = question["max_tries"].AsInt;
 		m_tries_text.text = "Tries Left: " + m_max_tries;
 
 		m_number_tries = 0;
+
+		// Spawing a hint textbox.
+		m_question_hint = (GameObject.Instantiate(m_stats_prefab) as GameObject).GetComponent<StatsDisplayPanelController>();
+		m_question_hint.AddTextItem("hint", question["question_hint"]);
+		m_question_hint.Attach(m_question_text.gameObject, new Vector2(2.0f, 1.0f));
 	}
 
 	public override void Update()
@@ -78,12 +90,12 @@ public class GameNumericController : GameController {
 		if(input != "" && input != "-")
 		{
 			m_current_answer = int.Parse(input);
-			m_submit_button.enabled = true;
+			m_submit_button.interactable = true;
 		}
 		else
 		{
 			m_current_answer = 0;
-			m_submit_button.enabled = false;
+			m_submit_button.interactable = false;
 		}
 	}
 
@@ -111,8 +123,8 @@ public class GameNumericController : GameController {
 			answer_node["submitted_answer"].AsInt = m_current_answer;
 			answer_node["total_tries"].AsInt = m_number_tries;
 
-			m_submit_button.enabled = false;
-			m_input_field.enabled = false;
+			m_submit_button.interactable = false;
+			m_input_field.interactable = false;
 
 			completeGame(answer_node);
 		}

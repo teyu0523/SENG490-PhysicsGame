@@ -5,6 +5,8 @@ using SimpleJSON;
 
 public abstract class GameController : MonoBehaviour {
 
+	public GameObject m_stats_prefab = null;
+
 	private LessonController m_assignment_controller = null;
 	private static GameController m_instance = null;
 

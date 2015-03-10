@@ -68,7 +68,7 @@ public class DropMenu : MonoBehaviour {
 		int j, i;
 
 		if(lesson_result != null){
-			print (lesson_result);
+			//print (lesson_result);
 			JSONNode courses_node = JSON.Parse(lesson_result);
 			i = 0;
 			j = 0;

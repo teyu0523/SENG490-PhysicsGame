@@ -313,29 +313,29 @@ class GradeAdmin(admin.ModelAdmin):
 
 class IntegerAnswerInline(ReadOnlyTabularInline):
     model = IntegerAnswer
-    readonly_fields = ('name')
+    readonly_fields = ('name',)
 
 
 class FloatingPointAnswerInline(ReadOnlyTabularInline):
     model = FloatingPointAnswer
-    readonly_fields = ('name')
+    readonly_fields = ('name',)
 
 
 class StringAnswerInline(ReadOnlyTabularInline):
     model = StringAnswer
-    readonly_fields = ('name')
+    readonly_fields = ('name',)
 
 
 class ParagraphAnswerInline(ReadOnlyTabularInline):
     model = ParagraphAnswer
-    readonly_fields = ('name')
+    readonly_fields = ('name',)
 
 
 @admin.register(Answer)
 class AnswerAdmin(admin.ModelAdmin):
     list_display = ('question', 'lesson_grade', 'total_tries', 'grade_percent',)
     readonly_fields = ('question', 'lesson_grade', 'grade', 'grade_max', 'grade_percent',)
-    inliens = (IntegerAnswerInline, FloatingPointAnswerInline, StringAnswerInline, ParagraphAnswerInline)
+    inlines = (IntegerAnswerInline, FloatingPointAnswerInline, StringAnswerInline, ParagraphAnswerInline)
 
     def has_add_permission(self, request, obj=None):
         return False

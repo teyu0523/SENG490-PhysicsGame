@@ -43,8 +43,6 @@ public class GameNumericController : GameController {
 	{
 		m_answer = previous_answer;
 
-		Debug.Log(question);
-
 		m_question_id = question["id"].AsInt;
 		// Displaying differently on mobile platforms.
 		if(Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.BlackBerryPlayer) {

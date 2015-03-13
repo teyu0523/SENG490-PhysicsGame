@@ -1,57 +1,14 @@
 from rest_framework import serializers
 
-from django.contrib.auth.models import User
 import game.models
 
 # ========================================================== #
 # ==============                            ================ #
-# ==============        Grade Viewing       ================ #
+# ==============       Course Viewing       ================ #
 # ==============                            ================ #
 # ========================================================== #
 
 
-# Used to serialize a user as simply a username
-class UserSerializerLight(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('username',)
-
-
-# Used to serialize a course without lesson data
-class CourseSerializerLight(serializers.ModelSerializer):
-    instructor = UserSerializerLight(many=False)
-
-    class Meta:
-        model = game.models.Course
-        fields = ('id', 'number', 'name', 'year', 'instructor')
-
-
-# Used to serialize a lesson without including question data.
-class LessonSerializerLight(serializers.ModelSerializer):
-    author = UserSerializerLight('username')
-
-    class Meta:
-        model = game.models.Course
-        fields = ('id', 'lesson_type', 'author', 'topic')
-
-
-# Used to serialize a lesson grade as a lesson substitute
-class LessonGradeSerializerLight(serializers.ModelSerializer):
-    lesson = LessonSerializerLight(many=False)
-
-    class Meta:
-        model = game.models.LessonGrade
-        fields = ('id', 'lesson', 'lesson_state')
-
-
-# Used to serializer a students grade as a course subsitute
-class GradeListSerializer(serializers.ModelSerializer):
-    lesson_grades = LessonGradeSerializerLight(many=True)
-    course = CourseSerializerLight(many=False)
-
-    class Meta:
-        model = game.models.Grade
-        fields = ('course', 'lesson_grades')
 
 # ========================================================== #
 # ==============                            ================ #
@@ -60,33 +17,132 @@ class GradeListSerializer(serializers.ModelSerializer):
 # ========================================================== #
 
 
+class IntegerValueSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = game.models.IntegerValue
+        fields = ('id', 'name', 'order', 'value', 'min_value', 'max_value', 'menu', 'editable')
+
+
+class FloatingPointValueSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = game.models.FloatingPointValue
+        fields = ('id', 'name', 'order', 'value', 'min_value', 'max_value', 'menu', 'editable')
+
+
+class StringValueSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = game.models.StringValue
+        fields = ('id', 'name', 'order', 'value', 'max_length', 'menu', 'editable')
+
+
+class ParagraphValueSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = game.models.ParagraphValue
+        fields = ('id', 'name', 'order', 'value', 'max_length', 'menu', 'editable')
+
+
 class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = game.models.Question
-        fields = ('id', 'name', 'question_type', 'order', 'marks', 'max_tries', 'playable')
+        fields = ('id', 'name', 'order', 'marks', 'max_tries', 'playable')
+
+    def to_representation(self, obj):
+        result = super(QuestionSerializer, self).to_representation(obj)
+        result['type'] = obj.get_question_type_display()
+        return result
+
+
+class LessonGradeSerializer(serializers.ModelSerializer):
+    lesson_state = serializers.ChoiceField(choices=game.models.LessonGrade.LESSON_STATES, default=game.models.LessonGrade.NOTSTARTED)
+
+    class Meta:
+        model = game.models.LessonGrade
+        fields = ('id', 'lesson_state')
 
 
 class LessonSerializer(serializers.ModelSerializer):
-    included_questions = QuestionSerializer(many=True)
+    author = serializers.SlugRelatedField(read_only=True, slug_field='username')
+    lesson_type = serializers.ChoiceField(choices=game.models.Lesson.LESSON_TYPES, default=game.models.Lesson.ASSIGNMENT)
 
     class Meta:
         model = game.models.Lesson
-        fields = ('lesson_type', 'topic', 'retakes', 'one_sitting', 'included_questions')
+        fields = ('author', 'lesson_type', 'topic', 'retakes', 'one_sitting')
 
+
+# ========================================================== #
+# ==============                            ================ #
+# ==============        Grade Viewing       ================ #
+# ==============                            ================ #
+# ========================================================== #
 
 class AnswerSerializer(serializers.ModelSerializer):
     question = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = game.models.Answer
-        fields = ('question', 'total_tries', 'grade')
+        fields = ('id', 'question', 'grade', 'total_tries')
 
 
-# Used to serialize a lesson grade as a full lesson
-class LessonGradeSerializer(serializers.ModelSerializer):
-    lesson = LessonSerializerLight(many=False)
+class IntegerAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = game.models.LessonGrade
-        fields = ('id', 'lesson', 'lesson_state', 'question_results')
+        model = game.models.IntegerAnswer
+        fields = ('id', 'name', 'value', 'submitted')
+
+    def update(self, instance, validated_data):
+        instance.value = int(validated_data.get('value', instance.value))
+        instance.submitted = True
+        return instance
+
+    def validate(self, data):
+        return data
+
+
+class FloatingPointAnswerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = game.models.FloatingPointAnswer
+        fields = ('id', 'name', 'value', 'submitted')
+
+    def update(self, instance, validated_data):
+        instance.value = float(validated_data.get('value', instance.value))
+        instance.submitted = True
+        return instance
+
+    def validate(self, data):
+        return data
+
+
+class StringAnswerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = game.models.StringAnswer
+        fields = ('id', 'name', 'value', 'submitted')
+
+    def update(self, instance, validated_data):
+        instance.value = validated_data.get('value', instance.value)
+        instance.submitted = True
+        return instance
+
+    def validate(self, data):
+        return data
+
+
+class ParagraphAnswerSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = game.models.ParagraphAnswer
+        fields = ('id', 'name', 'value', 'submitted')
+
+    def update(self, instance, validated_data):
+        instance.value = validated_data.get('value', instance.value)
+        instance.submitted = True
+        return instance
+
+    def validate(self, data):
+        return data

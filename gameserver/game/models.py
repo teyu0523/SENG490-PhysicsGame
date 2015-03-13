@@ -1,3 +1,5 @@
+from sys import float_info, maxint
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
@@ -194,11 +196,10 @@ def pre_save_question(sender, instance=None, **kwargs):
         # Remove the old question extension entry
         if old_instance.question_type != instance.question_type:
             old_instance.answers.all().delete()
-            if old_instance.question_type == Question.NUMERIC:
-                NumericQuestion.objects.get(question__pk=old_instance.id).delete()
-            if old_instance.question_type == Question.CANNONS:
-                CannonsQuestion.objects.get(question__pk=old_instance.id).delete()
-            # elif:
+            IntegerValue.objects.get(question__pk=old_instance.id).delete()
+            FloatingPointValue.objects.get(question__pk=old_instance.id).delete()
+            StringValue.objects.get(question__pk=old_instance.id).delete()
+            ParagraphValue.objects.get(question__pk=old_instance.id).delete()
 
         # Handle change in owning lesson
         if old_instance.lesson_id != instance.lesson_id:
@@ -217,40 +218,93 @@ def pre_save_question(sender, instance=None, **kwargs):
 def post_save_question(sender, instance=None, created=False, **kwargs):
     if not created:
         # cancel if an instance already exists
-        if instance.question_type == Question.NUMERIC:
-            if NumericQuestion.objects.filter(question__id=instance.id).exists():
-                return
-        elif instance.question_type == Question.CANNONS:
-            if CannonsQuestion.objects.filter(question__id=instance.id).exists():
-                return
+        if IntegerValue.objects.filter(question__pk=instance.pk).exists() or\
+                FloatingPointValue.objects.filter(question__pk=instance.pk).exists() or\
+                StringValue.objects.filter(question__pk=instance.pk).exists() or\
+                ParagraphValue.objects.filter(question__pk=instance.pk).exists():
+            return
         # elif:
 
     # Create an extension instance for this question.
     if instance.question_type == Question.NUMERIC:
-        NumericQuestion.objects.create(question=instance)
+        IntegerValue.objects.create(question=instance, name="expected_answer", order=3, menu=False, editable=False)
+        ParagraphValue.objects.create(question=instance, name="question_text", order=0, editable=False)
+        ParagraphValue.objects.create(question=instance, name="question_text_mobile", order=1, editable=False)
+        StringValue.objects.create(question=instance, name="question_hint", order=2, menu=False, editable=False)
     elif instance.question_type == Question.CANNONS:
-        CannonsQuestion.objects.create(question=instance)
+        FloatingPointValue.objects.create(question=instance, name="player_pos_x", order=0)
+        FloatingPointValue.objects.create(question=instance, name="player_pos_y", order=1)
+        FloatingPointValue.objects.create(question=instance, name="player_angle", order=2)
+        FloatingPointValue.objects.create(question=instance, name="player_velocity", order=3)
+        FloatingPointValue.objects.create(question=instance, name="target_pos_x", order=4)
+        FloatingPointValue.objects.create(question=instance, name="target_pos_y", order=5)
     # elif:
 
 
-class NumericQuestion(models.Model):
-    question = models.OneToOneField(Question, related_name='numeric_extension')
-    question_text = models.CharField(max_length=256, default="")
-    question_text_mobile = models.CharField(max_length=256, default="")
-    question_hint = models.CharField(max_length=256, default="hint")
-    expected_answer = models.IntegerField(default=0)
+class IntegerValue(models.Model):
+    question = models.ForeignKey(Question, related_name='integer_values')
+    name = models.CharField(null=False, max_length=32)
+    order = models.IntegerField(default=0)
+    value = models.IntegerField(default=0, null=True, blank=True)
+    min_value = models.IntegerField(default=-1000)
+    max_value = models.IntegerField(default=1000)
+    menu = models.BooleanField(default=True)
+    editable = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = (("question", "name"),)
+
+    def __str__(self):
+        return self.name
 
 
-class CannonsQuestion(models.Model):
-    question = models.OneToOneField(Question, related_name='cannons_extension')
-    player_tank_pos_x = models.FloatField(null=True, blank=True)
-    player_tank_pos_y = models.FloatField(null=True, blank=True)
-    player_tank_angle = models.FloatField(null=True, blank=True)
-    player_tank_velocity = models.FloatField(null=True, blank=True)
-    enemy_tank_pos_x = models.FloatField(null=True, blank=True)
-    enemy_tank_pos_y = models.FloatField(null=True, blank=True)
-    enemy_tank_angle = models.FloatField(null=True, blank=True)
-    enemy_tank_velocity = models.FloatField(null=True, blank=True)
+class FloatingPointValue(models.Model):
+    question = models.ForeignKey(Question, related_name='floating_point_values')
+    name = models.CharField(null=False, max_length=32)
+    order = models.IntegerField(default=0)
+    value = models.FloatField(default=0, null=True, blank=True)
+    min_value = models.FloatField(default=-1)
+    max_value = models.FloatField(default=1)
+    menu = models.BooleanField(default=True)
+    editable = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = (("question", "name"),)
+
+    def __str__(self):
+        return self.name
+
+
+class StringValue(models.Model):
+    question = models.ForeignKey(Question, related_name='string_values')
+    name = models.CharField(null=False, max_length=32)
+    order = models.IntegerField(default=0)
+    value = models.CharField(max_length=256, blank=True)
+    max_length = models.IntegerField(default=256)
+    menu = models.BooleanField(default=False)
+    editable = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = (("question", "name"),)
+
+    def __str__(self):
+        return self.name
+
+
+class ParagraphValue(models.Model):
+    question = models.ForeignKey(Question, related_name='paragraph_values')
+    name = models.CharField(null=False, max_length=32)
+    order = models.IntegerField(default=0)
+    value = models.CharField(max_length=4096, blank=True)
+    max_length = models.IntegerField(default=2096)
+    menu = models.BooleanField(default=False)
+    editable = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = (("question", "name"),)
+
+    def __str__(self):
+        return self.name
 
 
 class Grade(models.Model):
@@ -326,19 +380,67 @@ class Answer(models.Model):
     def __str__(self):
         return "%s - %s" % (self.question, self.lesson_grade.course_grade.student.username)
 
+@receiver(post_save, sender=Answer)
+def post_save_answer(sender, instance=None, created=False, **kwargs):
+    if created and instance is not None:
+        if instance.question.question_type == Question.NUMERIC:
+            IntegerAnswer.objects.create(answer=instance, name="submitted_answer")
+        elif instance.question.question_type == Question.CANNONS:
+            FloatingPointAnswer.objects.create(answer=instance, name="player_pos_x")
+            FloatingPointAnswer.objects.create(answer=instance, name="player_pos_y")
+            FloatingPointAnswer.objects.create(answer=instance, name="player_angle")
+            FloatingPointAnswer.objects.create(answer=instance, name="player_velocity")
+            FloatingPointAnswer.objects.create(answer=instance, name="target_pos_x")
+            FloatingPointAnswer.objects.create(answer=instance, name="target_pos_y")
 
-class NumericAnswer(models.Model):
-    answer = models.OneToOneField(Answer, related_name='numeric_extension')
-    submitted_answer = models.IntegerField(null=True)
+
+class IntegerAnswer(models.Model):
+    answer = models.ForeignKey(Answer, related_name='integer_answers')
+    name = models.CharField(null=False, max_length=32)
+    value = models.IntegerField(default=0, null=False, blank=False)
+    submitted = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = (("answer", "name"),)
+
+    def __str__(self):
+        return self.name
 
 
-class CannonsAnswer(models.Model):
-    answer = models.OneToOneField(Answer, related_name='cannons_extension')
-    player_tank_pos_x = models.FloatField(null=True, blank=True)
-    player_tank_pos_y = models.FloatField(null=True, blank=True)
-    player_tank_angle = models.FloatField(null=True, blank=True)
-    player_tank_velocity = models.FloatField(null=True, blank=True)
-    enemy_tank_pos_x = models.FloatField(null=True, blank=True)
-    enemy_tank_pos_y = models.FloatField(null=True, blank=True)
-    enemy_tank_angle = models.FloatField(null=True, blank=True)
-    enemy_tank_velocity = models.FloatField(null=True, blank=True)
+class FloatingPointAnswer(models.Model):
+    answer = models.ForeignKey(Answer, related_name='floating_point_answers')
+    name = models.CharField(null=False, max_length=32)
+    value = models.FloatField(default=0, null=False, blank=False)
+    submitted = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = (("answer", "name"),)
+
+    def __str__(self):
+        return self.name
+
+
+class StringAnswer(models.Model):
+    answer = models.ForeignKey(Answer, related_name='string_answers')
+    name = models.CharField(null=False, max_length=32)
+    value = models.CharField(max_length=256, blank=True)
+    submitted = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = (("answer", "name"),)
+
+    def __str__(self):
+        return self.name
+
+
+class ParagraphAnswer(models.Model):
+    answer = models.ForeignKey(Answer, related_name='paragraph_answers')
+    name = models.CharField(null=False, max_length=32)
+    value = models.CharField(max_length=4096, blank=True)
+    submitted = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = (("answer", "name"),)
+
+    def __str__(self):
+        return self.name

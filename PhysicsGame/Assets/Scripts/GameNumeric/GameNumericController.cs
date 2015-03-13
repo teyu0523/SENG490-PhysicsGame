@@ -30,6 +30,8 @@ public class GameNumericController : GameController {
 
 	private float m_flash_time = 0;
 
+	private JSONNode m_answer;
+
 	public override void Awake ()
 	{
 		base.Awake ();
@@ -39,14 +41,19 @@ public class GameNumericController : GameController {
 
 	public override void initializeGame(JSONNode question, JSONNode previous_answer)
 	{
+		m_answer = previous_answer;
+
+		Debug.Log(question);
+
 		m_question_id = question["id"].AsInt;
 		// Displaying differently on mobile platforms.
 		if(Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.BlackBerryPlayer) {
-			m_question_text.text = question["question_text_mobile"];
+			m_question_text.text = question["values"]["question_text_mobile"]["value"];
 		} else {
-			m_question_text.text = question["question_text"];
+			m_question_text.text = question["values"]["question_text"]["value"];
 		}
-		m_expected_answer = question["required_answer"].AsInt;
+		m_expected_answer = question["values"]["expected_answer"]["value"].AsInt;
+
 		m_max_tries = question["max_tries"].AsInt;
 		m_tries_text.text = "Tries Left: " + m_max_tries;
 
@@ -54,7 +61,7 @@ public class GameNumericController : GameController {
 
 		// Spawing a hint textbox.
 		m_question_hint = (GameObject.Instantiate(m_stats_prefab) as GameObject).GetComponent<StatsDisplayPanelController>();
-		m_question_hint.AddTextItem("hint", question["question_hint"]);
+		m_question_hint.AddTextItem("hint", question["values"]["question_hint"]["value"]);
 		m_question_hint.Attach(m_question_text.gameObject, new Vector2(2.0f, 1.0f));
 	}
 
@@ -118,9 +125,8 @@ public class GameNumericController : GameController {
 		}
 
 		if( m_current_answer == m_expected_answer || m_number_tries == m_max_tries ) {
-			JSONNode answer_node = new JSONClass();
-			answer_node["question_id"].AsInt = m_question_id;
-			answer_node["submitted_answer"].AsInt = m_current_answer;
+			JSONNode answer_node = m_answer;
+			answer_node["values"]["submitted_answer"]["value"].AsInt = m_current_answer;
 			answer_node["total_tries"].AsInt = m_number_tries;
 
 			m_submit_button.interactable = false;

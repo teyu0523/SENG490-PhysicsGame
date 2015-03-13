@@ -55,6 +55,7 @@ public class LessonController : MonoBehaviour {
 		else
 		{
 			Debug.LogError("Request lesson does not exist!");
+			Debug.LogError(error);
 			m_running = false;
 		}
 	}
@@ -87,7 +88,7 @@ public class LessonController : MonoBehaviour {
 		{
 			m_question = m_lesson["questions"][m_question_index];
 			m_previous_answer = JSON.Parse(result);
-			
+
 			Application.LoadLevel(m_question["type"]+"Game");
 		}
 		else

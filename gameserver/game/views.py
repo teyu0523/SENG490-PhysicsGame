@@ -1,3 +1,5 @@
+import sys
+
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 
 from rest_framework.views import APIView
@@ -5,7 +7,8 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 # from game.mixins import *
-from game.models import Grade, LessonGrade, WeightedLesson, Question, Answer, CannonsAnswer, NumericAnswer
+from game.models import Grade, LessonGrade, WeightedLesson, Question, Answer, IntegerAnswer, FloatingPointAnswer, StringAnswer, ParagraphAnswer
+import game.serializers
 
 
 class StudentListLessons(APIView):
@@ -74,49 +77,46 @@ class StudentLessonDetails(APIView):
             lesson_grade.lesson_state = LessonGrade.STARTED
             lesson_grade.save()
 
-        lesson_structure = {}
-        lesson_structure['id'] = lesson_grade.id
+        lesson_structure = game.serializers.LessonGradeSerializer(lesson_grade).data
+        lesson_structure.update(game.serializers.LessonSerializer(lesson_grade.lesson).data)
         lesson_structure['lesson_id'] = lesson_grade.lesson.id
         lesson_structure['weight'] = WeightedLesson.objects.get(lesson_id=lesson_grade.lesson_id, course_id=lesson_grade.course_grade.course_id).weight
-        lesson_structure['lesson_state'] = lesson_grade.get_lesson_state_display()
         lesson_structure['total_questions'] = lesson_grade.get_grades()['total_questions']
         lesson_structure['answered_questions'] = lesson_grade.get_grades()['answered_questions']
         if(lesson_grade.get_grades()['grade_max'] > 0):
             lesson_structure['grade'] = str(lesson_grade.get_grades()['grade']/lesson_grade.get_grades()['grade_max']*100)
         else:
             lesson_structure['grade'] = 'N/A'
-        lesson_structure['type'] = lesson_grade.lesson.get_lesson_type_display()
-        lesson_structure['name'] = lesson_grade.lesson.topic
-        lesson_structure['retakes_allowed'] = lesson_grade.lesson.retakes
-        lesson_structure['closable'] = lesson_grade.lesson.one_sitting
 
         questions = []
 
         for question in lesson_grade.lesson.included_questions.all():
-            question_structure = {}
-            question_structure['id'] = question.id
-            question_structure['type'] = question.get_question_type_display()
-            question_structure['order'] = question.order
-            question_structure['marks'] = question.marks
-            question_structure['max_tries'] = question.max_tries
-            question_structure['playable'] = question.playable
+            question_structure = game.serializers.QuestionSerializer(question).data
 
-            if question.question_type == Question.NUMERIC:
-                question_structure['question_text'] = question.numeric_extension.question_text
-                question_structure['question_text_mobile'] = question.numeric_extension.question_text_mobile
-                question_structure['question_hint'] = question.numeric_extension.question_hint
-                question_structure['required_answer'] = question.numeric_extension.expected_answer
-            elif question.question_type == Question.CANNONS:
-                question_structure['player_tank_pos_x'] = question.cannons_extension.player_tank_pos_x
-                question_structure['player_tank_pos_y'] = question.cannons_extension.player_tank_pos_y
-                question_structure['player_tank_angle'] = question.cannons_extension.player_tank_angle
-                question_structure['player_tank_velocity'] = question.cannons_extension.player_tank_velocity
-                question_structure['enemy_tank_pos_x'] = question.cannons_extension.enemy_tank_pos_x
-                question_structure['enemy_tank_pos_y'] = question.cannons_extension.enemy_tank_pos_y
-                question_structure['enemy_tank_angle'] = question.cannons_extension.enemy_tank_angle
-                question_structure['enemy_tank_velocity'] = question.cannons_extension.enemy_tank_velocity
+            values = {}
+
+            for value in question.integer_values.all():
+                value_structure = game.serializers.IntegerValueSerializer(value).data
+                value_structure['type'] = 'integer'
+                values[value_structure['name']] = value_structure
+            for value in question.floating_point_values.all():
+                value_structure = game.serializers.FloatingPointValueSerializer(value).data
+                value_structure['type'] = 'float'
+                values[value_structure['name']] = value_structure
+            for value in question.string_values.all():
+                value_structure = game.serializers.StringValueSerializer(value).data
+                value_structure['type'] = 'string'
+                values[value_structure['name']] = value_structure
+            for value in question.paragraph_values.all():
+                value_structure = game.serializers.ParagraphValueSerializer(value).data
+                value_structure['type'] = 'paragraph'
+                values[value_structure['name']] = value_structure
+
+            question_structure['values'] = values
 
             questions.append(question_structure)
+
+        questions.sort(key=lambda x: x['order'], reverse=False)
 
         lesson_structure['questions'] = questions
 
@@ -176,30 +176,29 @@ class StudentAnswer(APIView):
         (answer, created) = Answer.objects.get_or_create(question_id=question_id,
                                                          lesson_grade=LessonGrade.objects.get(lesson__included_questions__pk=question_id,
                                                                                               course_grade__student_id=request.user.id))
-        if created:
-            if answer.question.question_type == Question.NUMERIC:
-                extension = NumericAnswer.objects.create(answer=answer)
-                extension.save()
-            elif answer.question.question_type == Question.CANNONS:
-                extension = CannonsAnswer.objects.create(answer=answer)
-                extension.save()
 
-        answer_structure = {}
-        answer_structure['id'] = answer.id
-        answer_structure['question_id'] = answer.question.id
-        answer_structure['grade'] = answer.grade
-        answer_structure['total_tries'] = answer.total_tries
-        if answer.question.question_type == Question.NUMERIC:
-            answer_structure['submitted_answer'] = answer.numeric_extension.submitted_answer
-        elif answer.question.question_type == Question.CANNONS:
-            answer_structure['player_tank_pos_x'] = answer.cannons_extension.player_tank_pos_x
-            answer_structure['player_tank_pos_y'] = answer.cannons_extension.player_tank_pos_y
-            answer_structure['player_tank_angle'] = answer.cannons_extension.player_tank_angle
-            answer_structure['player_tank_velocity'] = answer.cannons_extension.player_tank_velocity
-            answer_structure['enemy_tank_pos_x'] = answer.cannons_extension.enemy_tank_pos_x
-            answer_structure['enemy_tank_pos_y'] = answer.cannons_extension.enemy_tank_pos_y
-            answer_structure['enemy_tank_angle'] = answer.cannons_extension.enemy_tank_angle
-            answer_structure['enemy_tank_velocity'] = answer.cannons_extension.enemy_tank_velocity
+        answer_structure = game.serializers.AnswerSerializer(answer).data
+
+        values = {}
+
+        for value in answer.integer_answers.all():
+            value_structure = game.serializers.IntegerAnswerSerializer(value).data
+            value_structure['type'] = 'integer'
+            values[value_structure['name']] = value_structure
+        for value in answer.floating_point_answers.all():
+            value_structure = game.serializers.FloatingPointAnswerSerializer(value).data
+            value_structure['type'] = 'float'
+            values[value_structure['name']] = value_structure
+        for value in answer.string_answers.all():
+            value_structure = game.serializers.StringAnswerSerializer(value).data
+            value_structure['type'] = 'string'
+            values[value_structure['name']] = value_structure
+        for value in answer.paragraph_answers.all():
+            value_structure = game.serializers.ParagraphAnswerSerializer(value).data
+            value_structure['type'] = 'paragraph'
+            values[value_structure['name']] = value_structure
+
+        answer_structure['values'] = values
 
         return JsonResponse(answer_structure)
 
@@ -213,13 +212,6 @@ class StudentAnswer(APIView):
             return HttpResponseBadRequest('No assignment exists for the provided student and question combination')
 
         (answer, created) = Answer.objects.get_or_create(question_id=question_id, lesson_grade__course_grade__student_id=request.user.id)
-        if created:
-            if answer.question.question_type == Question.NUMERIC:
-                extension = NumericAnswer.objects.create(answer=answer)
-                extension.save()
-            elif answer.question.question_type == Question.CANNONS:
-                extension = CannonsAnswer.objects.create(answer=answer)
-                extension.save()
 
         # Important to note! All incomming data is in string format right now. Limitation of SimpleJSON...
 
@@ -229,40 +221,43 @@ class StudentAnswer(APIView):
         else:
             return HttpResponseBadRequest('total_tries is a required field')
 
-        if answer.question.question_type == Question.NUMERIC:
-            if 'submitted_answer' in request.DATA:
-                answer.numeric_extension.submitted_answer = int(request.DATA['submitted_answer'])
-            else:
-                return HttpResponseBadRequest('submitted_answer is a required field for numeric type questions')
-            answer.numeric_extension.save()
+        print("Dealing with values")
 
-        elif answer.question.question_type == Question.CANNONS:
-            print("numeric type")
-            if 'player_tank_pos_x' in request.DATA:
-                answer.cannons_extension.player_tank_pos_x = float(request.DATA['player_tank_pos_x'])
-            if 'player_tank_pos_y' in request.DATA:
-                answer.cannons_extension.player_tank_pos_y = float(request.DATA['player_tank_pos_y'])
-            if 'player_tank_angle' in request.DATA:
-                answer.cannons_extension.player_tank_angle = float(request.DATA['player_tank_angle'])
-            if 'player_tank_velocity' in request.DATA:
-                answer.cannons_extension.player_tank_velocity = float(request.DATA['player_tank_velocity'])
-            if 'enemy_tank_pos_x' in request.DATA:
-                answer.cannons_extension.enemy_tank_pos_x = float(request.DATA['enemy_tank_pos_x'])
-            if 'enemy_tank_pos_y' in request.DATA:
-                answer.cannons_extension.enemy_tank_pos_y = float(request.DATA['enemy_tank_pos_y'])
-            if 'enemy_tank_angle' in request.DATA:
-                answer.cannons_extension.enemy_tank_angle = float(request.DATA['enemy_tank_angle'])
-            if 'enemy_tank_velocity' in request.DATA:
-                answer.cannons_extension.enemy_tank_velocity = float(request.DATA['enemy_tank_velocity'])
-            answer.cannons_extension.save()
+        for value in request.DATA['values'].values():
+            if value['type'] == 'integer':
+                print(answer.integer_answers.get(id=value['id']))
+                serializer = game.serializers.IntegerAnswerSerializer(answer.integer_answers.get(id=value['id']), data=value)
+                print(serializer)
+                if(serializer.is_valid()):
+                    print("valid")
+                    serializer.save(answer=answer)
+                else:
+                    print("not valid")
+            elif value['type'] == 'float':
+                serializer = game.serializers.FloatingPointAnswerSerializer(answer.floating_point_answers.get(id=value['id']), data=value)
+                if(serializer.is_valid()):
+                    serializer.save(answer=answer)
+            elif value['type'] == 'string':
+                serializer = game.serializers.StringAnswerSerializer(answer.string_answers.get(id=value['id']), data=value)
+                if(serializer.is_valid()):
+                    serializer.save(answer=answer)
+            elif value['type'] == 'paragraph':
+                serializer = game.serializers.ParagraphAnswerSerializer(answer.paragraph_answers.get(id=value['id']), data=value)
+                if(serializer.is_valid()):
+                    serializer.save(answer=answer)
         answer.save()
+
+        print("Done dealing with values")
 
         aggregates = answer.lesson_grade.get_grades()
         if aggregates['answered_questions'] == aggregates['total_questions']:
             answer.lesson_grade.lesson_state = LessonGrade.FINISHED
-            answer.save()
+            answer.lesson_grade.save()
+
+        print("All good!")
 
         return HttpResponse("success")
+
 
 student_list_lessons = StudentListLessons.as_view()
 student_lesson_details = StudentLessonDetails.as_view()

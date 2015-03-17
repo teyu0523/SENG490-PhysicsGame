@@ -380,6 +380,7 @@ class Answer(models.Model):
     def __str__(self):
         return "%s - %s" % (self.question, self.lesson_grade.course_grade.student.username)
 
+
 @receiver(post_save, sender=Answer)
 def post_save_answer(sender, instance=None, created=False, **kwargs):
     if created and instance is not None:

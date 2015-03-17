@@ -5,13 +5,23 @@ using SimpleJSON;
 
 public class GameCollisionController : GameController {
 
+	public GameObject car_left;
+	public GameObject car_right;
+	public float speed;
+
 	public GameObject m_stats_prefab = null;
+
+
+	private Vector3 car_left_pos;
+	private Vector3 car_right_pos;
 	private LessonController m_assignment_controller = null;
 	private static GameController m_instance = null;
 
 	private List<StatsDisplayPanelController> m_stats_displays;
 	private bool m_displaying_stats = false;
 	private bool m_touch_started = false;
+
+	private JSONNode m_answer;
 
 	/// <summary>
 	/// Awake for this controller.
@@ -22,7 +32,7 @@ public class GameCollisionController : GameController {
 		{
 			m_assignment_controller = assignment_controller_object.GetComponent<LessonController>();
 		}
-		GameController.m_instance = this;
+		//GameController.m_instance = this;
 		m_stats_displays = new List<StatsDisplayPanelController>();
 	}
 
@@ -51,7 +61,7 @@ public class GameCollisionController : GameController {
 		{
 
 		}
-		GameController.m_instance = null;
+		//GameController.m_instance = null;
 	}
 
 	/// <summary>
@@ -67,17 +77,9 @@ public class GameCollisionController : GameController {
 	/// </summary>
 	public override void Update()
 	{
-		if (Input.GetKeyDown("i") || Input.touchCount > 2) {
-			if(!m_touch_started) {
-				m_displaying_stats = !m_displaying_stats;
-				foreach(StatsDisplayPanelController display in m_stats_displays) {
-					display.display(m_displaying_stats);
-				}
-			}
-
-			m_touch_started = true;
-		} else {
-			m_touch_started = false;
-		}
+		car_left_pos = car_left.transform.position;
+		car_right_pos = car_right.transform.position;
+		car_left.transform.position = new Vector3(car_left_pos.x + speed * Time.deltaTime, car_left_pos.y, car_left_pos.z);
+		car_right.transform.position = new Vector3(car_right_pos.x + speed * Time.deltaTime, car_right_pos.y, car_right_pos.z);
 	}
 }

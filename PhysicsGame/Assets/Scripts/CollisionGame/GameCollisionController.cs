@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
@@ -7,13 +7,19 @@ public class GameCollisionController : GameController {
 
 	public GameObject car_left;
 	public GameObject car_right;
-	public float speed;
-
-	public GameObject m_stats_prefab = null;
-
+	private CarRightControl car_right_control;
+	private CarLeftControl car_left_control;
+	//public GameObject car_right;
+	public float speed_left;
+	public float speed_right;
+	public float acc_right;
+	public float acc_left;
 
 	private Vector3 car_left_pos;
 	private Vector3 car_right_pos;
+	private bool is_collision = false;
+
+	//public GameObject m_stats_prefab = null;
 	private LessonController m_assignment_controller = null;
 	private static GameController m_instance = null;
 
@@ -72,14 +78,34 @@ public class GameCollisionController : GameController {
 		m_stats_displays.Add(display);
 	}
 
+	public void Start(){
+		if(car_left){
+			car_left_control = car_left.GetComponent(typeof(CarLeftControl)) as CarLeftControl;
+
+			if(car_left_control == null){
+				Debug.LogWarning("Script not found: CarLeftControl");
+			}	
+		} else {
+			Debug.LogWarning("GameObject not found: CarLeft");
+		}
+		if(car_right){
+			car_right_control = car_right.GetComponent(typeof(CarRightControl)) as CarRightControl;
+			if(car_right_control == null){
+				Debug.LogWarning("Script not found: CarRightControl");
+			}	
+		} else {
+			Debug.LogWarning("GameObject not found: CarRight");
+		}
+	}
+
 	/// <summary>
 	/// Updates once every tick. Looks for touch input or keyboard input to display scenario information.
 	/// </summary>
 	public override void Update()
 	{
-		car_left_pos = car_left.transform.position;
-		car_right_pos = car_right.transform.position;
-		car_left.transform.position = new Vector3(car_left_pos.x + speed * Time.deltaTime, car_left_pos.y, car_left_pos.z);
-		car_right.transform.position = new Vector3(car_right_pos.x + speed * Time.deltaTime, car_right_pos.y, car_right_pos.z);
+		car_left_control.updateSpeed(speed_left);
+		car_right_control.updateSpeed(speed_right);
+		car_left_control.updateAcc(acc_left);
+		car_right_control.updateAcc(acc_right);
 	}
 }

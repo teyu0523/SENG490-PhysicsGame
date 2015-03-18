@@ -3,7 +3,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
 from rest_framework.authtoken import views
 
-admin.site.site_header = 'Physics Game Administration'
+admin.site.site_header = 'Inuco Administration'
 
 # Examples:
 # url(r'^$', 'Server.views.home', name='home'),

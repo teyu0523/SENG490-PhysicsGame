@@ -1,34 +1,117 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class LoginMenu : MonoBehaviour {
 	private string username; 
 	private string password;
 	private string passwordMask;
+	public Text error_message;
 	//private Vector2 scrollPosition;
 	private string loginFailer;
 	private bool draw_gui = true;
 	public GUIStyle guiStyle;
 	public GUISkin mySkin = null;// = new GUISkin("areaStyle");
 
+	
 
-//	private string login_result;
-//	private string login_error;
+	public float native_width = 480;
+	public float native_height = 320;
+
+  	private float scale_width;
+ 	private float scale_height;
+
+ 	private Matrix4x4 gui_matrix;
+	public float baseWidth = 1080 ;
+	public float baseHeight = 1920;
+
+	private float baseAspect;
+	private float targetAspect;
+	private float m03;
+	private float m13;
+	private float m33;
+
 
 	// Use this for initialization
 	void Start () {
 
-
-
-		username = "Username";
-		passwordMask = "Password";
+		username = "";
 		password = "";
 		//scrollPosition = Vector2.zero;
 		loginFailer = "";
+
+
 	}
-	
+
+	public void login(){
+		draw_gui = false;
+		LoadingController.Instance.show();
+		Debug.Log(password);
+		Debug.Log(username);
+		NetworkingController.Instance.Login(username, password, (login_result, login_error) => {
+			LoadingController.Instance.hide();
+			if(login_result == "success") {
+				Application.LoadLevel ("MainMenu"); 
+			} else {
+				draw_gui = true;
+				loginFailer = login_error;
+			}
+			Debug.Log(loginFailer);
+		});
+	}
+
+	public void setUsername(InputField username_field){
+		username = username_field.text;
+	}
+
+	public void setPassword(InputField password_field){
+		password = password_field.text;
+	}
+ 
+	void Update () {
+		if(loginFailer != "")
+		{
+			if(loginFailer == "couldn't connect to host")
+			{
+				loginFailer = "Currently there are server technical difficulties, thank you for your patience.";
+			}
+			else if(loginFailer == "400 BAD REQUEST")
+			{
+			
+				loginFailer = "Incorrect username or password";
+			}
+		}
+		error_message.text = loginFailer;
+	}
+
+
+	/*public void Awake()
+	{
+		float targetWidth = (float)Screen.width;
+	    float targetHeight = (float)Screen.height;
+
+	    this.baseAspect = this.baseWidth / this.baseHeight;
+	    this.targetAspect = targetWidth / targetHeight;
+
+	    float factor = this.targetAspect > this.baseAspect ? targetHeight / this.baseHeight : targetWidth / this.baseWidth;
+
+	    this.m33 = 1 / factor;
+	    this.m03 = (targetWidth - this.baseWidth * factor) / 2 * this.m33;
+    	this.m13 = (targetHeight - this.baseHeight * factor) / 2 * this.m33;
+	}
+
 	void OnGUI(){
+		
+     	Matrix4x4 gui_matrix = GUI.matrix;
+
+	    gui_matrix.m33 = this.m33;
+
+	    if(this.targetAspect > this.baseAspect) gui_matrix.m03 = this.m03;
+	    else gui_matrix.m13 = this.m13;
+
+	    GUI.matrix = gui_matrix;
+	
 		if(!draw_gui) {
 			return;
 		}
@@ -49,7 +132,6 @@ public class LoginMenu : MonoBehaviour {
 			
 				loginFailer = "Incorrect username or password";
 			}
-			print (loginFailer);
 		}
 		
 		GUI.Label(
@@ -114,12 +196,10 @@ public class LoginMenu : MonoBehaviour {
 		}
 //		GUILayout.EndScrollView ();
 		GUILayout.EndArea ();
-	}
+	}*/
 	
 	// Update is called once per frame
-	void Update () {
-		
-	}
+	
 
 	private void maskPass()
 	{

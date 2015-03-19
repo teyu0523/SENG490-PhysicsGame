@@ -16,6 +16,7 @@ public class NetworkingController : MonoBehaviour {
 		// If this is the first networking controller it becomes the singleton
 		// The first networking controller will not be destroyed on a scene change.
 		if(m_instance == null) {
+			Debug.Log ("First networking controller spawned");
 			m_instance = this;
 			DontDestroyOnLoad(gameObject);
 		} else {
@@ -68,7 +69,7 @@ public class NetworkingController : MonoBehaviour {
 			JSONNode course_node = JSON.Parse(result);
 
 			// This reads a specfic value ["x"] is an item from an object [x] is an item from an array.
-			int lesson_id = course_node["courses"][0]["lessons"][0]["lesson_id"].AsInt;
+			int lesson_id = course_node["courses"][1]["lessons"][0]["lesson_id"].AsInt;
 
 			Debug.Log ("Testing Course: " + lesson_id);
 
@@ -157,7 +158,15 @@ public class NetworkingController : MonoBehaviour {
 	}
 	private IEnumerator lessons_coroutine(WWWDelegate callback) {
 		log(System.String.Format("{0}/game/lessons", server));
-		WWW www = new WWW(System.String.Format("{0}/game/lessons", server), null, generateAuthHeaders());
+
+#if (UNITY_IOS || UNITY_IPHONE) && !UNITY_EDITOR
+		WWWForm data = new WWWForm();
+		data.AddField("auth", m_auth_token);
+		WWW www = new WWW(System.String.Format("{0}/game/lessons/", server), System.Text.Encoding.UTF8.GetBytes("{}"), generateAuthHeaders());
+#else
+		WWW www = new WWW(System.String.Format("{0}/game/lessons/", server), null, generateAuthHeaders());
+#endif
+
 		yield return www;
 
 		executeCallback(www, callback);

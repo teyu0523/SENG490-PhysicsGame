@@ -1,5 +1,3 @@
-import sys
-
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse
 
 from rest_framework.views import APIView
@@ -7,7 +5,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
 # from game.mixins import *
-from game.models import Grade, LessonGrade, WeightedLesson, Question, Answer, IntegerAnswer, FloatingPointAnswer, StringAnswer, ParagraphAnswer
+from game.models import Grade, LessonGrade, WeightedLesson, Question, Answer
 import game.serializers
 
 
@@ -59,6 +57,9 @@ class StudentListLessons(APIView):
         course_structure['courses'] = courses
 
         return JsonResponse(course_structure)
+
+    def post(self, request, format=None):
+        return self.get(request)
 
 
 class StudentLessonDetails(APIView):

@@ -19,8 +19,6 @@ public class LoginMenu : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-
-
 		username = "Username";
 		passwordMask = "Password";
 		password = "";

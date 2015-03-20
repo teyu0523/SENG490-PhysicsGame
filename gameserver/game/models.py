@@ -85,6 +85,7 @@ class Lesson(models.Model):
     )
 
     lesson_type = models.CharField(max_length=3, choices=LESSON_TYPES, default=ASSIGNMENT)
+    description = models.CharField(max_length=4096, default="")
     author = models.ForeignKey(User, related_name='authored_lessons')
     topic = models.CharField(max_length=256)
     retakes = models.BooleanField(default=True)
@@ -170,6 +171,7 @@ class Question(models.Model):
         (CANNONS, "Cannons"),
     )
     name = models.CharField(max_length=128, default="")
+    description = models.CharField(max_length=4096, default="")
     question_type = models.CharField(max_length=3, choices=QUESTION_TYPES, default=CANNONS)
     lesson = models.ForeignKey(Lesson, related_name='included_questions')
     order = models.IntegerField(default=0)

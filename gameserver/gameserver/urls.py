@@ -1,9 +1,13 @@
+import settings
 from django.conf.urls import patterns, include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.contrib import admin
 from rest_framework.authtoken import views
 
 admin.site.site_header = 'Inuco Administration'
+admin.site.site_title = 'Administration'
+admin.site.title = 'Inuco'
+admin.site.index_title = 'Inuco Administration'
 
 # Examples:
 # url(r'^$', 'Server.views.home', name='home'),
@@ -18,3 +22,5 @@ urlpatterns = patterns('',
                        url(r'^game/lesson/answer/(?P<question_id>[\d]+)/$', 'game.views.student_answer_details'),
                        )
 urlpatterns += staticfiles_urlpatterns()
+urlpatterns += url(r'^$', 'django.views.static.serve', {'document_root': settings.WEBSITE_ROOT, 'path': 'index.html'}),
+urlpatterns += url(r'^(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.WEBSITE_ROOT}),

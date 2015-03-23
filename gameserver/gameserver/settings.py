@@ -71,6 +71,11 @@ ROOT_URLCONF = 'gameserver.urls'
 
 WSGI_APPLICATION = 'gameserver.wsgi.application'
 
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+)
+
 
 # Database
 # https://docs.djangoproject.com/en/1.7/ref/settings/#databases
@@ -99,14 +104,17 @@ USE_L10N = True
 
 USE_TZ = True
 
-SESSION_COOKIE_SECURE = False;
-CSRF_COOKIE_SECURE = False;
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
-SITE_ROOT = os.path.abspath(os.path.dirname(__file__))
+SITE_ROOT = os.path.abspath(os.path.dirname(__file__) + '/../')
+WEBSITE_URL = '/'
+WEBSITE_ROOT = os.path.join(SITE_ROOT, 'static/website')
+TEMPLATE_DIRS = ( os.path.join(SITE_ROOT, 'templates'), )
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join( SITE_ROOT, 'static')
+STATIC_ROOT = os.path.join(SITE_ROOT, 'static')
 
 ADMIN_MEDIA_PREFIX = '/static/admin/'

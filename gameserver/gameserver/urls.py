@@ -21,6 +21,6 @@ urlpatterns = patterns('',
                        url(r'^game/lesson/(?P<lesson_id>\d+)/results/$', 'game.views.student_lesson_results'),
                        url(r'^game/lesson/answer/(?P<question_id>[\d]+)/$', 'game.views.student_answer_details'),
                        )
-urlpatterns += staticfiles_urlpatterns()
+urlpatterns += url(r'^static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.STATIC_ROOT, 'show_indexes': True}),
 urlpatterns += url(r'^$', 'django.views.static.serve', {'document_root': settings.WEBSITE_ROOT, 'path': 'index.html'}),
 urlpatterns += url(r'^(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.WEBSITE_ROOT}),

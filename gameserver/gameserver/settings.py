@@ -20,9 +20,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 SECRET_KEY = 'b4u*n^)pu658zw_gg8v89z^(c9)dfqr-%#a5-dk#l4b6!#hob-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
 ALLOWED_HOSTS = ['ggollmer.cloudapp.net']
 
@@ -70,6 +70,11 @@ MESSAGE_TAGS = {
 ROOT_URLCONF = 'gameserver.urls'
 
 WSGI_APPLICATION = 'gameserver.wsgi.application'
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    )
 
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',

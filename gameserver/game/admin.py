@@ -155,7 +155,7 @@ class WeightedLessonInline(admin.StackedInline):
 class CourseAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
-            'fields': ('number', 'name', 'year', 'instructor',)
+            'fields': ('number', 'name', 'year', 'instructor', 'description',)
         }),
         ('Students', {
             'fields': ('students',)

@@ -85,7 +85,7 @@ class Lesson(models.Model):
     )
 
     lesson_type = models.CharField(max_length=3, choices=LESSON_TYPES, default=ASSIGNMENT)
-    description = models.CharField(max_length=4096, default="")
+    description = models.TextField(max_length=4096, default="")
     author = models.ForeignKey(User, related_name='authored_lessons')
     topic = models.CharField(max_length=256)
     retakes = models.BooleanField(default=True)
@@ -108,6 +108,7 @@ class Course(models.Model):
     instructor = models.ForeignKey(User, related_name='instructed_courses', blank=True)
     students = models.ManyToManyField(User, related_name='registered_courses', blank=True)
     lessons = models.ManyToManyField(Lesson, related_name='courses', blank=True, through='WeightedLesson')
+    description = models.TextField(max_length=4096, default="")
     number = models.IntegerField()
     name = models.CharField(max_length=256)
     year = models.IntegerField()
@@ -171,7 +172,7 @@ class Question(models.Model):
         (CANNONS, "Cannons"),
     )
     name = models.CharField(max_length=128, default="")
-    description = models.CharField(max_length=4096, default="")
+    description = models.TextField(max_length=4096, default="")
     question_type = models.CharField(max_length=3, choices=QUESTION_TYPES, default=CANNONS)
     lesson = models.ForeignKey(Lesson, related_name='included_questions')
     order = models.IntegerField(default=0)
@@ -297,7 +298,7 @@ class ParagraphValue(models.Model):
     question = models.ForeignKey(Question, related_name='paragraph_values')
     name = models.CharField(null=False, max_length=32)
     order = models.IntegerField(default=0)
-    value = models.CharField(max_length=4096, blank=True)
+    value = models.TextField(max_length=4096, blank=True)
     max_length = models.IntegerField(default=2096)
     menu = models.BooleanField(default=False)
     editable = models.BooleanField(default=True)
@@ -439,7 +440,7 @@ class StringAnswer(models.Model):
 class ParagraphAnswer(models.Model):
     answer = models.ForeignKey(Answer, related_name='paragraph_answers')
     name = models.CharField(null=False, max_length=32)
-    value = models.CharField(max_length=4096, blank=True)
+    value = models.TextField(max_length=4096, blank=True)
     submitted = models.BooleanField(default=False)
 
     class Meta:

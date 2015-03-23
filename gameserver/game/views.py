@@ -26,6 +26,7 @@ class StudentListLessons(APIView):
             course = {}
             course['id'] = grade.id
             course['course_id'] = grade.course.id
+            course['description'] = grade.course.description
             course['current_grade'] = grade.get_final_grade()
             course['instructor'] = str(grade.course.instructor)
             course['number'] = grade.course.number

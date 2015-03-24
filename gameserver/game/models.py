@@ -235,12 +235,11 @@ def post_save_question(sender, instance=None, created=False, **kwargs):
         ParagraphValue.objects.create(question=instance, name="question_text_mobile", order=1, editable=False)
         StringValue.objects.create(question=instance, name="question_hint", order=2, menu=False, editable=False)
     elif instance.question_type == Question.CANNONS:
-        FloatingPointValue.objects.create(question=instance, name="player_pos_x", order=0)
+        FloatingPointValue.objects.create(question=instance, name="player_distance", order=0)
         FloatingPointValue.objects.create(question=instance, name="player_pos_y", order=1)
         FloatingPointValue.objects.create(question=instance, name="player_angle", order=2)
         FloatingPointValue.objects.create(question=instance, name="player_velocity", order=3)
-        FloatingPointValue.objects.create(question=instance, name="target_pos_x", order=4)
-        FloatingPointValue.objects.create(question=instance, name="target_pos_y", order=5)
+        FloatingPointValue.objects.create(question=instance, name="target_pos_y", order=4)
     # elif:
 
 
@@ -390,11 +389,10 @@ def post_save_answer(sender, instance=None, created=False, **kwargs):
         if instance.question.question_type == Question.NUMERIC:
             IntegerAnswer.objects.create(answer=instance, name="submitted_answer")
         elif instance.question.question_type == Question.CANNONS:
-            FloatingPointAnswer.objects.create(answer=instance, name="player_pos_x")
+            FloatingPointAnswer.objects.create(answer=instance, name="player_distance")
             FloatingPointAnswer.objects.create(answer=instance, name="player_pos_y")
             FloatingPointAnswer.objects.create(answer=instance, name="player_angle")
             FloatingPointAnswer.objects.create(answer=instance, name="player_velocity")
-            FloatingPointAnswer.objects.create(answer=instance, name="target_pos_x")
             FloatingPointAnswer.objects.create(answer=instance, name="target_pos_y")
 
 

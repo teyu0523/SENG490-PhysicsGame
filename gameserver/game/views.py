@@ -223,18 +223,13 @@ class StudentAnswer(APIView):
         else:
             return HttpResponseBadRequest('total_tries is a required field')
 
-        print("Dealing with values")
-
         for value in request.DATA['values'].values():
             if value['type'] == 'integer':
                 print(answer.integer_answers.get(id=value['id']))
                 serializer = game.serializers.IntegerAnswerSerializer(answer.integer_answers.get(id=value['id']), data=value)
                 print(serializer)
                 if(serializer.is_valid()):
-                    print("valid")
                     serializer.save(answer=answer)
-                else:
-                    print("not valid")
             elif value['type'] == 'float':
                 serializer = game.serializers.FloatingPointAnswerSerializer(answer.floating_point_answers.get(id=value['id']), data=value)
                 if(serializer.is_valid()):
@@ -249,14 +244,10 @@ class StudentAnswer(APIView):
                     serializer.save(answer=answer)
         answer.save()
 
-        print("Done dealing with values")
-
         aggregates = answer.lesson_grade.get_grades()
         if aggregates['answered_questions'] == aggregates['total_questions']:
             answer.lesson_grade.lesson_state = LessonGrade.FINISHED
             answer.lesson_grade.save()
-
-        print("All good!")
 
         return HttpResponse("success")
 

@@ -39,13 +39,15 @@ public class DropMenu : MonoBehaviour {
 		public int[] lessonId;
 		public bool[] clicked;
 		public string[] descriptions;
+		public int id;
 		public string course;
 		public Vector2[] scrollPositions;
 
-		public Course(string course, int lessonsSize)
+		public Course(string course, int id, int lessonsSize)
 			: this()
 		{
 			this.course = course;
+			this.id = id;
 			this.lessons = new string[lessonsSize];
 			this.lessonId = new int[lessonsSize];
 			this.clicked = new bool[lessonsSize];
@@ -74,7 +76,7 @@ public class DropMenu : MonoBehaviour {
 			j = 0;
 			foreach(JSONNode course_node in courses_node["courses"].AsArray)
 			{
-				courses.Add(new Course(course_node["name"], course_node["lessons"].Count));
+				courses.Add(new Course(course_node["name"], course_node["course_id"].AsInt, course_node["lessons"].Count));
 				foreach(JSONNode lessons_node in course_node["lessons"].AsArray)
 				{	
 					courses[j].clicked[i] = false;
@@ -212,7 +214,7 @@ public class DropMenu : MonoBehaviour {
 							if(GUILayout.Button("Start"))
 							{
 								LessonController controller = ((GameObject)GameObject.Instantiate(m_assignment_controller_prefab)).GetComponent<LessonController>();
-								controller.startLesson(courses[courseClick].lessonId[i]);
+								controller.startLesson(courses[courseClick].id, courses[courseClick].lessonId[i]);
 								draw_gui = false;
 							}
 							GUILayout.EndScrollView();

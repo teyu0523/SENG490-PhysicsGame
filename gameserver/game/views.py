@@ -67,11 +67,13 @@ class StudentLessonDetails(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    def getLesson(self, request, lesson_id):
-        return LessonGrade.objects.get(course_grade__student_id=request.user.id, lesson_id=lesson_id)
+    def getLesson(self, request, course_id, lesson_id):
+        return LessonGrade.objects.get(course_grade__student_id=request.user.id, lesson_id=lesson_id, course_grade__course_id=course_id)
 
-    def get(self, request, lesson_id, format=None):
-        lesson_grade = self.getLesson(request, lesson_id)
+    def get(self, request, course_id, lesson_id, format=None):
+        print(course_id, lesson_id)
+
+        lesson_grade = self.getLesson(request, course_id, lesson_id)
         if lesson_grade is None:
             return HttpResponseBadRequest("Student is not signed up for this lesson!")
 
@@ -82,6 +84,7 @@ class StudentLessonDetails(APIView):
         lesson_structure = game.serializers.LessonGradeSerializer(lesson_grade).data
         lesson_structure.update(game.serializers.LessonSerializer(lesson_grade.lesson).data)
         lesson_structure['lesson_id'] = lesson_grade.lesson.id
+        lesson_structure['course_id'] = lesson_grade.course_grade.course_id
         lesson_structure['weight'] = WeightedLesson.objects.get(lesson_id=lesson_grade.lesson_id, course_id=lesson_grade.course_grade.course_id).weight
         lesson_structure['total_questions'] = lesson_grade.get_grades()['total_questions']
         lesson_structure['answered_questions'] = lesson_grade.get_grades()['answered_questions']
@@ -129,17 +132,18 @@ class StudentLessonResults(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    def getLesson(self, request, lesson_id):
-        return LessonGrade.objects.get(course_grade__student_id=request.user.id, lesson_id=lesson_id)
+    def getLesson(self, request, course_id, lesson_id):
+        return LessonGrade.objects.get(course_grade__student_id=request.user.id, lesson_id=lesson_id, course_grade__course_id=course_id)
 
-    def get(self, request, lesson_id, format=None):
-        lesson_grade = self.getLesson(request, lesson_id)
+    def get(self, request, course_id, lesson_id, format=None):
+        lesson_grade = self.getLesson(request, course_id, lesson_id)
         if lesson_grade is None:
             return HttpResponseBadRequest("Student is not signed up for this lesson!")
 
         lesson_structure = {}
         lesson_structure['id'] = lesson_grade.id
         lesson_structure['lesson_id'] = lesson_grade.lesson.id
+        lesson_structure['course_id'] = lesson_grade.course_grade.course_id
         lesson_structure['weight'] = WeightedLesson.objects.get(lesson_id=lesson_grade.lesson_id, course_id=lesson_grade.course_grade.course_id).weight
         lesson_structure['lesson_state'] = lesson_grade.get_lesson_state_display()
         lesson_structure['total_questions'] = lesson_grade.get_grades()['total_questions']
@@ -174,10 +178,11 @@ class StudentAnswer(APIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request, question_id, format=None):
+    def get(self, request, course_id, question_id, format=None):
         (answer, created) = Answer.objects.get_or_create(question_id=question_id,
                                                          lesson_grade=LessonGrade.objects.get(lesson__included_questions__pk=question_id,
-                                                                                              course_grade__student_id=request.user.id))
+                                                                                              course_grade__student_id=request.user.id,
+                                                                                              course_grade__course_id=course_id))
 
         answer_structure = game.serializers.AnswerSerializer(answer).data
 
@@ -204,16 +209,16 @@ class StudentAnswer(APIView):
 
         return JsonResponse(answer_structure)
 
-    def post(self, request, question_id, format=None):
+    def post(self, request, course_id, question_id, format=None):
         print(question_id)
         print(request.DATA)
 
         try:
-            LessonGrade.objects.get(course_grade__student_id=request.user.id, lesson_id=Question.objects.get(id=question_id).lesson_id)
+            LessonGrade.objects.get(course_grade__student_id=request.user.id, lesson_id=Question.objects.get(id=question_id).lesson_id, course_grade__course_id=course_id)
         except:
             return HttpResponseBadRequest('No assignment exists for the provided student and question combination')
 
-        (answer, created) = Answer.objects.get_or_create(question_id=question_id, lesson_grade__course_grade__student_id=request.user.id)
+        (answer, created) = Answer.objects.get_or_create(question_id=question_id, lesson_grade__course_grade__student_id=request.user.id, lesson_grade__course_grade__course_id=course_id)
 
         # Important to note! All incomming data is in string format right now. Limitation of SimpleJSON...
 

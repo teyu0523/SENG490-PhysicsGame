@@ -122,6 +122,9 @@ class WeightedLesson(models.Model):
     lesson = models.ForeignKey(Lesson)
     weight = models.FloatField(default=10.0)
 
+    class Meta:
+        unique_together = (("course", "lesson"),)
+
     def __str__(self):
         return str(self.lesson)
 
@@ -137,7 +140,7 @@ def post_save_course_relation(sender, instance=None, created=False, **kwargs):
 @receiver(pre_delete, sender=WeightedLesson)
 def pre_delete_course_relation(sender, instance=None, using=None, **kwargs):
     # Removing grades when a lesson is removed from a course
-    instance.course.grades.all().delete()
+    LessonGrade.objects.filter(lesson_id=instance.lesson_id, course_grade__course_id=instance.course_id).delete()
 
 
 @receiver(m2m_changed, sender=Course.students.through)
@@ -318,7 +321,7 @@ class Grade(models.Model):
         for lesson_grade in self.lesson_grades.all():
             aggregates = lesson_grade.get_grades()
             if(aggregates['grade_max'] > 0):
-                final_grade += (aggregates['grade']/aggregates['grade_max'])
+                final_grade += (aggregates['grade']/aggregates['grade_max'])*WeightedLesson.objects.get(lesson_id=lesson_grade.lesson_id, course_id=lesson_grade.course_grade.course_id).weight
         return final_grade
 
     def __str__(self):

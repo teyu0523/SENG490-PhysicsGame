@@ -307,7 +307,7 @@ class GradeAdmin(admin.ModelAdmin):
         return False
 
     def final_grade(self, instance):
-        return "%g%%" % (round(instance.get_final_grade()*100, 2))
+        return "%g%%" % (round(instance.get_final_grade(), 2))
     final_grade.string = True
 
 

@@ -169,6 +169,7 @@ public class DropMenu : MonoBehaviour {
 				newButton = Instantiate (lessonPrefab) as GameObject;
 				buttonProperty = newButton.GetComponent <MenuButtonProperty>();
 				if ( courses[index].descriptions[i] != null){
+					Debug.Log("im here");
 					buttonProperty.descriptions.text = courses[index].descriptions[i];
 				}
 				buttonProperty.index = i;
@@ -201,7 +202,6 @@ public class DropMenu : MonoBehaviour {
 	public void clickedButtonLessons(int index){
 		LessonController controller = ((GameObject)GameObject.Instantiate(m_assignment_controller_prefab)).GetComponent<LessonController>();
 		controller.startLesson(courses[courseIndex].id, courses[courseIndex].lessonId[index]);
-		draw_gui = false;
 	}
 
 	// Update is called once per frame

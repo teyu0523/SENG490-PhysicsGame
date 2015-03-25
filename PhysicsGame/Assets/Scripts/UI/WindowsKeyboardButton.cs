@@ -18,9 +18,9 @@ public class WindowsKeyboardButton : MonoBehaviour {
 	public void OnClick() {
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
 		if(m_showing_keyboard) {
-			VirtualKeyboard.ShowTouchKeyboard();
+			VirtualKeyboard.ShowOnScreenKeyboard();
 		} else {
-			VirtualKeyboard.HideTouchKeyboard();
+			VirtualKeyboard.HideOnScreenKeyboard();
 		}
 #endif
 	}

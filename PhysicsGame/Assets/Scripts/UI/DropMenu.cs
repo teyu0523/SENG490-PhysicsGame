@@ -200,6 +200,8 @@ public class DropMenu : MonoBehaviour {
 
 	public void clickedButtonLessons(int index){
 		LessonController controller = ((GameObject)GameObject.Instantiate(m_assignment_controller_prefab)).GetComponent<LessonController>();
+		Debug.Log(courses[courseIndex].lessonId.Length);
+		Debug.Log(courses[courseIndex].lessonId[index]);
 		controller.startLesson(courses[courseIndex].id, courses[courseIndex].lessonId[index]);
 		draw_gui = false;
 	}

@@ -204,6 +204,10 @@ public class DropMenu : MonoBehaviour {
 		draw_gui = false;
 	}
 
+	public void clickedButtonLogout() {
+		NetworkingController.Instance.Logout(null);
+	}
+
 	// Update is called once per frame
 	void Update() {
 		

@@ -149,6 +149,14 @@ public class NetworkingController : MonoBehaviour {
 		}
 	}
 
+	public void Logout(WWWDelegate callback) {
+		m_auth_token = null;
+		if(callback != null) {
+			callback("success", null);
+		}
+		Application.LoadLevel(0);
+	}
+
 
 	/// <summary>
 	/// Gets the logged in user's list of lessons.

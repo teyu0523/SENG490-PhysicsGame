@@ -21,7 +21,8 @@ public class DropMenu : MonoBehaviour {
 	public GameObject lessonPrefab;
 	public GameObject scrollView;
 	public GameObject scrollViewLessons;
-	private GameObject[] buttonObjects;
+	public Button backButton;
+	private GameObject[] descriptionObjects;
 	private float native_width = 600;
 	private float native_height = 800;
   	private float scale_width;
@@ -35,11 +36,10 @@ public class DropMenu : MonoBehaviour {
 	private Vector2[] scrollPositions;
 	private RectTransform panelRectTransform;
 	public int[] lessonId;
-	public GUISkin mySkin = null;// = new GUISkin("areaStyle");
-	public Texture arrowUp = null;
 	public GameObject m_assignment_controller_prefab = null;
 	public string lessonsResult;
 	public string val;
+	public int courseIndex;
 	//private string lesson_result = null;
 	// Use this for initialization
 
@@ -103,6 +103,15 @@ public class DropMenu : MonoBehaviour {
 		} else {
 			Debug.Log("Lesson result is null, printing lesson_error: " + lesson_error);
 		}
+		// create gameobject for all courses
+		for (i=0; i<courses.Count; i++) {	
+			GameObject newButton = Instantiate (buttonPrefab) as GameObject;
+			MenuButtonProperty buttonProperty = newButton.GetComponent <MenuButtonProperty>();
+			buttonProperty.buttonValue.text = courses[i].course;
+			buttonProperty.index = i;
+			buttonProperty.mainButton.onClick.AddListener(() => clickedButtonCourses(buttonProperty.index)); 
+			newButton.transform.SetParent(displayPanel.transform);
+		}
 	}
 
 	public void Awake()
@@ -120,78 +129,69 @@ public class DropMenu : MonoBehaviour {
 		NetworkingController.Instance.GetLessons(OnLessonsReturn);
         heightSpace = 3;
 		heightButton = 50;
-		//buttonObjects = new GameObject[100]; //!!!!!!!!!!!!!!!!!!!!!!!
-		for (int i=0; i<courses.Count; i++) {		
-			GameObject newButton = Instantiate (buttonPrefab) as GameObject;
-			//buttonObjects[i] = newButton;
-			MenuButtonProperty buttonProperty = newButton.GetComponent <MenuButtonProperty>();
-			buttonProperty.buttonValue.text = courses[i].course;
-			buttonProperty.index = i;
-			buttonProperty.mainButton.onClick.AddListener(() => clickedButtonCourses(buttonProperty.index)); 
-			newButton.transform.SetParent(displayPanel.transform);
-		}
-		for(int i=0; i<100;i++){
-
-			GameObject newButton = Instantiate (buttonPrefab) as GameObject;
-			//buttonObjects[i] = newButton;
-			MenuButtonProperty buttonProperty = newButton.GetComponent <MenuButtonProperty>();
-			buttonProperty.buttonValue.text = i.ToString();
-			buttonProperty.index = i;
-			buttonProperty.mainButton.onClick.AddListener(() => clickedButtonCourses(buttonProperty.index)); 
-			newButton.transform.SetParent(displayPanel.transform);
-		}
 	}
 
 	public void clickedButtonCourses(int index){
+		
+		backButton.interactable = true;
 		if (index >= 0) {
-			/*for(int i=0; i<courses[index].lessons.Length; i++)
-			{		
-				GameObject newButton = Instantiate (buttonPrefab) as GameObject;
-				MenuButtonProperty buttonProperty = newButton.GetComponent <MenuButtonProperty>();
-				buttonProperty.buttonValue.text = courses[index].lessons[i];
-				buttonProperty.descriptions.text = courses[index].descriptions[i].
-				buttonProperty.index = i;
-				buttonProperty.startButton.onClick.AddListener(() => clickedButtonLessons(buttonProperty.index);
-				newButton.transform.SetParent(displayPanel.transform);
-			}*/
-			/*for(int i=0; i<buttonObjects.Length; i++)
-			{
-				buttonObjects[i].SetActive(false);
-			}*/
+			var children = new List<GameObject>();
+			foreach (Transform child in displayPanelLessons.transform) children.Add(child.gameObject);
+			children.ForEach(child => Destroy(child));
+			courseIndex = index;
 			scrollViewLessons.SetActive(true);
 			scrollView.SetActive(false);
-			for(int i=0; i<10; i++)
+			descriptionObjects = new GameObject[courses[index].lessons.Length];
+			for(int i=0; i<courses[index].lessons.Length; i++)
 			{		
 
 				GameObject newButton = Instantiate (buttonPrefab) as GameObject;
-				//buttonObjects[i] = newButton;
 				MenuButtonProperty buttonProperty = newButton.GetComponent <MenuButtonProperty>();
-				buttonProperty.buttonValue.text = i.ToString();
+				buttonProperty.buttonValue.text = courses[index].lessons[i];
 				buttonProperty.index = i;
-				buttonProperty.mainButton.onClick.AddListener(() => clickedButtonCourses(buttonProperty.index)); 
+				buttonProperty.mainButton.onClick.AddListener(() => clickedButtonDescription(buttonProperty.index)); 
 				newButton.transform.SetParent(displayPanelLessons.transform);
 
 				newButton = Instantiate (lessonPrefab) as GameObject;
 				buttonProperty = newButton.GetComponent <MenuButtonProperty>();
-				//buttonProperty.buttonValue.text = i.ToString();
-				//buttonProperty.mainButton.Text.text = i.ToString();
-				//buttonProperty.descriptions.text = "llalalalala";
+				if ( courses[index].descriptions[i] != null){
+					buttonProperty.descriptions.text = courses[index].descriptions[i];
+				}
 				buttonProperty.index = i;
-				buttonProperty.startButton.onClick.AddListener(() => clickedButtonLessons(buttonProperty.index));
+				buttonProperty.mainButton.onClick.AddListener(() => clickedButtonLessons(buttonProperty.index));
 				newButton.transform.SetParent(displayPanelLessons.transform);
+				newButton.SetActive(false);
+				descriptionObjects[i] = newButton;
 			}
 
 		}
 
 	}
 
-	public void clickedButtonLessons(int index){
+	public void setPreviousPage(){
+		scrollViewLessons.SetActive(false);
+		scrollView.SetActive(true);
+		backButton.interactable = false;
+	}
 
+	public void clickedButtonDescription(int index){
+		if(descriptionObjects[index].activeSelf){
+			descriptionObjects[index].SetActive(false);
+		}else{
+			descriptionObjects[index].SetActive(true);
+		}
+		
+	}
+
+	public void clickedButtonLessons(int index){
+		LessonController controller = ((GameObject)GameObject.Instantiate(m_assignment_controller_prefab)).GetComponent<LessonController>();
+		controller.startLesson(courses[courseIndex].id, courses[courseIndex].lessonId[index]);
+		draw_gui = false;
 	}
 
 	// Update is called once per frame
 	void Update() {
-
+		
 	}
 
 	/*public void OnGUI() 

@@ -111,6 +111,8 @@ public class DropMenu : MonoBehaviour {
 			buttonProperty.index = i;
 			buttonProperty.mainButton.onClick.AddListener(() => clickedButtonCourses(buttonProperty.index)); 
 			newButton.transform.SetParent(displayPanel.transform);
+			newButton.transform.localScale = new Vector3(1f, 1f, 1f);
+
 		}
 	}
 
@@ -151,6 +153,18 @@ public class DropMenu : MonoBehaviour {
 				buttonProperty.index = i;
 				buttonProperty.mainButton.onClick.AddListener(() => clickedButtonDescription(buttonProperty.index)); 
 				newButton.transform.SetParent(displayPanelLessons.transform);
+				newButton.transform.localScale = new Vector3(1f, 1f, 1f);
+
+
+
+				/*newButton = Instantiate (buttonPrefab ) as GameObject;
+				buttonProperty = newButton.GetComponent <MenuButtonProperty>();
+				buttonProperty.buttonValue.text = "Start";
+				buttonProperty.index = i;
+				buttonProperty.mainButton.onClick.AddListener(() => clickedButtonLessons(buttonProperty.index));
+				newButton.transform.SetParent(displayPanelLessons.transform);
+				newButton.SetActive(false);
+				descriptionObjects[i] = newButton;*/
 
 				newButton = Instantiate (lessonPrefab) as GameObject;
 				buttonProperty = newButton.GetComponent <MenuButtonProperty>();
@@ -160,6 +174,7 @@ public class DropMenu : MonoBehaviour {
 				buttonProperty.index = i;
 				buttonProperty.mainButton.onClick.AddListener(() => clickedButtonLessons(buttonProperty.index));
 				newButton.transform.SetParent(displayPanelLessons.transform);
+				newButton.transform.localScale = new Vector3(1f, 1f, 1f);
 				newButton.SetActive(false);
 				descriptionObjects[i] = newButton;
 			}
@@ -317,9 +332,4 @@ public class DropMenu : MonoBehaviour {
 		GUI.EndScrollView();
 	}*/
 
-//	public void MoveInHierarchy(int delta) {
-//		print ("im here");
-//		int index = transform.GetSiblingIndex();
-//		transform.SetSiblingIndex (index + delta);
-//	}
 }

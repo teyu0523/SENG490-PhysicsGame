@@ -9,4 +9,6 @@ public class MenuButtonProperty : MonoBehaviour {
 	public Text descriptions;
 	public Button mainButton;
 	public int index = -1;
+		public VerticalLayoutGroup vlg;
+
 }

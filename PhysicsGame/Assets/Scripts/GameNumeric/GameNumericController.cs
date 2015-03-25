@@ -104,6 +104,11 @@ public class GameNumericController : GameController {
 		}
 	}
 
+	public override void OnSubmit ()
+	{
+		OnSubmitButtonPressed();
+	}
+
 	/// <summary>
 	/// Called when the user hits the submit button.
 	/// </summary>

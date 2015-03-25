@@ -88,4 +88,6 @@ public abstract class GameController : MonoBehaviour {
 			m_touch_started = false;
 		}
 	}
+
+	public virtual void OnSubmit() {}
 }

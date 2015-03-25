@@ -85,6 +85,7 @@ class Lesson(models.Model):
     )
 
     lesson_type = models.CharField(max_length=3, choices=LESSON_TYPES, default=ASSIGNMENT)
+    description = models.TextField(max_length=4096, default="")
     author = models.ForeignKey(User, related_name='authored_lessons')
     topic = models.CharField(max_length=256)
     retakes = models.BooleanField(default=True)
@@ -107,6 +108,7 @@ class Course(models.Model):
     instructor = models.ForeignKey(User, related_name='instructed_courses', blank=True)
     students = models.ManyToManyField(User, related_name='registered_courses', blank=True)
     lessons = models.ManyToManyField(Lesson, related_name='courses', blank=True, through='WeightedLesson')
+    description = models.TextField(max_length=4096, default="")
     number = models.IntegerField()
     name = models.CharField(max_length=256)
     year = models.IntegerField()
@@ -119,6 +121,9 @@ class WeightedLesson(models.Model):
     course = models.ForeignKey(Course)
     lesson = models.ForeignKey(Lesson)
     weight = models.FloatField(default=10.0)
+
+    class Meta:
+        unique_together = (("course", "lesson"),)
 
     def __str__(self):
         return str(self.lesson)
@@ -135,7 +140,7 @@ def post_save_course_relation(sender, instance=None, created=False, **kwargs):
 @receiver(pre_delete, sender=WeightedLesson)
 def pre_delete_course_relation(sender, instance=None, using=None, **kwargs):
     # Removing grades when a lesson is removed from a course
-    instance.course.grades.all().delete()
+    LessonGrade.objects.filter(lesson_id=instance.lesson_id, course_grade__course_id=instance.course_id).delete()
 
 
 @receiver(m2m_changed, sender=Course.students.through)
@@ -170,6 +175,7 @@ class Question(models.Model):
         (CANNONS, "Cannons"),
     )
     name = models.CharField(max_length=128, default="")
+    description = models.TextField(max_length=4096, default="")
     question_type = models.CharField(max_length=3, choices=QUESTION_TYPES, default=CANNONS)
     lesson = models.ForeignKey(Lesson, related_name='included_questions')
     order = models.IntegerField(default=0)
@@ -232,12 +238,11 @@ def post_save_question(sender, instance=None, created=False, **kwargs):
         ParagraphValue.objects.create(question=instance, name="question_text_mobile", order=1, editable=False)
         StringValue.objects.create(question=instance, name="question_hint", order=2, menu=False, editable=False)
     elif instance.question_type == Question.CANNONS:
-        FloatingPointValue.objects.create(question=instance, name="player_pos_x", order=0)
+        FloatingPointValue.objects.create(question=instance, name="player_distance", order=0)
         FloatingPointValue.objects.create(question=instance, name="player_pos_y", order=1)
         FloatingPointValue.objects.create(question=instance, name="player_angle", order=2)
         FloatingPointValue.objects.create(question=instance, name="player_velocity", order=3)
-        FloatingPointValue.objects.create(question=instance, name="target_pos_x", order=4)
-        FloatingPointValue.objects.create(question=instance, name="target_pos_y", order=5)
+        FloatingPointValue.objects.create(question=instance, name="target_pos_y", order=4)
     # elif:
 
 
@@ -295,7 +300,7 @@ class ParagraphValue(models.Model):
     question = models.ForeignKey(Question, related_name='paragraph_values')
     name = models.CharField(null=False, max_length=32)
     order = models.IntegerField(default=0)
-    value = models.CharField(max_length=4096, blank=True)
+    value = models.TextField(max_length=4096, blank=True)
     max_length = models.IntegerField(default=2096)
     menu = models.BooleanField(default=False)
     editable = models.BooleanField(default=True)
@@ -316,7 +321,7 @@ class Grade(models.Model):
         for lesson_grade in self.lesson_grades.all():
             aggregates = lesson_grade.get_grades()
             if(aggregates['grade_max'] > 0):
-                final_grade += (aggregates['grade']/aggregates['grade_max'])
+                final_grade += (aggregates['grade']/aggregates['grade_max'])*WeightedLesson.objects.get(lesson_id=lesson_grade.lesson_id, course_id=lesson_grade.course_grade.course_id).weight
         return final_grade
 
     def __str__(self):
@@ -387,11 +392,10 @@ def post_save_answer(sender, instance=None, created=False, **kwargs):
         if instance.question.question_type == Question.NUMERIC:
             IntegerAnswer.objects.create(answer=instance, name="submitted_answer")
         elif instance.question.question_type == Question.CANNONS:
-            FloatingPointAnswer.objects.create(answer=instance, name="player_pos_x")
+            FloatingPointAnswer.objects.create(answer=instance, name="player_distance")
             FloatingPointAnswer.objects.create(answer=instance, name="player_pos_y")
             FloatingPointAnswer.objects.create(answer=instance, name="player_angle")
             FloatingPointAnswer.objects.create(answer=instance, name="player_velocity")
-            FloatingPointAnswer.objects.create(answer=instance, name="target_pos_x")
             FloatingPointAnswer.objects.create(answer=instance, name="target_pos_y")
 
 
@@ -437,7 +441,7 @@ class StringAnswer(models.Model):
 class ParagraphAnswer(models.Model):
     answer = models.ForeignKey(Answer, related_name='paragraph_answers')
     name = models.CharField(null=False, max_length=32)
-    value = models.CharField(max_length=4096, blank=True)
+    value = models.TextField(max_length=4096, blank=True)
     submitted = models.BooleanField(default=False)
 
     class Meta:

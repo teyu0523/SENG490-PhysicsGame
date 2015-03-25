@@ -6,6 +6,7 @@ public class LessonController : MonoBehaviour {
 
 	private bool m_running = false;
 
+	private int m_course_id = 0;
 	private int m_lesson_id = 0;
 	private JSONNode m_lesson = null;
 	private JSONNode m_result = null;
@@ -20,7 +21,7 @@ public class LessonController : MonoBehaviour {
 	/// </summary>
 	/// <returns><c>true</c>, if assignment was started, <c>false</c> otherwise.</returns>
 	/// <param name="lesson_id">The id of lesson to start.</param>
-	public bool startLesson(int lesson_id)
+	public bool startLesson(int course_id, int lesson_id)
 	{
 		if(m_running)
 		{
@@ -28,10 +29,11 @@ public class LessonController : MonoBehaviour {
 		}
 		m_running = true;
 		m_lesson_id = lesson_id;
+		m_course_id = course_id;
 		DontDestroyOnLoad(gameObject);
 
 		LoadingController.Instance.show ();
-		NetworkingController.Instance.GetLesson(lesson_id, lessonDetailCallback);
+		NetworkingController.Instance.GetLesson(course_id, lesson_id, lessonDetailCallback);
 
 		return m_running;
 	}
@@ -67,13 +69,13 @@ public class LessonController : MonoBehaviour {
 	private void prepareNextQuestion() {
 		LoadingController.Instance.show ();
 		if(m_question_index >= m_lesson["questions"].AsArray.Count) {
-			NetworkingController.Instance.GetLessonResults(m_lesson_id, displayLessonResults);
+			NetworkingController.Instance.GetLessonResults(m_course_id, m_lesson_id, displayLessonResults);
 		}
 		else 
 		{
 			int question_id = m_lesson["questions"][m_question_index]["id"].AsInt;
 
-			NetworkingController.Instance.GetPreviousAnswer(question_id, launchNextQuestion);
+			NetworkingController.Instance.GetPreviousAnswer(m_course_id, question_id, launchNextQuestion);
 		}
 	}
 
@@ -141,7 +143,7 @@ public class LessonController : MonoBehaviour {
 		LoadingController.Instance.show ();
 		string answer_string = new_answer.ToString();
 		int question_id = m_lesson["questions"][m_question_index]["id"].AsInt;
-		NetworkingController.Instance.SubmitAnswer(question_id, answer_string, (result, error) => {
+		NetworkingController.Instance.SubmitAnswer(m_course_id, question_id, answer_string, (result, error) => {
 			LoadingController.Instance.hide ();
 			if(error != null) {
 				Debug.LogError("Error Submitting Answer: " + error);

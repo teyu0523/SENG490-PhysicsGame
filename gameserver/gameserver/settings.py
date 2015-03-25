@@ -22,9 +22,9 @@ SECRET_KEY = 'b4u*n^)pu658zw_gg8v89z^(c9)dfqr-%#a5-dk#l4b6!#hob-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['ggollmer.cloudapp.net']
 
 
 # Application definition
@@ -41,13 +41,14 @@ INSTALLED_APPS = (
     'debug_toolbar',
     'rest_framework',
     'rest_framework.authtoken',
-    'game'
+    'game',
+    'website'
 )
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -70,6 +71,16 @@ MESSAGE_TAGS = {
 ROOT_URLCONF = 'gameserver.urls'
 
 WSGI_APPLICATION = 'gameserver.wsgi.application'
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    )
+
+TEMPLATE_LOADERS = (
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
+)
 
 
 # Database
@@ -99,14 +110,17 @@ USE_L10N = True
 
 USE_TZ = True
 
-SESSION_COOKIE_SECURE = False;
-CSRF_COOKIE_SECURE = False;
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
-SITE_ROOT = os.path.abspath(os.path.dirname(__file__))
+SITE_ROOT = os.path.abspath(os.path.dirname(__file__) + '/../')
+WEBSITE_URL = '/'
+WEBSITE_ROOT = os.path.join(SITE_ROOT, 'static/website')
+TEMPLATE_DIRS = ( os.path.join(SITE_ROOT, 'templates'), )
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join( SITE_ROOT, 'static')
+STATIC_ROOT = os.path.join(SITE_ROOT, 'static')
 
 ADMIN_MEDIA_PREFIX = '/static/admin/'

@@ -16,6 +16,7 @@ public class NetworkingController : MonoBehaviour {
 		// If this is the first networking controller it becomes the singleton
 		// The first networking controller will not be destroyed on a scene change.
 		if(m_instance == null) {
+			Debug.Log ("First networking controller spawned");
 			m_instance = this;
 			DontDestroyOnLoad(gameObject);
 		} else {
@@ -68,12 +69,13 @@ public class NetworkingController : MonoBehaviour {
 			JSONNode course_node = JSON.Parse(result);
 
 			// This reads a specfic value ["x"] is an item from an object [x] is an item from an array.
-			int lesson_id = course_node["courses"][0]["lessons"][0]["lesson_id"].AsInt;
+			int course_id = course_node["courses"][1]["course_id"].AsInt;
+			int lesson_id = course_node["courses"][1]["lessons"][0]["lesson_id"].AsInt;
 
 			Debug.Log ("Testing Course: " + lesson_id);
 
 			// Now I can get the lesson details.
-			NetworkingController.Instance.GetLesson(lesson_id, (lesson_result, lesson_error) => {
+			NetworkingController.Instance.GetLesson(course_id, lesson_id, (lesson_result, lesson_error) => {
 				if(lesson_result != null) {
 					Debug.Log(lesson_result);
 					JSONNode lesson_node = JSON.Parse(lesson_result);
@@ -84,7 +86,7 @@ public class NetworkingController : MonoBehaviour {
 					Debug.Log("Testing Question: " + question_id);
 
 					// And see if we have answered it before.
-					NetworkingController.Instance.GetPreviousAnswer(question_id, (question_result, question_error) => {
+					NetworkingController.Instance.GetPreviousAnswer(course_id, question_id, (question_result, question_error) => {
 						if(question_result != null) {
 							Debug.Log(question_result);
 						} else {
@@ -157,7 +159,15 @@ public class NetworkingController : MonoBehaviour {
 	}
 	private IEnumerator lessons_coroutine(WWWDelegate callback) {
 		log(System.String.Format("{0}/game/lessons", server));
-		WWW www = new WWW(System.String.Format("{0}/game/lessons", server), null, generateAuthHeaders());
+
+#if (UNITY_IOS || UNITY_IPHONE) && !UNITY_EDITOR
+		WWWForm data = new WWWForm();
+		data.AddField("auth", m_auth_token);
+		WWW www = new WWW(System.String.Format("{0}/game/lessons/", server), System.Text.Encoding.UTF8.GetBytes("{}"), generateAuthHeaders());
+#else
+		WWW www = new WWW(System.String.Format("{0}/game/lessons/", server), null, generateAuthHeaders());
+#endif
+
 		yield return www;
 
 		executeCallback(www, callback);
@@ -167,14 +177,15 @@ public class NetworkingController : MonoBehaviour {
 	/// <summary>
 	/// Gets the logged in user's lesson specific data.
 	/// </summary>
-	/// <param name="lesson_id">Lesson_id.</param>
+	/// <param name="course_id">The course id that the lesson is from.</param>
+	/// <param name="lesson_id">The id for the lesson.</param>
 	/// <param name="callback">Callback.</param>
-	public void GetLesson(int lesson_id, WWWDelegate callback) {
-		StartCoroutine(lesson_coroutine(lesson_id, callback));
+	public void GetLesson(int course_id, int lesson_id, WWWDelegate callback) {
+		StartCoroutine(lesson_coroutine(course_id, lesson_id, callback));
 	}
-	private IEnumerator lesson_coroutine(int lesson_id, WWWDelegate callback) {
-		log(System.String.Format("{0}/game/lesson/{1}/", server, lesson_id));
-		WWW www = new WWW(System.String.Format("{0}/game/lesson/{1}/", server, lesson_id), null, generateAuthHeaders());
+	private IEnumerator lesson_coroutine(int course_id, int lesson_id, WWWDelegate callback) {
+		log(System.String.Format("{0}/game/lesson/{1}/{2}/", server, course_id, lesson_id));
+		WWW www = new WWW(System.String.Format("{0}/game/lesson/{1}/{2}/", server, course_id, lesson_id), null, generateAuthHeaders());
 		yield return www;
 
 		executeCallback(www, callback);
@@ -184,14 +195,15 @@ public class NetworkingController : MonoBehaviour {
 	/// <summary>
 	/// Gets the logged in user's lesson specific results.
 	/// </summary>
-	/// <param name="lesson_id">Lesson_id.</param>
+	/// <param name="course_id">The course id that the lesson is from.</param>
+	/// <param name="lesson_id">The id for the lesson.</param>
 	/// <param name="callback">Callback.</param>
-	public void GetLessonResults(int lesson_id, WWWDelegate callback) {
-		StartCoroutine(lesson_results_coroutine(lesson_id, callback));
+	public void GetLessonResults(int course_id, int lesson_id, WWWDelegate callback) {
+		StartCoroutine(lesson_results_coroutine(course_id, lesson_id, callback));
 	}
-	private IEnumerator lesson_results_coroutine(int lesson_id, WWWDelegate callback) {
-		log(System.String.Format("{0}/game/lesson/{1}/results/", server, lesson_id));
-		WWW www = new WWW(System.String.Format("{0}/game/lesson/{1}/results/", server, lesson_id), null, generateAuthHeaders());
+	private IEnumerator lesson_results_coroutine(int course_id, int lesson_id, WWWDelegate callback) {
+		log(System.String.Format("{0}/game/lesson/{1}/{2}/results/", server, course_id, lesson_id));
+		WWW www = new WWW(System.String.Format("{0}/game/lesson/{1}/{2}/results/", server, course_id, lesson_id), null, generateAuthHeaders());
 		yield return www;
 		
 		executeCallback(www, callback);
@@ -203,12 +215,12 @@ public class NetworkingController : MonoBehaviour {
 	/// </summary>
 	/// <param name="question_id">The id of the question.</param>
 	/// <param name="callback">The callback to be called on completion or error</param>
-	public void GetPreviousAnswer(int question_id, WWWDelegate callback) {
-		StartCoroutine(get_answer_coroutine(question_id, callback));
+	public void GetPreviousAnswer(int course_id, int question_id, WWWDelegate callback) {
+		StartCoroutine(get_answer_coroutine(course_id, question_id, callback));
 	}
-	private IEnumerator get_answer_coroutine(int question_id, WWWDelegate callback) {
-		log(System.String.Format("{0}/game/lesson/answer/{1}/", server, question_id));
-		WWW www = new WWW(System.String.Format("{0}/game/lesson/answer/{1}/", server, question_id), null, generateAuthHeaders());
+	private IEnumerator get_answer_coroutine(int course_id, int question_id, WWWDelegate callback) {
+		log(System.String.Format("{0}/game/lesson/answer/{1}/{2}/", server, course_id, question_id));
+		WWW www = new WWW(System.String.Format("{0}/game/lesson/answer/{1}/{2}/", server, course_id, question_id), null, generateAuthHeaders());
 		yield return www;
 		
 		executeCallback(www, callback);
@@ -221,12 +233,12 @@ public class NetworkingController : MonoBehaviour {
 	/// <param name="question_id">The id of the question..</param>
 	/// <param name="answer_json">The string representation of the JSON answer format.</param>
 	/// <param name="callback">The callback to be called on completion or error.</param>
-	public void SubmitAnswer(int question_id, string answer_json, WWWDelegate callback) {
-		StartCoroutine(set_answer_coroutine(question_id, answer_json, callback));
+	public void SubmitAnswer(int course_id, int question_id, string answer_json, WWWDelegate callback) {
+		StartCoroutine(set_answer_coroutine(course_id, question_id, answer_json, callback));
 	}
-	private IEnumerator set_answer_coroutine(int question_id, string answer_json, WWWDelegate callback) {
-		log(System.String.Format("{0}/game/lesson/answer/{1}/", server, question_id));
-		WWW www = new WWW(System.String.Format("{0}/game/lesson/answer/{1}/", server, question_id), System.Text.Encoding.UTF8.GetBytes(answer_json), generateJSONPostHeaders());
+	private IEnumerator set_answer_coroutine(int course_id, int question_id, string answer_json, WWWDelegate callback) {
+		log(System.String.Format("{0}/game/lesson/answer/{1}/{2}/", server, course_id, question_id));
+		WWW www = new WWW(System.String.Format("{0}/game/lesson/answer/{1}/{2}/", server, course_id, question_id), System.Text.Encoding.UTF8.GetBytes(answer_json), generateJSONPostHeaders());
 		yield return www;
 		
 		executeCallback(www, callback);

@@ -37,7 +37,7 @@ public class TestGameLauncher : MonoBehaviour {
 						{
 							Debug.Log("Found lesson: " + lesson_node["lesson_id"]);
 							LessonController controller = ((GameObject)GameObject.Instantiate(m_assignment_controller_prefab)).GetComponent<LessonController>();
-							controller.startLesson(lesson_node["lesson_id"].AsInt);
+							controller.startLesson(course_node["course_id"].AsInt, lesson_node["lesson_id"].AsInt);
 							return;
 						}
 					}

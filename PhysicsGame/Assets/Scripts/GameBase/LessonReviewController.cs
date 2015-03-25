@@ -22,7 +22,7 @@ public class LessonReviewController : MonoBehaviour {
 			container.m_name_label.text = node["name"].Value;
 			container.m_type_label.text = node["type"].Value;
 			container.m_mark_label.text = node["mark"].Value;
-			new_answer.transform.SetParent(m_answer_list_container.transform);
+			new_answer.transform.SetParent(m_answer_list_container.transform, false);
 		}
 	}
 

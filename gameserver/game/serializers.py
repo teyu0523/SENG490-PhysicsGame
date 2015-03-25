@@ -49,7 +49,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = game.models.Question
-        fields = ('id', 'name', 'order', 'marks', 'max_tries', 'playable')
+        fields = ('id', 'name', 'description', 'order', 'marks', 'max_tries', 'playable')
 
     def to_representation(self, obj):
         result = super(QuestionSerializer, self).to_representation(obj)
@@ -71,7 +71,7 @@ class LessonSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = game.models.Lesson
-        fields = ('author', 'lesson_type', 'topic', 'retakes', 'one_sitting')
+        fields = ('description', 'author', 'lesson_type', 'topic', 'retakes', 'one_sitting')
 
 
 # ========================================================== #

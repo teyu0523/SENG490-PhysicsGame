@@ -22,15 +22,6 @@ public class LoginMenu : MonoBehaviour {
   	private float scale_width;
  	private float scale_height;
 
- 	private Matrix4x4 gui_matrix;
-	public float baseWidth = 1080 ;
-	public float baseHeight = 1920;
-
-	private float baseAspect;
-	private float targetAspect;
-	private float m03;
-	private float m13;
-	private float m33;
 
 
 	// Use this for initialization

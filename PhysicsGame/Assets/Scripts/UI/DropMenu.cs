@@ -76,8 +76,9 @@ public class DropMenu : MonoBehaviour {
 	}
 
 	public void logout(){
-		NetworkingController.Instance.Logout(WWWDelegate);
+		NetworkingController.Instance.Logout(null);
 	}
+
 	public List<Course> courses = new List<Course>();
 	public void OnLessonsReturn(string lesson_result, string lesson_error)
 	{

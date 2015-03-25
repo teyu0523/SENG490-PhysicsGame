@@ -9,12 +9,6 @@ using SimpleJSON;
 using Image = UnityEngine.UI.Image;
 
 public class DropMenu : MonoBehaviour {
-	//private int numLessons = 0;
-	//private int numCourses = 0;
-	private GUIStyle styleBox;
-	private float heightTextArea ,heightSpace, heightButton;
-	private float widthTextArea, widthButton;
-	private string[] lessons;
 	public GameObject displayPanel;
 	public GameObject displayPanelLessons;
 	public GameObject buttonPrefab;
@@ -22,29 +16,16 @@ public class DropMenu : MonoBehaviour {
 	public GameObject scrollView;
 	public GameObject scrollViewLessons;
 	public Button backButton;
-	private GameObject[] descriptionObjects;
-	private float native_width = 600;
-	private float native_height = 800;
-  	private float scale_width;
- 	private float scale_height;
-
-	private string[] descriptions;
-	private int courseClick = -1;
-	private float yButton, yBoxArea, panelHeight, panelTop, panelLeft, panelWidth;
-	private float totalHeight; // total height of all UI
-	private Vector2 scrollPosition = Vector2.zero;
-	private Vector2[] scrollPositions;
-	private RectTransform panelRectTransform;
-	public int[] lessonId;
 	public GameObject m_assignment_controller_prefab = null;
-	public string lessonsResult;
-	public string val;
-	public int courseIndex;
-	//private string lesson_result = null;
-	// Use this for initialization
 
-	private bool draw_gui = true;
+	private string lessonsResult;
+	private int courseIndex;
+	private GameObject[] descriptionObjects;
+	private string[] lessons;
+	private int[] lessonId;
+	private string[] descriptions;
 
+	/* struct of each course */
 	public struct Course
 	{
 		public string[] lessons;
@@ -53,7 +34,6 @@ public class DropMenu : MonoBehaviour {
 		public string[] descriptions;
 		public int id;
 		public string course;
-		public Vector2[] scrollPositions;
 
 		public Course(string course, int id, int lessonsSize)
 			: this()
@@ -64,25 +44,48 @@ public class DropMenu : MonoBehaviour {
 			this.lessonId = new int[lessonsSize];
 			this.clicked = new bool[lessonsSize];
 			this.descriptions = new string[lessonsSize];
-			this.scrollPositions = new Vector2[lessonsSize];
-			int i;
-			for(i=0; i<lessonsSize; i++)
-			{
-				this.scrollPositions[i] = Vector2.zero;
-			}
 		}
 
 	}
-	
+
+	/* display menu */
+	public void setPreviousPage(){
+		scrollViewLessons.SetActive(false);
+		scrollView.SetActive(true);
+		backButton.interactable = false;
+	}
+
+	/* display the additional description and start button in lesson menu*/
+	public void clickedButtonDescription(int index){
+		if(descriptionObjects[index].activeSelf){
+			descriptionObjects[index].SetActive(false);
+		}else{
+			descriptionObjects[index].SetActive(true);
+		}
+		
+	}
+
+	/* redirect to game */
+	public void clickedButtonLessons(int index){
+		if(m_assignment_controller_prefab!=null){
+			LessonController controller = ((GameObject)GameObject.Instantiate(m_assignment_controller_prefab)).GetComponent<LessonController>();
+			controller.startLesson(courses[courseIndex].id, courses[courseIndex].lessonId[index]);
+		} else {
+			Debug.Log("Shouldn't happen!");
+		}
+	}
+
+	public void logout(){
+		NetworkingController.Instance.Logout(WWWDelegate);
+	}
 	public List<Course> courses = new List<Course>();
 	public void OnLessonsReturn(string lesson_result, string lesson_error)
 	{
-		draw_gui = true;
 		LoadingController.Instance.hide();
 		int j, i;
 		Debug.Log(lesson_result);
+		/* parse json */
 		if(lesson_result != null){
-			//print (lesson_result);
 			JSONNode courses_node = JSON.Parse(lesson_result);
 			i = 0;
 			j = 0;
@@ -116,21 +119,12 @@ public class DropMenu : MonoBehaviour {
 		}
 	}
 
-	public void Awake()
-	{
-		scale_width = (Screen.width) / native_width;
-     	scale_height = (Screen.height) / native_height;   
-	}
 
 	public void Start () 
 	{
 		scrollViewLessons.SetActive(false);
-		panelRectTransform = GetComponent<RectTransform> ();
 		LoadingController.Instance.show();
-		draw_gui = false;
 		NetworkingController.Instance.GetLessons(OnLessonsReturn);
-        heightSpace = 3;
-		heightButton = 50;
 	}
 
 	public void clickedButtonCourses(int index){
@@ -144,9 +138,11 @@ public class DropMenu : MonoBehaviour {
 			scrollViewLessons.SetActive(true);
 			scrollView.SetActive(false);
 			descriptionObjects = new GameObject[courses[index].lessons.Length];
+
+			/* generate list of lessons */
 			for(int i=0; i<courses[index].lessons.Length; i++)
 			{		
-
+				/* generate the buttons with title of lesson */
 				GameObject newButton = Instantiate (buttonPrefab) as GameObject;
 				MenuButtonProperty buttonProperty = newButton.GetComponent <MenuButtonProperty>();
 				buttonProperty.buttonValue.text = courses[index].lessons[i];
@@ -155,22 +151,13 @@ public class DropMenu : MonoBehaviour {
 				newButton.transform.SetParent(displayPanelLessons.transform);
 				newButton.transform.localScale = new Vector3(1f, 1f, 1f);
 
-
-
-				/*newButton = Instantiate (buttonPrefab ) as GameObject;
-				buttonProperty = newButton.GetComponent <MenuButtonProperty>();
-				buttonProperty.buttonValue.text = "Start";
-				buttonProperty.index = i;
-				buttonProperty.mainButton.onClick.AddListener(() => clickedButtonLessons(buttonProperty.index));
-				newButton.transform.SetParent(displayPanelLessons.transform);
-				newButton.SetActive(false);
-				descriptionObjects[i] = newButton;*/
-
+				/* generate the descriptions and start button while by default hiding them */
 				newButton = Instantiate (lessonPrefab) as GameObject;
 				buttonProperty = newButton.GetComponent <MenuButtonProperty>();
 				if ( courses[index].descriptions[i] != null){
-					Debug.Log("im here");
 					buttonProperty.descriptions.text = courses[index].descriptions[i];
+				} else {
+					buttonProperty.descriptions.text = "";
 				}
 				buttonProperty.index = i;
 				buttonProperty.mainButton.onClick.AddListener(() => clickedButtonLessons(buttonProperty.index));
@@ -184,152 +171,13 @@ public class DropMenu : MonoBehaviour {
 
 	}
 
-	public void setPreviousPage(){
-		scrollViewLessons.SetActive(false);
-		scrollView.SetActive(true);
-		backButton.interactable = false;
-	}
 
-	public void clickedButtonDescription(int index){
-		if(descriptionObjects[index].activeSelf){
-			descriptionObjects[index].SetActive(false);
-		}else{
-			descriptionObjects[index].SetActive(true);
-		}
-		
-	}
-
-	public void clickedButtonLessons(int index){
-		LessonController controller = ((GameObject)GameObject.Instantiate(m_assignment_controller_prefab)).GetComponent<LessonController>();
-		controller.startLesson(courses[courseIndex].id, courses[courseIndex].lessonId[index]);
-	}
 
 	// Update is called once per frame
 	void Update() {
 		
 	}
 
-	/*public void OnGUI() 
-	{ 	
-		GUI.matrix = Matrix4x4.TRS (new Vector3 (0, 0, 0), Quaternion.identity, new Vector3 (scale_width, scale_height, 1));
-		if(!draw_gui) {
-			return;
-		}
-
-		if(mySkin != null) {
-			GUI.skin = mySkin;
-		}
-		
-		panelTop = panelRectTransform.offsetMax.y*-1;
-		panelHeight = panelRectTransform.rect.height; // the rect Top value
-		panelLeft = panelRectTransform.offsetMin.x;
-		panelWidth = panelRectTransform.rect.width;
-		scrollPosition = GUI.BeginScrollView (
-			new Rect(panelLeft, panelTop, panelWidth, panelHeight), 
-			scrollPosition, 
-			new Rect(panelLeft, panelTop, panelWidth-40, yButton)
-			);
-
-		heightTextArea = Screen.height/4;
-		yButton = panelTop+20; 
-		//yTextArea = yTextAreaDefault;
-		widthButton = (float)(Screen.width/2 + Screen.width/4);
-		widthTextArea = (float)(Screen.width/2 + Screen.width/4);
-		if (courseClick == -1) {
-			for (int i=0; i<courses.Count; i++) {		
-				if (GUI.Button (
-					new Rect (
-					Screen.width / 2 - (2 * (Screen.width) + Screen.width) / 8, 
-					yButton,// + barValue + barSize, 
-					widthButton, 
-					heightButton),
-					courses [i].course)) {
-					if (courseClick == -1) {
-						courseClick = i;
-					}
-				} else {
-					yButton += heightButton + 3;
-					if(courseClick > -1){
-						break;
-					}
-				}
-				yButton = yButton - heightSpace;
-			}
-		} else if(courses != null	){
-			if(GUI.Button(
-				new Rect(
-				10, 
-				yButton,// + barValue + barSize, 
-				70, 
-				heightButton),
-				"Back"))
-			{
-				courseClick = -1;
-			}
-				
-			if(courseClick!=-1 && courses.Count != 0){
-				for(int i=0; i<courses[courseClick].lessons.Length; i++)
-				{		
-					if(GUI.Button(
-						new Rect(
-						Screen.width/2 - (2*(Screen.width) + Screen.width)/8, 
-						yButton,// + barValue + barSize, 
-						widthButton, 
-						heightButton),
-						courses[courseClick].lessons[i]))
-					{
-						if(courses[courseClick].clicked[i])
-						{
-							courses[courseClick].clicked[i] = false;
-						}
-						else
-						{
-							courses[courseClick].clicked[i] = true;
-						}
-					}
-					else
-					{
-						yButton += heightButton;
-						if(courses[courseClick].clicked[i] == true)
-						{
-							GUILayout.BeginArea(
-								new Rect(
-								Screen.width/2 - (2*(Screen.width) + Screen.width)/8, 
-								yButton,
-								widthTextArea, 
-								heightTextArea-heightSpace)
-								);
-							
-							courses[courseClick].scrollPositions[i] = GUILayout.BeginScrollView(
-								courses[courseClick].scrollPositions[i],
-								GUILayout.Width(widthTextArea), 
-								GUILayout.Height(heightTextArea-heightSpace));
-							//					GUILayout.Space (-4);
-							//					GUILayout.Box(arrowUp);
-							//					GUILayout.Space (-8);
-							
-							//GUILayout.Label("", GUILayoutOption);
-							if(courses[courseClick].descriptions[i] != null && courses[courseClick].descriptions[i] != "" )
-							{
-								GUILayout.Label(courses[courseClick].descriptions[i]);
-								GUILayout.Space (-4);
-							}
-							if(GUILayout.Button("Start"))
-							{
-								LessonController controller = ((GameObject)GameObject.Instantiate(m_assignment_controller_prefab)).GetComponent<LessonController>();
-								controller.startLesson(courses[courseClick].id, courses[courseClick].lessonId[i]);
-								draw_gui = false;
-							}
-							GUILayout.EndScrollView();
-							GUILayout.EndArea();
-							yButton += heightTextArea + heightSpace;
-						}
-					}
-				}
-				yButton = yButton - heightSpace;
-			}
-		}
-		GUI.EndScrollView();
-	}*/
+	
 
 }

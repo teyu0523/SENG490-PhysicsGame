@@ -29,6 +29,7 @@ class StudentListLessons(APIView):
             course['description'] = grade.course.description
             course['current_grade'] = grade.get_final_grade()
             course['instructor'] = str(grade.course.instructor)
+            course['description'] = grade.course.description
             course['number'] = grade.course.number
             course['name'] = grade.course.name
             course['year'] = grade.course.year
@@ -48,6 +49,7 @@ class StudentListLessons(APIView):
                     lesson['grade'] = 'N/A'
                 lesson['type'] = lesson_grade.lesson.get_lesson_type_display()
                 lesson['name'] = lesson_grade.lesson.topic
+                lesson['description'] = lesson_grade.lesson.description
                 lesson['retakes_allowed'] = lesson_grade.lesson.retakes
                 lesson['closable'] = lesson_grade.lesson.one_sitting
 

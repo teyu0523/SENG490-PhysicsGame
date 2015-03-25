@@ -1,10 +1,12 @@
-﻿using UnityEngine;
+
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using Image = UnityEngine.UI.Image;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
+
 using SimpleJSON;
-
-
+using Image = UnityEngine.UI.Image;
 
 public class DropMenu : MonoBehaviour {
 	//private int numLessons = 0;
@@ -13,7 +15,18 @@ public class DropMenu : MonoBehaviour {
 	private float heightTextArea ,heightSpace, heightButton;
 	private float widthTextArea, widthButton;
 	private string[] lessons;
-	//private string[] courses;
+	public GameObject displayPanel;
+	public GameObject displayPanelLessons;
+	public GameObject buttonPrefab;
+	public GameObject lessonPrefab;
+	public GameObject scrollView;
+	public GameObject scrollViewLessons;
+	public Button backButton;
+	private GameObject[] descriptionObjects;
+	private float native_width = 600;
+	private float native_height = 800;
+  	private float scale_width;
+ 	private float scale_height;
 
 	private string[] descriptions;
 	private int courseClick = -1;
@@ -23,11 +36,10 @@ public class DropMenu : MonoBehaviour {
 	private Vector2[] scrollPositions;
 	private RectTransform panelRectTransform;
 	public int[] lessonId;
-	public GUISkin mySkin = null;// = new GUISkin("areaStyle");
-	public Texture arrowUp = null;
 	public GameObject m_assignment_controller_prefab = null;
 	public string lessonsResult;
 	public string val;
+	public int courseIndex;
 	//private string lesson_result = null;
 	// Use this for initialization
 
@@ -68,7 +80,7 @@ public class DropMenu : MonoBehaviour {
 		draw_gui = true;
 		LoadingController.Instance.hide();
 		int j, i;
-
+		Debug.Log(lesson_result);
 		if(lesson_result != null){
 			//print (lesson_result);
 			JSONNode courses_node = JSON.Parse(lesson_result);
@@ -82,33 +94,109 @@ public class DropMenu : MonoBehaviour {
 					courses[j].clicked[i] = false;
 					courses[j].lessons[i] = lessons_node["name"];
 					courses[j].lessonId[i] = lessons_node["lesson_id"].AsInt;
-					courses[j].descriptions[i] = "Here are the descriptions about the game.Here are the descriptions about the game. Here are the descriptions about the game. Here are the descriptions about the game. Here are the descriptions about the game. Here are the descriptions about the game. Here are the descriptions about the game. Here are the descriptions about the game. ";
+					courses[j].descriptions[i] = lessons_node["description"];
 					i++;
 				}
 				i = 0;
 				j++;
 			}
+		} else {
+			Debug.Log("Lesson result is null, printing lesson_error: " + lesson_error);
 		}
+		// create gameobject for all courses
+		for (i=0; i<courses.Count; i++) {	
+			GameObject newButton = Instantiate (buttonPrefab) as GameObject;
+			MenuButtonProperty buttonProperty = newButton.GetComponent <MenuButtonProperty>();
+			buttonProperty.buttonValue.text = courses[i].course;
+			buttonProperty.index = i;
+			buttonProperty.mainButton.onClick.AddListener(() => clickedButtonCourses(buttonProperty.index)); 
+			newButton.transform.SetParent(displayPanel.transform);
+		}
+	}
+
+	public void Awake()
+	{
+		scale_width = (Screen.width) / native_width;
+     	scale_height = (Screen.height) / native_height;   
 	}
 
 	public void Start () 
 	{
+		scrollViewLessons.SetActive(false);
 		panelRectTransform = GetComponent<RectTransform> ();
 		LoadingController.Instance.show();
 		draw_gui = false;
 		NetworkingController.Instance.GetLessons(OnLessonsReturn);
         heightSpace = 3;
 		heightButton = 50;
+	}
+
+	public void clickedButtonCourses(int index){
+		
+		backButton.interactable = true;
+		if (index >= 0) {
+			var children = new List<GameObject>();
+			foreach (Transform child in displayPanelLessons.transform) children.Add(child.gameObject);
+			children.ForEach(child => Destroy(child));
+			courseIndex = index;
+			scrollViewLessons.SetActive(true);
+			scrollView.SetActive(false);
+			descriptionObjects = new GameObject[courses[index].lessons.Length];
+			for(int i=0; i<courses[index].lessons.Length; i++)
+			{		
+
+				GameObject newButton = Instantiate (buttonPrefab) as GameObject;
+				MenuButtonProperty buttonProperty = newButton.GetComponent <MenuButtonProperty>();
+				buttonProperty.buttonValue.text = courses[index].lessons[i];
+				buttonProperty.index = i;
+				buttonProperty.mainButton.onClick.AddListener(() => clickedButtonDescription(buttonProperty.index)); 
+				newButton.transform.SetParent(displayPanelLessons.transform);
+
+				newButton = Instantiate (lessonPrefab) as GameObject;
+				buttonProperty = newButton.GetComponent <MenuButtonProperty>();
+				if ( courses[index].descriptions[i] != null){
+					buttonProperty.descriptions.text = courses[index].descriptions[i];
+				}
+				buttonProperty.index = i;
+				buttonProperty.mainButton.onClick.AddListener(() => clickedButtonLessons(buttonProperty.index));
+				newButton.transform.SetParent(displayPanelLessons.transform);
+				newButton.SetActive(false);
+				descriptionObjects[i] = newButton;
+			}
+
+		}
 
 	}
-	
+
+	public void setPreviousPage(){
+		scrollViewLessons.SetActive(false);
+		scrollView.SetActive(true);
+		backButton.interactable = false;
+	}
+
+	public void clickedButtonDescription(int index){
+		if(descriptionObjects[index].activeSelf){
+			descriptionObjects[index].SetActive(false);
+		}else{
+			descriptionObjects[index].SetActive(true);
+		}
+		
+	}
+
+	public void clickedButtonLessons(int index){
+		LessonController controller = ((GameObject)GameObject.Instantiate(m_assignment_controller_prefab)).GetComponent<LessonController>();
+		controller.startLesson(courses[courseIndex].id, courses[courseIndex].lessonId[index]);
+		draw_gui = false;
+	}
+
 	// Update is called once per frame
-	public void Update() {
-
+	void Update() {
+		
 	}
 
-	public void OnGUI() 
+	/*public void OnGUI() 
 	{ 	
+		GUI.matrix = Matrix4x4.TRS (new Vector3 (0, 0, 0), Quaternion.identity, new Vector3 (scale_width, scale_height, 1));
 		if(!draw_gui) {
 			return;
 		}
@@ -227,7 +315,7 @@ public class DropMenu : MonoBehaviour {
 			}
 		}
 		GUI.EndScrollView();
-	}
+	}*/
 
 //	public void MoveInHierarchy(int delta) {
 //		print ("im here");

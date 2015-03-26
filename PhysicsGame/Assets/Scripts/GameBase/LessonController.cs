@@ -137,6 +137,14 @@ public class LessonController : MonoBehaviour {
 	}
 
 	/// <summary>
+	/// Exits the current lesson.
+	/// </summary>
+	public void exitLesson() {
+		Application.LoadLevel("MainMenu");
+		Object.Destroy(gameObject);
+	}
+
+	/// <summary>
 	/// Submits an answer to a question to the server.
 	/// </summary>
 	/// <param name="new_answer">A Json object to submit.</param>

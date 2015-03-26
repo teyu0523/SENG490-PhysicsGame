@@ -11,6 +11,7 @@ public class TankController : MonoBehaviour {
 	public Transform projectileSpawn;
 	public GameObject projectile;
 	public Rigidbody2D barrelRigidbody;
+	public Transform barrelTransform;
 
 	private float velocity = 25f;
 	private bool movementControls = true;
@@ -105,7 +106,7 @@ public class TankController : MonoBehaviour {
 		angleControls = false;
 	}
 
-	public void DiableVelocityControls(){
+	public void DisableVelocityControls(){
 		velocityControls = false;
 	}
 
@@ -114,8 +115,8 @@ public class TankController : MonoBehaviour {
 	}
 
 	public void SetAngle (float a){
-		barrelRigidbody.rotation =a;
 		currentBarrelAngle = a;
+		barrelTransform.rotation = Quaternion.Euler (0, 0, currentBarrelAngle);
 
 	}
 

@@ -19,6 +19,11 @@ public class GameTankController : GameController {
 
 	private JSONNode m_answer;
 
+	public override void Awake ()
+	{
+		base.Awake ();
+	}
+	
 	public override void initializeGame(JSONNode question, JSONNode previous_answer)
 	{
 		m_answer = previous_answer;
@@ -30,37 +35,48 @@ public class GameTankController : GameController {
 		
 		//setting up game environment based on recieved JSONNode
 		// if not playable
-		if (question ["playable"] == "false") {
+		if (question ["playable"].Value.Equals("false")) {
 
 			//checking player distance
-			if(question["values"]["player_distance"]["editable"] == "false"){
+			Debug.Log (question["values"]["Player Distance"]["editable"].Value);
+			if(!question["values"]["Player Distance"]["editable"].AsBool){
 				newPosition = Tank.transform.position;
-				newPosition.x = (question["values"]["player_distance"]["value"].AsFloat)*(-1f);
+				newPosition.x = (question["values"]["Player Distance"]["value"].AsFloat)*(-1f);
 				Tank.transform.position = newPosition;
 				Tank.GetComponent<TankController>().DisableMovementControls();
+				Debug.Log ("SETTING PLAYER DISTANCE");
+
 			}
 			//checking player's height level
-			if(question["values"]["player_pos_y"]["editable"] == "false"){
+			Debug.Log (question["values"]["Player Height"]["editable"].Value);
+			if(!question["values"]["Player Height"]["editable"].AsBool){
 				newPosition = Tank.transform.position;
-				newPosition.y = (question["values"]["player_distance"]["value"].AsFloat);
+				newPosition.y = (question["values"]["Player Height"]["value"].AsFloat);
 				Tank.transform.position = newPosition;
 				Tank.GetComponent<TankController>().DisableMovementControls();
+				Debug.Log ("SETTING PLAYER HEIGHT");
 			}
 			//checking player's angle
-			if(question["values"]["player_angle"]["editable"] == "false"){
-				Tank.GetComponent<TankController>().SetAngle(question["values"]["player_angle"]["value"].AsFloat); //NOT WORKING
+			Debug.Log (question["values"]["Player Angle"]["editable"].Value);
+			if(!question["values"]["Player Angle"]["editable"].AsBool){
+				Tank.GetComponent<TankController>().SetAngle(question["values"]["Player Angle"]["value"].AsFloat); //NOT WORKING
 				Tank.GetComponent<TankController>().DisableAngleControls();
+				Debug.Log ("SETTING ANGLE");
 			}
 			//checking player's projectile velocity
-			if(question["values"]["player_velocity"]["editable"] == "false"){
-				Tank.GetComponent<TankController>().SetVelocity(question["values"]["player_velocity"]["value"].AsFloat);
-				Tank.GetComponent<TankController>().DiableVelocityControls();
+			Debug.Log (question["values"]["Player Velocity"]["editable"].Value);
+			if(!question["values"]["Player Velocity"]["editable"].AsBool){
+				Tank.GetComponent<TankController>().SetVelocity(question["values"]["Player Velocity"]["value"].AsFloat);
+				Tank.GetComponent<TankController>().DisableVelocityControls();
+				Debug.Log ("SETTING PROJECTILE VELOCITY");
 			}
 			//checking target's height level
-			if(question["values"]["target_pos_y"]["editable"] == "false"){
+			Debug.Log (question["values"]["Player Height"]["editable"].Value);
+			if(!question["values"]["Target Height"]["editable"].AsBool){
 				newPosition = Target.transform.position;
-				newPosition.y = (question["values"]["player_distance"]["value"].AsFloat);
+				newPosition.y = (question["values"]["Player Height"]["value"].AsFloat);
 				Target.transform.position = newPosition;
+				Debug.Log ("SETTIN TARGET HEIGHT");
 			}
 		}
 

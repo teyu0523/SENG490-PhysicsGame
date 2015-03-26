@@ -75,7 +75,7 @@ public abstract class GameController : MonoBehaviour {
 	/// </summary>
 	public virtual void Update()
 	{
-		if (Input.GetKeyDown("i") || Input.touchCount > 2) {
+		if (Input.GetKeyDown("i") || Input.touchCount == 3) {
 			if(!m_touch_started) {
 				m_displaying_stats = !m_displaying_stats;
 				foreach(StatsDisplayPanelController display in m_stats_displays) {
@@ -90,4 +90,11 @@ public abstract class GameController : MonoBehaviour {
 	}
 
 	public virtual void OnSubmit() {}
+
+	/// <summary>
+	/// Exits the current lesson.
+	/// </summary>
+	public void exitLesson() {
+		m_assignment_controller.exitLesson();
+	}
 }

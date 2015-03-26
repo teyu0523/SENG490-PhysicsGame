@@ -47,8 +47,8 @@ public class LoginMenu : MonoBehaviour {
 			} else {
 				draw_gui = true;
 				loginFailer = login_error;
+				Debug.Log(loginFailer);
 			}
-			Debug.Log(loginFailer);
 		});
 	}
 

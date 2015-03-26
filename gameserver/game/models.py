@@ -235,25 +235,25 @@ def post_save_question(sender, instance=None, created=False, **kwargs):
 
     # Create an extension instance for this question.
     if instance.question_type == Question.NUMERIC:
-        IntegerValue.objects.create(question=instance, name="expected_answer", order=3, menu=False, editable=False)
-        ParagraphValue.objects.create(question=instance, name="question_text", order=0, editable=False)
-        ParagraphValue.objects.create(question=instance, name="question_text_mobile", order=1, editable=False)
-        StringValue.objects.create(question=instance, name="question_hint", order=2, menu=False, editable=False)
+        IntegerValue.objects.create(question=instance, name="Expected Answer", order=3, menu=False, editable=False)
+        ParagraphValue.objects.create(question=instance, name="Question Text", order=0, editable=False)
+        ParagraphValue.objects.create(question=instance, name="Question Text Mobile", order=1, editable=False)
+        StringValue.objects.create(question=instance, name="Question Hint", order=2, menu=False, editable=False)
     elif instance.question_type == Question.CANNONS:
-        FloatingPointValue.objects.create(question=instance, name="player_distance", order=0)
-        FloatingPointValue.objects.create(question=instance, name="player_pos_y", order=1)
-        FloatingPointValue.objects.create(question=instance, name="player_angle", order=2)
-        FloatingPointValue.objects.create(question=instance, name="player_velocity", order=3)
-        FloatingPointValue.objects.create(question=instance, name="target_pos_y", order=4)
+        FloatingPointValue.objects.create(question=instance, name="Player Distance", order=0)
+        FloatingPointValue.objects.create(question=instance, name="Player Height", order=1)
+        FloatingPointValue.objects.create(question=instance, name="Player Angle", order=2)
+        FloatingPointValue.objects.create(question=instance, name="Player Velocity", order=3)
+        FloatingPointValue.objects.create(question=instance, name="Target Height", order=4)
     elif instance.question_type == Question.COLLISION:
-        FloatingPointValue.objects.create(question=instance, name="car_a_x", order=0)
-        FloatingPointValue.objects.create(question=instance, name="car_a_vel", order=1)
-        FloatingPointValue.objects.create(question=instance, name="car_a_mass", order=2)
-        FloatingPointValue.objects.create(question=instance, name="car_b_x", order=3)
-        FloatingPointValue.objects.create(question=instance, name="car_b_vel", order=4)
-        FloatingPointValue.objects.create(question=instance, name="car_b_mass", order=5)
-        FloatingPointValue.objects.create(question=instance, name="collision_time", order=6)
-        FloatingPointValue.objects.create(question=instance, name="collision_x", order=7)
+        FloatingPointValue.objects.create(question=instance, name="Car A Position", order=0)
+        FloatingPointValue.objects.create(question=instance, name="Car A Velocity", order=1)
+        FloatingPointValue.objects.create(question=instance, name="Car A Mass", order=2)
+        FloatingPointValue.objects.create(question=instance, name="Car B Position", order=3)
+        FloatingPointValue.objects.create(question=instance, name="Car B Velocity", order=4)
+        FloatingPointValue.objects.create(question=instance, name="Car B Mass", order=5)
+        FloatingPointValue.objects.create(question=instance, name="Collision Time Result", order=6)
+        FloatingPointValue.objects.create(question=instance, name="Collision Position Result", order=7)
     # elif:
 
 
@@ -401,22 +401,22 @@ class Answer(models.Model):
 def post_save_answer(sender, instance=None, created=False, **kwargs):
     if created and instance is not None:
         if instance.question.question_type == Question.NUMERIC:
-            IntegerAnswer.objects.create(answer=instance, name="submitted_answer")
+            IntegerAnswer.objects.create(answer=instance, name="Submitted Answer")
         elif instance.question.question_type == Question.CANNONS:
-            FloatingPointAnswer.objects.create(answer=instance, name="player_distance")
-            FloatingPointAnswer.objects.create(answer=instance, name="player_pos_y")
-            FloatingPointAnswer.objects.create(answer=instance, name="player_angle")
-            FloatingPointAnswer.objects.create(answer=instance, name="player_velocity")
-            FloatingPointAnswer.objects.create(answer=instance, name="target_pos_y")
+            FloatingPointAnswer.objects.create(answer=instance, name="Player Distance")
+            FloatingPointAnswer.objects.create(answer=instance, name="Player Height")
+            FloatingPointAnswer.objects.create(answer=instance, name="Player Angle")
+            FloatingPointAnswer.objects.create(answer=instance, name="Player Velocity")
+            FloatingPointAnswer.objects.create(answer=instance, name="Target Height")
         elif instance.question.question_type == Question.COLLISION:
-            FloatingPointAnswer.objects.create(answer=instance, name="car_a_x")
-            FloatingPointAnswer.objects.create(answer=instance, name="car_a_vel")
-            FloatingPointAnswer.objects.create(answer=instance, name="car_a_mass")
-            FloatingPointAnswer.objects.create(answer=instance, name="car_b_x")
-            FloatingPointAnswer.objects.create(answer=instance, name="car_b_vel")
-            FloatingPointAnswer.objects.create(answer=instance, name="car_b_mass")
-            FloatingPointAnswer.objects.create(answer=instance, name="collision_time")
-            FloatingPointAnswer.objects.create(answer=instance, name="collision_x")
+            FloatingPointAnswer.objects.create(answer=instance, name="Car A Position")
+            FloatingPointAnswer.objects.create(answer=instance, name="Car A Velocity")
+            FloatingPointAnswer.objects.create(answer=instance, name="Car A Mass")
+            FloatingPointAnswer.objects.create(answer=instance, name="Car B Position")
+            FloatingPointAnswer.objects.create(answer=instance, name="Car B Velocity")
+            FloatingPointAnswer.objects.create(answer=instance, name="Car B Mass")
+            FloatingPointAnswer.objects.create(answer=instance, name="Collision Time Result")
+            FloatingPointAnswer.objects.create(answer=instance, name="Collision Position Result")
 
 
 class IntegerAnswer(models.Model):

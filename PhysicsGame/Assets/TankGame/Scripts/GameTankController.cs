@@ -47,41 +47,39 @@ public class GameTankController : GameController {
 		}
 		
 		
-		//setting up game environment based on recieved JSONNode
-		// if not playable
+		//setting up game environment if it is a question
 		if (question ["playable"].Value.Equals("false")) {
+
+			//disable keyboard controls for tank game
+			Tank.GetComponent<TankController>().DisableTankControls();
 			
-			//checking player distance
+			//setting player distance
 			if(!question["values"]["Player Distance"]["editable"].AsBool){
 				newPosition = Tank.transform.position;
 				newPosition.x = (question["values"]["Player Distance"]["value"].AsFloat)*(-1f);
 				Tank.transform.position = newPosition;
-				Tank.GetComponent<TankController>().DisableMovementControls();
 			}
-			//checking player's height level
+			//setting player's height level
 			if(!question["values"]["Player Height"]["editable"].AsBool){
 				newPosition = Tank.transform.position;
 				newPosition.y = (question["values"]["Player Height"]["value"].AsFloat);
 				Tank.transform.position = newPosition;
-				Tank.GetComponent<TankController>().DisableMovementControls();
 			}
-			//checking player's angle
+			//setting player's angle
 			if(!question["values"]["Player Angle"]["editable"].AsBool){
 				Tank.GetComponent<TankController>().SetAngle(question["values"]["Player Angle"]["value"].AsFloat);
-				Tank.GetComponent<TankController>().DisableAngleControls();
 			}
-			//checking player's projectile velocity
+			//setting player's projectile velocity
 			if(!question["values"]["Player Velocity"]["editable"].AsBool){
 				Tank.GetComponent<TankController>().SetVelocity(question["values"]["Player Velocity"]["value"].AsFloat);
-				Tank.GetComponent<TankController>().DisableVelocityControls();
 			}
-			//checking target's height level
+			//setting target's height level
 			if(!question["values"]["Target Height"]["editable"].AsBool){
 				newPosition = Target.transform.position;
 				newPosition.y = (question["values"]["Player Height"]["value"].AsFloat);
 				Target.transform.position = newPosition;
 			}
-			//checking Game's gravity
+			//setting game's gravity
 			if(!question["values"]["Gravity"]["editable"].AsBool){
 				Physics.gravity = new Vector3(0, question["values"]["Gravity"]["value"].AsFloat, 0);
 			}

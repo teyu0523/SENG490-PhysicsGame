@@ -235,6 +235,7 @@ def post_save_question(sender, instance=None, created=False, **kwargs):
 
     # Create an extension instance for this question.
     if instance.question_type == Question.NUMERIC:
+        IntegerValue.objects.create(question=instance, name="Submitted Answer", order=4, menu=True, editable=True)
         IntegerValue.objects.create(question=instance, name="Expected Answer", order=3, menu=False, editable=False)
         ParagraphValue.objects.create(question=instance, name="Question Text", order=0, editable=False)
         ParagraphValue.objects.create(question=instance, name="Question Text Mobile", order=1, editable=False)

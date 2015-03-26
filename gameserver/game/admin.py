@@ -344,7 +344,7 @@ class AnswerAdmin(admin.ModelAdmin):
         return False
 
     def grade_percent(self, instance):
-        return "%g%%" % (round(instance.grade / instance.question.marks * 100, 2))
+        return "%g%%" % (0.0 if (instance.question.marks == 0) else round(instance.grade / instance.question.marks * 100, 2))
     grade_percent.string = True
 
     def grade_max(self, instance):

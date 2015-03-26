@@ -37,7 +37,7 @@ public class GameCollisionController : GameController {
 				if(side_menu == null){
 					Debug.LogWarning("Script not found: SideMenu");
 				} else {
-					side_menu.parseJSON(question);
+					side_menu.parseJSON(question, previous_answer);
 				}
 			} else {
 				Debug.LogWarning("GameObject not found: canvas");

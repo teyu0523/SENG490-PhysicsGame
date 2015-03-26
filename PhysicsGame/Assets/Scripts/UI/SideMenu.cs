@@ -9,6 +9,8 @@ public class SideMenu : MonoBehaviour {
 	public GameObject questionPanelList;
 	public GameObject questionsPrefab;
 	public GameObject submitButton;
+	public GameObject gameController;
+
 	public JSONNode answers;
 	private bool buttonOn = false;
 	private bool buttonPress = false;
@@ -16,27 +18,23 @@ public class SideMenu : MonoBehaviour {
 	private Vector2 scrollPosition = Vector2.zero;
 
 	public void parseJSON(JSONNode questions, JSONNode answers){
-		Debug.Log(questions);
-		Debug.Log(answers);
+
 		this.answers = answers;
 		GameObject questionSet;
-		Debug.Log(questions["values"].Childs);
 		if(questions != null){
 			foreach(JSONNode node in questions["values"].Childs){
 				questionSet = Instantiate (questionsPrefab) as GameObject;
 				questionSetProperty qsp = questionSet.GetComponent <questionSetProperty>();
 				qsp.question.text = node["name"];
-
-				if(node["type"] == "float"){
-					Debug.Log("im here22222222222222");
+				if(node["type"].Value == "float"){
 					qsp.answer.contentType = InputField.ContentType.DecimalNumber;
-				} else if (node["type"] == "string"){
+				} else if (node["type"].Value == "string"){
 					qsp.answer.contentType = InputField.ContentType.Standard;
 				} else {
 					Debug.Log(" Add the new type");
 				}
-				qsp.answer.onEndEdit.AddListener((string value) => submitString(node["name"], value));
 				qsp.answerText.text = node["value"];
+				qsp.answer.onEndEdit.AddListener((string value) => submitString(qsp.question.text, value));
 				questionSet.transform.SetParent(questionPanelList.transform);
 				questionSet.transform.localScale = new Vector3(1f, 1f, 1f);
 			}
@@ -67,15 +65,13 @@ public class SideMenu : MonoBehaviour {
 	}
 
 	public void submit(){
-		Debug.Log("im here");
-		/*var children = new List<GameObject>();
-		foreach (Transform child in questionPanelList.transform) children.Add(child.gameObject);
-		*/
+		Debug.Log(answers);
+		GameCollisionController gameCollisionCon = gameController.GetComponent(typeof(GameCollisionController)) as GameCollisionController;
+		gameCollisionCon.setAnswer(answers);
 	}
 
 	public void submitString(string name, string arg){
-		Debug.Log(name + " " + arg);
-		answers["value"]["name"]["value"] = arg;
+		answers["values"][name]["value"] = arg;
 	}
 	// Update is called once per frame
 	void Update () {

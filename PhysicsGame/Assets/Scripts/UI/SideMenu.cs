@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using SimpleJSON;
 
 public class SideMenu : MonoBehaviour {
 	public float moveLeft;
@@ -14,21 +15,14 @@ public class SideMenu : MonoBehaviour {
 		moveLeft = -1;
 	}
 	
+	public void pause(JSONNode questions){
+
+	}
+
 	// Update is called once per frame
 	void Update () {
 		if(moveLeft==-1){
 			moveLeft = Screen.width;
-		}
-		if(Input.GetKeyDown(KeyCode.P))
-		{
-			if(buttonPress){
-				Time.timeScale = 1;
-				buttonPress = false;
-			} else {
-				Time.timeScale = 0;
-				buttonPress = true;
-				showSide = true;
-			}
 		}
 		if(buttonPress == true)
 		{

@@ -408,15 +408,15 @@ def post_save_answer(sender, instance=None, created=False, **kwargs):
             FloatingPointAnswer.objects.create(answer=instance, name="player_angle")
             FloatingPointAnswer.objects.create(answer=instance, name="player_velocity")
             FloatingPointAnswer.objects.create(answer=instance, name="target_pos_y")
-        elif instance.question_type == Question.COLLISION:
-            FloatingPointAnswer.objects.create(question=instance, name="car_a_x")
-            FloatingPointAnswer.objects.create(question=instance, name="car_a_vel")
-            FloatingPointAnswer.objects.create(question=instance, name="car_a_mass")
-            FloatingPointAnswer.objects.create(question=instance, name="car_b_x")
-            FloatingPointAnswer.objects.create(question=instance, name="car_b_vel")
-            FloatingPointAnswer.objects.create(question=instance, name="car_b_mass")
-            FloatingPointAnswer.objects.create(question=instance, name="collision_time")
-            FloatingPointAnswer.objects.create(question=instance, name="collision_x")
+        elif instance.question.question_type == Question.COLLISION:
+            FloatingPointAnswer.objects.create(answer=instance, name="car_a_x")
+            FloatingPointAnswer.objects.create(answer=instance, name="car_a_vel")
+            FloatingPointAnswer.objects.create(answer=instance, name="car_a_mass")
+            FloatingPointAnswer.objects.create(answer=instance, name="car_b_x")
+            FloatingPointAnswer.objects.create(answer=instance, name="car_b_vel")
+            FloatingPointAnswer.objects.create(answer=instance, name="car_b_mass")
+            FloatingPointAnswer.objects.create(answer=instance, name="collision_time")
+            FloatingPointAnswer.objects.create(answer=instance, name="collision_x")
 
 
 class IntegerAnswer(models.Model):

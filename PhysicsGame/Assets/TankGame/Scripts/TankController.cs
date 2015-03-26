@@ -114,10 +114,18 @@ public class TankController : MonoBehaviour {
 		velocity = v;
 	}
 
+	public float GetVelocity (){
+		return velocity;
+	}
+
 	public void SetAngle (float a){
 		currentBarrelAngle = a;
 		barrelTransform.rotation = Quaternion.Euler (0, 0, currentBarrelAngle);
 
+	}
+
+	public float GetAngle(){
+		return currentBarrelAngle;
 	}
 
 

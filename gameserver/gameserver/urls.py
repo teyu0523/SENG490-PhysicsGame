@@ -13,7 +13,7 @@ admin.site.index_title = 'Inuco Administration'
 # url(r'^blog/', include('blog.urls')),
 
 urlpatterns = patterns('',
-                       url(r'^admin/', include(admin.site.urls)),
+                       url(r'^admin(/)?', include(admin.site.urls)),
                        url(r'^game/auth', views.obtain_auth_token),
                        url(r'^game/lessons/$', 'game.views.student_list_lessons'),
                        url(r'^game/lesson/(?P<course_id>\d+)/(?P<lesson_id>\d+)/$', 'game.views.student_lesson_details'),

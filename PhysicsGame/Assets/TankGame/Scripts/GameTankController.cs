@@ -8,14 +8,16 @@ public class GameTankController : GameController {
 	// publics for all game objects effected from question
 	public GameObject Tank;
 	public GameObject Target;
-
-	//
 	public Button m_submit_button;
+	public GameObject canvas;
+
+	private SideMenu side_menu;
 
 	private StatsDisplayPanelController m_question_hint = null;
 
 	private int m_expected_answer = 0;
 	private int m_max_tries = 0;
+	private int m_number_tries = 0;
 
 	private JSONNode m_answer;
 
@@ -32,11 +34,23 @@ public class GameTankController : GameController {
 		Debug.Log (previous_answer);
 
 		Vector3 newPosition;
+
+		if(canvas){
+			side_menu = canvas.GetComponent(typeof(SideMenu)) as SideMenu;
+			if(side_menu == null){
+				Debug.LogWarning("Script not found: SideMenu");
+			} else {
+				side_menu.parseJSON(question, previous_answer);
+			}
+		} else {
+			Debug.LogWarning("GameObject not found: canvas");
+		}
+		
 		
 		//setting up game environment based on recieved JSONNode
 		// if not playable
 		if (question ["playable"].Value.Equals("false")) {
-
+			
 			//checking player distance
 			if(!question["values"]["Player Distance"]["editable"].AsBool){
 				newPosition = Tank.transform.position;
@@ -88,17 +102,35 @@ public class GameTankController : GameController {
 	public override void Update()
 	{
 		base.Update();
+
 		m_question_hint ["Tank Height"].text = "Tank Height: " + Tank.transform.position.y.ToString () + " m";
 		m_question_hint ["Angle"].text = "Tank Angle: " + Tank.GetComponent<TankController> ().GetAngle ().ToString () + " degrees"; 
 		m_question_hint ["Velocity"].text = "Projectile Veloicty: " + Tank.GetComponent<TankController> ().GetVelocity ().ToString () + " m/s";
 		m_question_hint ["Distance"].text = "Distance to Target: " + (Tank.transform.position.x * (-1f)).ToString () + " m";
 		m_question_hint ["Target Height"].text = "Target Height: " + Target.transform.position.y.ToString () + " m";
+
+		if (Input.GetKeyDown(KeyCode.P) ){
+			side_menu.pause();
+			
+		}
 	}
-
-
+	
+	
 	public void OnSubmitButtonPressed()
 	{
+		//increament number of tries 
+		m_number_tries++;
+
+		//if target was hit or max tries reached
+			
+			
+
 		
 	}
 
+	public void setAnswer(JSONNode answer){
+		m_answer = answer;
+		Debug.Log(m_answer);
+	}
+	
 }

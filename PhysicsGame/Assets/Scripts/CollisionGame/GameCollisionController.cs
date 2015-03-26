@@ -90,6 +90,11 @@ public class GameCollisionController : GameController {
 		}
 	}
 
+	public void setAnswer(JSONNode answer){
+		m_answer = answer;
+		Debug.Log(m_answer);
+	}
+
 	public override void OnSubmit (){
 
 	}

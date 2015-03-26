@@ -116,9 +116,9 @@ public class GameNumericController : GameController {
 	/// </summary>
 	public void OnSubmitButtonPressed()
 	{
-		m_number_tries++;
 		if( m_current_answer != m_expected_answer )
 		{
+			m_number_tries++;
 			m_tries_text.text = "Tries Left: " + (m_max_tries - m_number_tries);
 			m_background_color_target = m_background_color_incorrect;
 			m_flash_time = 0.0f;

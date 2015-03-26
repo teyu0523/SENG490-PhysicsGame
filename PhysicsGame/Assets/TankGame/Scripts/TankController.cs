@@ -4,7 +4,6 @@ using System.Collections;
 public class TankController : MonoBehaviour {
 	//speed constant for tank and barrel movenment
 	public float speed = 6f;
-	public float velocity = 100f;
 
 	//need a public variable for distance from enemy tank
 	public float currentBarrelAngle;
@@ -12,6 +11,12 @@ public class TankController : MonoBehaviour {
 	public Transform projectileSpawn;
 	public GameObject projectile;
 	public Rigidbody2D barrelRigidbody;
+
+	private float velocity = 25f;
+	private bool movementControls = true;
+	private bool angleControls = true;
+	private bool velocityControls = true;
+
 
 	Vector2 movement;
 	Rigidbody2D tankRigidbody;
@@ -32,16 +37,24 @@ public class TankController : MonoBehaviour {
 				bullet.rigidbody2D.velocity = (Quaternion.Euler(0, 0, currentBarrelAngle) * Vector3.right) * velocity;
 			}
 		}
-		VelocityChange ();
+
+		if (velocityControls == true) {
+			VelocityChange ();
+		}
 
 	}
 
 	void FixedUpdate () {
-		
+
 		float h = Input.GetAxisRaw ("Horizontal");
 		float z = Input.GetAxisRaw ("Vertical");
-		Move (h);
-		Rotate (z);
+		if (movementControls == true) {
+			Move (h);
+
+		}
+		if (angleControls == true) {
+			Rotate (z);
+		}
 
 		
 	}
@@ -83,5 +96,29 @@ public class TankController : MonoBehaviour {
 			barrelRigidbody.MoveRotation (currentBarrelAngle + z * speed * Time.deltaTime);
 		}
 	}
+
+	public void DisableMovementControls(){
+		movementControls = false;
+	}
+
+	public void DisableAngleControls(){
+		angleControls = false;
+	}
+
+	public void DiableVelocityControls(){
+		velocityControls = false;
+	}
+
+	public void SetVelocity (float v){
+		velocity = v;
+	}
+
+	public void SetAngle (float a){
+		barrelRigidbody.rotation =a;
+		currentBarrelAngle = a;
+
+	}
+
+
 
 }

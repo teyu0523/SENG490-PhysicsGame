@@ -31,7 +31,7 @@ public class LoadingController : MonoBehaviour {
 	}
 
 	public void Update() {
-		m_icon.transform.Rotate(new Vector3(0f, 0f, 180f * Time.deltaTime));
+		m_icon.transform.Rotate(new Vector3(0f, 0f, -220f * Time.deltaTime));
 	}
 
 	public void show() {

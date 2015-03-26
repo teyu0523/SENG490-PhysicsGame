@@ -23,10 +23,10 @@ public class GameNumericController : GameController {
 	private int m_current_answer = 0;
 	private int m_number_tries = 0;
 
-	private Color m_background_color_normal = Color.white;
+	private Color m_background_color_normal = Color.clear;
 	private Color m_background_color_correct = Color.green;
 	private Color m_background_color_incorrect = Color.red;
-	private Color m_background_color_target = Color.white;
+	private Color m_background_color_target = Color.clear;
 
 	private float m_flash_time = 0;
 
@@ -46,11 +46,11 @@ public class GameNumericController : GameController {
 		m_question_id = question["id"].AsInt;
 		// Displaying differently on mobile platforms.
 		if(Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.BlackBerryPlayer) {
-			m_question_text.text = question["values"]["question_text_mobile"]["value"];
+			m_question_text.text = question["values"]["Question Text Mobile"]["value"];
 		} else {
-			m_question_text.text = question["values"]["question_text"]["value"];
+			m_question_text.text = question["values"]["Question Text"]["value"];
 		}
-		m_expected_answer = question["values"]["expected_answer"]["value"].AsInt;
+		m_expected_answer = question["values"]["Expected Answer"]["value"].AsInt;
 
 		m_max_tries = question["max_tries"].AsInt;
 		m_tries_text.text = "Tries Left: " + m_max_tries;
@@ -59,31 +59,33 @@ public class GameNumericController : GameController {
 
 		// Spawing a hint textbox.
 		m_question_hint = (GameObject.Instantiate(m_stats_prefab) as GameObject).GetComponent<StatsDisplayPanelController>();
-		m_question_hint.AddTextItem("hint", question["values"]["question_hint"]["value"]);
-		m_question_hint.Attach(m_question_text.gameObject, new Vector2(2.0f, 1.0f));
+		m_question_hint.AddTextItem("hint", question["values"]["Question Hint"]["value"]);
+		m_question_hint.Attach(m_question_text.gameObject, new Vector2(1.0f, 0.5f));
 	}
 
 	public override void Update()
 	{
 		base.Update();
 
-		if(m_flash_time < m_color_flash_time)
-		{
-			m_background_image.color = Color.Lerp(m_background_color_normal, m_background_color_target, m_flash_time/m_color_flash_time);
+		if(m_background_image != null) {
+			if(m_flash_time < m_color_flash_time)
+			{
+				m_background_image.color = Color.Lerp(m_background_color_normal, m_background_color_target, m_flash_time/m_color_flash_time);
+			}
+			else if(m_flash_time < m_color_flash_time + m_color_pause_time)
+			{
+				m_background_image.color = m_background_color_target;
+			}
+			else if(m_flash_time < m_color_flash_time + m_color_pause_time + m_color_flash_time)
+			{
+				m_background_image.color = Color.Lerp(m_background_color_target, m_background_color_normal, (m_flash_time-m_color_flash_time-m_color_pause_time)/m_color_flash_time);
+			}
+			else
+			{
+				m_background_image.color = m_background_color_normal;
+			}
+			m_flash_time += Time.deltaTime;
 		}
-		else if(m_flash_time < m_color_flash_time + m_color_pause_time)
-		{
-			m_background_image.color = m_background_color_target;
-		}
-		else if(m_flash_time < m_color_flash_time + m_color_pause_time + m_color_flash_time)
-		{
-			m_background_image.color = Color.Lerp(m_background_color_target, m_background_color_normal, (m_flash_time-m_color_flash_time-m_color_pause_time)/m_color_flash_time);
-		}
-		else
-		{
-			m_background_image.color = m_background_color_normal;
-		}
-		m_flash_time += Time.deltaTime;
 	}
 
 	/// <summary>
@@ -129,7 +131,7 @@ public class GameNumericController : GameController {
 
 		if( m_current_answer == m_expected_answer || m_number_tries == m_max_tries ) {
 			JSONNode answer_node = m_answer;
-			answer_node["values"]["submitted_answer"]["value"].AsInt = m_current_answer;
+			answer_node["values"]["Submitted Answer"]["value"].AsInt = m_current_answer;
 			answer_node["total_tries"].AsInt = m_number_tries;
 
 			m_submit_button.interactable = false;

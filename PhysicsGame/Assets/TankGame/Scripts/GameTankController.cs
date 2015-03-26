@@ -39,7 +39,7 @@ public class GameTankController : GameController {
 
 			//checking player distance
 			Debug.Log (question["values"]["Player Distance"]["editable"].Value);
-			if(question["values"]["Player Distance"]["editable"].Value.Equals("false")){
+			if(!question["values"]["Player Distance"]["editable"].AsBool){
 				newPosition = Tank.transform.position;
 				newPosition.x = (question["values"]["Player Distance"]["value"].AsFloat)*(-1f);
 				Tank.transform.position = newPosition;
@@ -49,7 +49,7 @@ public class GameTankController : GameController {
 			}
 			//checking player's height level
 			Debug.Log (question["values"]["Player Height"]["editable"].Value);
-			if(question["values"]["Player Height"]["editable"].Value.Equals("false")){
+			if(!question["values"]["Player Height"]["editable"].AsBool){
 				newPosition = Tank.transform.position;
 				newPosition.y = (question["values"]["Player Height"]["value"].AsFloat);
 				Tank.transform.position = newPosition;
@@ -58,23 +58,25 @@ public class GameTankController : GameController {
 			}
 			//checking player's angle
 			Debug.Log (question["values"]["Player Angle"]["editable"].Value);
-			if(question["values"]["Player Angle"]["editable"].Value.Equals("false")){
+			if(!question["values"]["Player Angle"]["editable"].AsBool){
 				Tank.GetComponent<TankController>().SetAngle(question["values"]["Player Angle"]["value"].AsFloat); //NOT WORKING
 				Tank.GetComponent<TankController>().DisableAngleControls();
 				Debug.Log ("SETTING ANGLE");
 			}
 			//checking player's projectile velocity
 			Debug.Log (question["values"]["Player Velocity"]["editable"].Value);
-			if(question["values"]["Player Velocity"]["editable"].Value.Equals("false")){
+			if(!question["values"]["Player Velocity"]["editable"].AsBool){
 				Tank.GetComponent<TankController>().SetVelocity(question["values"]["Player Velocity"]["value"].AsFloat);
 				Tank.GetComponent<TankController>().DisableVelocityControls();
+				Debug.Log ("SETTING PROJECTILE VELOCITY");
 			}
 			//checking target's height level
 			Debug.Log (question["values"]["Player Height"]["editable"].Value);
-			if(question["values"]["Target Height"]["editable"].Value.Equals("false")){
+			if(!question["values"]["Target Height"]["editable"].AsBool){
 				newPosition = Target.transform.position;
 				newPosition.y = (question["values"]["Player Height"]["value"].AsFloat);
 				Target.transform.position = newPosition;
+				Debug.Log ("SETTIN TARGET HEIGHT");
 			}
 		}
 

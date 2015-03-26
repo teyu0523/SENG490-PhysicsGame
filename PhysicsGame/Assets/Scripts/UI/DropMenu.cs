@@ -84,7 +84,6 @@ public class DropMenu : MonoBehaviour {
 	{
 		LoadingController.Instance.hide();
 		int j, i;
-		Debug.Log(lesson_result);
 		/* parse json */
 		if(lesson_result != null){
 			JSONNode courses_node = JSON.Parse(lesson_result);

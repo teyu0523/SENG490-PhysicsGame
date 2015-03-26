@@ -7,7 +7,7 @@ public class GameCollisionController : GameController {
 
 	public GameObject car_left;
 	public GameObject car_right;
-	public GameObject main_camera;
+	public GameObject canvas;
 
 	//public GameObject car_right;
 	public float speed_left;
@@ -29,65 +29,40 @@ public class GameCollisionController : GameController {
 
 
 	public override void initializeGame(JSONNode question, JSONNode previous_answer){
-		m_answer = previous_answer;
-		this.question = question;
-		if(main_camera){
-			side_menu = main_camera.GetComponent(typeof(SideMenu)) as SideMenu;
-			if(side_menu == null){
-				Debug.LogWarning("Script not found: SideMenu");
+		if(question != null){
+			m_answer = previous_answer;
+			this.question = question;
+			if(canvas){
+				side_menu = canvas.GetComponent(typeof(SideMenu)) as SideMenu;
+				if(side_menu == null){
+					Debug.LogWarning("Script not found: SideMenu");
+				} else {
+					side_menu.parseJSON(question);
+				}
+			} else {
+				Debug.LogWarning("GameObject not found: canvas");
 			}
-		} else {
-			Debug.LogWarning("GameObject not found: main_camera");
-		}
 
-		if(car_left){
-			car_left_control = car_left.GetComponent(typeof(CarLeftControl)) as CarLeftControl;
+			if(car_left){
+				car_left_control = car_left.GetComponent(typeof(CarLeftControl)) as CarLeftControl;
 
-			if(car_left_control == null){
-				Debug.LogWarning("Script not found: CarLeftControl");
-			}	
-		} else {
-			Debug.LogWarning("GameObject not found: CarLeft");
-		}
-		if(car_right){
-			car_right_control = car_right.GetComponent(typeof(CarRightControl)) as CarRightControl;
-			if(car_right_control == null){
-				Debug.LogWarning("Script not found: CarRightControl");
-			}	
-		} else {
-			Debug.LogWarning("GameObject not found: CarRight");
+				if(car_left_control == null){
+					Debug.LogWarning("Script not found: CarLeftControl");
+				}	
+			} else {
+				Debug.LogWarning("GameObject not found: CarLeft");
+			}
+			if(car_right){
+				car_right_control = car_right.GetComponent(typeof(CarRightControl)) as CarRightControl;
+				if(car_right_control == null){
+					Debug.LogWarning("Script not found: CarRightControl");
+				}	
+			} else {
+				Debug.LogWarning("GameObject not found: CarRight");
+			}
 		}
 	}
 
-
-	/*public void Start(){
-		if(main_camera){
-			side_menu = main_camera.GetComponent(typeof(SideMenu)) as SideMenu;
-			if(side_menu == null){
-				Debug.LogWarning("Script not found: SideMenu");
-			}
-		} else {
-			Debug.LogWarning("GameObject not found: main_camera");
-		}
-
-		if(car_left){
-			car_left_control = car_left.GetComponent(typeof(CarLeftControl)) as CarLeftControl;
-
-			if(car_left_control == null){
-				Debug.LogWarning("Script not found: CarLeftControl");
-			}	
-		} else {
-			Debug.LogWarning("GameObject not found: CarLeft");
-		}
-		if(car_right){
-			car_right_control = car_right.GetComponent(typeof(CarRightControl)) as CarRightControl;
-			if(car_right_control == null){
-				Debug.LogWarning("Script not found: CarRightControl");
-			}	
-		} else {
-			Debug.LogWarning("GameObject not found: CarRight");
-		}
-	}*/
 	public override void Awake() {
 		base.Awake ();
 	}
@@ -98,13 +73,13 @@ public class GameCollisionController : GameController {
 	public override void Update()
 	{
 		base.Update();
-		car_left_control.updateSpeed(speed_left);
+		/*car_left_control.updateSpeed(speed_left);
 		car_right_control.updateSpeed(speed_right);
 		car_left_control.updateAcc(acc_left);
-		car_right_control.updateAcc(acc_right);
+		car_right_control.updateAcc(acc_right);*/
 		if(Input.GetKeyDown(KeyCode.P))
 		{
-			side_menu.pause(question);
+			side_menu.pause();
 		}
 	}
 

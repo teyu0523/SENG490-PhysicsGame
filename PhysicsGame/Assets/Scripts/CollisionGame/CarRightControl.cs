@@ -13,7 +13,6 @@ public class CarRightControl : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-					Debug.Log(Time.time);
 		if(!hit){
 			car_right_pos = transform.position;
 

@@ -5,4 +5,5 @@ using System.Collections;
 public class questionSetProperty : MonoBehaviour {
 	public Text question;
 	public InputField answer;
+	public Text answerText;
 }

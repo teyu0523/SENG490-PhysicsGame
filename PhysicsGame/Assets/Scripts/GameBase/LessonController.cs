@@ -50,6 +50,7 @@ public class LessonController : MonoBehaviour {
 		if(result != null)
 		{
 			m_lesson = JSON.Parse(result);
+			Debug.Log (m_lesson);
 			m_question_index = 0;
 
 			prepareNextQuestion();

@@ -12,6 +12,7 @@ public class TankController : MonoBehaviour {
 	public GameObject projectile;
 	public Rigidbody2D barrelRigidbody;
 	public Transform barrelTransform;
+	public GameObject rockets;
 
 	private float velocity = 25f;
 	private bool fireControls = true;
@@ -153,6 +154,14 @@ public class TankController : MonoBehaviour {
 		DisableVelocityControls ();
 		fireControls = false;
 		m_fire_button.SetActive (false);
+	}
+
+	public void DisableRockets(){
+		rockets.SetActive (false);
+	}
+
+	public void EnableRockets(){
+		rockets.SetActive (true);
 	}
 	
 	public void SetVelocity (float v){

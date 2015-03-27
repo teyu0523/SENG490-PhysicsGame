@@ -62,7 +62,12 @@ public class GameTankController : GameController {
 
 		//setting player distance and height level
 		Tank.transform.position = new Vector3 ((question ["values"] ["Player Distance"] ["value"].AsFloat) * (-1f),
-		                                       (question["values"]["Player Height"]["value"].AsFloat), Tank.transform.position.z);
+		                                       (question["values"]["Player Height"]["value"].AsFloat -0.9f), Tank.transform.position.z);
+		Debug.Log (question ["values"] ["Player Height"] ["value"].Value);
+		if (question ["values"] ["Player Height"] ["value"].AsFloat <= 0.0f) {
+			Debug.Log ("disabling rockets.");
+			Tank.GetComponent<TankController>().DisableRockets();
+		}
 
 		//setting player's angle
 		Tank.GetComponent<TankController>().SetAngle(question["values"]["Player Angle"]["value"].AsFloat);
@@ -126,7 +131,6 @@ public class GameTankController : GameController {
 
 		m_question_hint.Attach(Tank.gameObject, new Vector2(-4.0f, 1.0f));
 
-
 	}
 
 	public override void Update()
@@ -137,7 +141,7 @@ public class GameTankController : GameController {
 		// or new position is different from old position
 		side_menu.setString(name, arg); // this well set whatever is change on game to pause menu;
 		***********************************************/
-		m_question_hint ["Tank Height"].text = "Tank Height: " + (Tank.transform.position.y).ToString () + " m";
+		m_question_hint ["Tank Height"].text = "Tank Height: " + (Tank.GetComponent<TankController>().projectileSpawn.position.y).ToString () + " m";
 		m_question_hint ["Angle"].text = "Tank Angle: " + Tank.GetComponent<TankController> ().GetAngle ().ToString () + " degrees"; 
 		m_question_hint ["Velocity"].text = "Projectile Veloicty: " + Tank.GetComponent<TankController> ().GetVelocity ().ToString () + " m/s";
 		m_question_hint ["Distance"].text = "Distance to Target: " + (Tank.transform.position.x * (-1f)).ToString () + " m";
@@ -146,7 +150,7 @@ public class GameTankController : GameController {
 
 		if (Input.GetKeyDown ("p")) {
 			side_menu.setString("Player Distance", (Tank.transform.position.x * (-1f)).ToString ());
-			side_menu.setString("Player Height", (Tank.transform.position.y).ToString ());
+			side_menu.setString("Player Height", (Tank.GetComponent<TankController>().projectileSpawn.position.y).ToString ());
 			side_menu.setString("Player Angle", Tank.GetComponent<TankController> ().GetAngle ().ToString ());
 			side_menu.setString("Player Velocity", Tank.GetComponent<TankController> ().GetVelocity ().ToString ());
 			side_menu.setString("Target Height", Target.transform.position.y.ToString ());
@@ -167,11 +171,19 @@ public class GameTankController : GameController {
 			newPosition = Tank.transform.position;
 			newPosition.x = (float.Parse(arg))*(-1f);
 			Tank.transform.position = newPosition;
+
 		}
 		if (name == "Player Height") {
 			newPosition = Tank.transform.position;
-			newPosition.y = float.Parse(arg);
+			newPosition.y = float.Parse(arg) -0.9f;;
 			Tank.transform.position = newPosition;
+			if (float.Parse(arg) <= 0.0f) {
+				Debug.Log ("disabling rockets.");
+				Tank.GetComponent<TankController>().DisableRockets();
+			}
+			else{
+				Tank.GetComponent<TankController>().EnableRockets();
+			}
 		}
 		if (name == "Player Angle") {
 			Tank.GetComponent<TankController>().SetAngle(float.Parse(arg));
@@ -236,5 +248,7 @@ public class GameTankController : GameController {
 	IEnumerator Delay(){
 		yield return new WaitForSeconds(2f);
 	}
+
+
 	
 }

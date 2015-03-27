@@ -30,7 +30,7 @@ public class TankController : MonoBehaviour {
 
 	void Update(){
 
-		if (tankControls == true) {
+		if (tankControls == true && !bullet) {
 			if (Input.GetButton ("Jump")) {
 
 				Fire ();
@@ -43,7 +43,7 @@ public class TankController : MonoBehaviour {
 
 	void FixedUpdate () {
 
-		if (tankControls == true) {
+		if (tankControls == true && !bullet) {
 			float h = Input.GetAxisRaw ("Horizontal");
 			float z = Input.GetAxisRaw ("Vertical");
 			Move (h);
@@ -90,13 +90,13 @@ public class TankController : MonoBehaviour {
 		}
 	}
 
-	void Fire(){
+	public void Fire(){
 		if (bullet == null) {
 			bullet = (GameObject)Instantiate (projectile, projectileSpawn.position, projectileSpawn.transform.rotation);
 			bullet.rigidbody2D.velocity = (Quaternion.Euler (0, 0, currentBarrelAngle) * Vector3.right) * velocity;
 		}
 	}
-	
+
 	public void DisableTankControls(){
 		tankControls = false;
 	} 

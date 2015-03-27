@@ -14,7 +14,8 @@ public class GameCollisionController : GameController {
 	public float speed_right;
 	public float acc_right;
 	public float acc_left;
- 
+ 	public float velocity_b;
+ 	public float velocity_a;
 	public float pos_b;
 	public float pos_a;
 	private Vector3 velocity = Vector3.zero;
@@ -62,12 +63,13 @@ public class GameCollisionController : GameController {
 		pos_a = float.Parse(question["values"]["Car A Position"]["value"].Value);
 		pos_b = float.Parse(question["values"]["Car B Position"]["value"].Value);
 		car_A_control.setPosition(pos_a);
-		//car_A_control.updateSpeed(float.Parse(question["values"]["Car B Position"]["value"].Value));
+		velocity_a = float.Parse(question["values"]["Car A Position"]["value"].Value);
 		car_B_control.setPosition(pos_b);
-		//car_B_control.updateSpeed(float.Parse(question["values"]["Car B Position"]["value"].Value));
-
+		velocity_b = float.Parse(question["values"]["Car B Velocity"]["value"].Value);
         adjustCamToFit();     
     }
+
+
 
 	public void adjustCamToFit(){
 		Vector3 old_vec3 = cam.transform.position;
@@ -129,6 +131,8 @@ public class GameCollisionController : GameController {
 
 	public override void OnSubmit(JSONNode answers){
 		m_answer = answers;
+		car_A_control.updateSpeed(velocity_a);
+		car_B_control.updateSpeed(velocity_b);
 		adjustCamToFit();
 	}
 

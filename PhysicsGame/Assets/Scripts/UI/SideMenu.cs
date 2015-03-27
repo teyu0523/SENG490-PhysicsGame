@@ -13,10 +13,10 @@ public class SideMenu : MonoBehaviour {
 	public GameController gameController;
 	public Text numTries;
 	public JSONNode answers;
-	public int _tries = 0;
 
 	private List<InputField> list = new List<InputField>();
-	private bool buttonOn = false;
+	private bool _pause = false;
+	private int _tries = 0;
 	private bool buttonPress = false;
 	private bool showSide = false;
 	private Vector2 scrollPosition = Vector2.zero;
@@ -52,6 +52,9 @@ public class SideMenu : MonoBehaviour {
 			_tries = int.Parse(questions["max_tries"].Value);
 			numTries.text = questions["max_tries"].Value;
 			foreach(JSONNode node in questions["values"].Childs){
+				if(!node["menu"].AsBool) {
+					continue;
+				}
 				questionSet = Instantiate (questionsPrefab) as GameObject;
 				questionSetProperty qsp = questionSet.GetComponent <questionSetProperty>();
 				if(qsp == null){
@@ -89,6 +92,14 @@ public class SideMenu : MonoBehaviour {
 		button.transform.localScale = new Vector3(1f, 1f, 1f);
 		questionPanel.SetActive(false);
 	}
+	public bool Pause
+    {
+		get
+		{
+		    return this._pause;
+		}
+    }
+
 	public int Tries
     {
 		get
@@ -102,14 +113,14 @@ public class SideMenu : MonoBehaviour {
     }
 
 	public void pause(){
-		if(buttonOn){
+		if(_pause){
 			questionPanel.SetActive(false);
-			buttonOn = false;
+			_pause = false;
 			Time.timeScale = 1.0f;     
 
 		} else {
 			questionPanel.SetActive(true);	
-			buttonOn = true;
+			_pause = true;
 			Time.timeScale = 0.0f;     
 		}	
 	}

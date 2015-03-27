@@ -53,6 +53,7 @@ public class SideMenu : MonoBehaviour {
 					Debug.LogWarning("qsp null.");
 				}
 				qsp.question.text = node["name"];
+				qsp.type = node["type"].Value;
 				if(node["type"].Value == "float"){
 					qsp.answer.contentType = InputField.ContentType.DecimalNumber;
 				} else if (node["type"].Value == "string"){
@@ -61,7 +62,8 @@ public class SideMenu : MonoBehaviour {
 					Debug.LogWarning(" Add the new type");
 				}
 				qsp.answerText.text = node["value"];
-				qsp.answer.onEndEdit.AddListener((string value) => submitString(qsp.question.text, value));
+				qsp.answer.onValueChange.AddListener((string value) => submitString(qsp.question.text, value, qsp.type));
+				//qsp.answer.onEndEdit.AddListener((string value) => submitString(qsp.question.text, value, qsp.type));
 				questionSet.transform.SetParent(questionPanelList.transform);
 				questionSet.transform.localScale = new Vector3(1f, 1f, 1f);
 			}
@@ -76,7 +78,6 @@ public class SideMenu : MonoBehaviour {
 		button.transform.localScale = new Vector3(1f, 1f, 1f);
 		questionPanel.SetActive(false);
 	}
-
 
 	public void pause(){
 		Debug.Log("im here");
@@ -97,10 +98,24 @@ public class SideMenu : MonoBehaviour {
 		gameController.OnSubmit();
 	}
 
-	public void submitString(string name, string arg){
+	public void submitString(string name, string arg, string type){
 		answers["values"][name]["value"] = arg;
 		gameController.OnMenuChanged(answers);
+		gameController.SetProperty(name, arg);
+		/*if(type == "float"){
+			gameController.SetProperty(name, float.parse(arg));
+		} else if (type == "string") {
+			gameController.SetProperty(name, arg);
+		} else {
+			Debug.Log("Please add new data type.");
+		}*/
 	}
+
+	public void setString(string name, string arg){
+		answers["values"][name]["value"] = arg;
+		
+	}
+
 	// Update is called once per frame
 	void Update () {
 	

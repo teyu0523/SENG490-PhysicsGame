@@ -6,4 +6,5 @@ public class questionSetProperty : MonoBehaviour {
 	public Text question;
 	public InputField answer;
 	public Text answerText;
+	public string type;
 }

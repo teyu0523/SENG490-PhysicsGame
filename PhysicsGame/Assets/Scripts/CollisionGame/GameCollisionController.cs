@@ -5,8 +5,8 @@ using SimpleJSON;
 
 public class GameCollisionController : GameController {
 
-	public GameObject car_left;
-	public GameObject car_right;
+	public GameObject car_left; // A
+	public GameObject car_right; // B
 
 	//public GameObject car_right;
 	public float speed_left;
@@ -52,6 +52,11 @@ public class GameCollisionController : GameController {
 				Debug.LogWarning("GameObject not found: CarRight");
 			}
 		}
+		Debug.Log(question["values"]);
+		Debug.Log(question["values"]["Car A Position"]["value"].Value);
+		Debug.Log(float.Parse(question["values"]["Car A Position"]["value"].Value));
+		car_left_control.setPosition(float.Parse(question["values"]["Car A Position"]["value"].Value));
+		car_right_control.setPosition(float.Parse(question["values"]["Car B Position"]["value"].Value));
 	}
 
 	public override void Awake() {
@@ -69,6 +74,13 @@ public class GameCollisionController : GameController {
 		car_left_control.updateAcc(acc_left);
 		car_right_control.updateAcc(acc_right);*/
 
+	}
+	public override void SetProperty(string name, string arg){
+		if(name == "Car A Position"){
+			car_left_control.setPosition(float.Parse(arg));
+		} else if (name == "Car B Position"){
+			car_right_control.setPosition(float.Parse(arg));
+		}
 	}
 
 	public override void OnMenuChanged(JSONNode answer){

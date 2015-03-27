@@ -90,7 +90,11 @@ public class GameTankController : GameController {
 	public override void Update()
 	{
 		base.Update();
-
+		/**********************************************
+		// may need to add some if statement to determine if button pressed 
+		// or new position is different from old position
+		side_menu.setString(name, arg); // this well set whatever is change on game to pause menu;
+		***********************************************/
 		m_question_hint ["Tank Height"].text = "Tank Height: " + Tank.transform.position.y.ToString () + " m";
 		m_question_hint ["Angle"].text = "Tank Angle: " + Tank.GetComponent<TankController> ().GetAngle ().ToString () + " degrees"; 
 		m_question_hint ["Velocity"].text = "Projectile Veloicty: " + Tank.GetComponent<TankController> ().GetVelocity ().ToString () + " m/s";
@@ -103,7 +107,13 @@ public class GameTankController : GameController {
 
 	}
 	
-	
+	/* Set the property on tank game from input values on pause menu */
+	public override void SetProperty(string name, string arg){
+
+	}
+
+
+
 	public void OnSubmitButtonPressed()
 	{
 		bool targetStatus = Target.GetComponent<DestoryOnContact> ().IsTargetDead ();

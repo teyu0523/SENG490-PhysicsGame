@@ -2,7 +2,7 @@
 using System.Collections;
 
 public class CarRightControl : MonoBehaviour {
-	private float acc_right = 1;
+	private float acc_right = 0;
 	private float speed_right = 0;
 	private Vector3 car_right_pos;
 	private bool hit;
@@ -42,5 +42,10 @@ public class CarRightControl : MonoBehaviour {
 
 	public void setHit(bool new_hit){
 		hit = new_hit;
+	}
+
+	public void setPosition(float position){
+		//car_right_pos.x = position;
+		transform.position = new Vector3(position, car_right_pos.y, car_right_pos.z);
 	}
 }

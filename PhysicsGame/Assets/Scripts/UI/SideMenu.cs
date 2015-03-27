@@ -100,7 +100,7 @@ public class SideMenu : MonoBehaviour {
 
 	public void submit(){
 		Debug.Log(answers);
-		gameController.OnSubmit();
+		gameController.OnSubmit(answers);
 	}
 
 	public void submitString(string name, string arg, string type){

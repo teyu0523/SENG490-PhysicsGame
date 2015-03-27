@@ -6,10 +6,11 @@ public class CarLeftControl : MonoBehaviour {
 	private float acc_left = 0;
 	private float speed_left = 0;
 	private Vector3 car_A_pos;
-	private bool hit;
+	private bool _hit;
+	private float _velocityAfter = 0;
 	// Use this for initialization
 	void Start () {
-		hit = false;
+		_hit = false;
 	}
 	
 	// Update is called once per frame
@@ -21,10 +22,16 @@ public class CarLeftControl : MonoBehaviour {
 			// do animation for collision
 		}*/
 	}
+	public bool Hit{
+		get
+		{
+		    return this._hit;
+		}
+	}
 
 	void OnCollisionEnter2D(Collision2D col){
 		if(col.transform.root.tag == "Cars"){
-			hit = true;
+			_hit = true;
 		}
 	}
 
@@ -40,11 +47,23 @@ public class CarLeftControl : MonoBehaviour {
 		acc_left = new_acc;
 	}
 
-	public void setHit(bool new_hit){
-		hit = new_hit;
+	public float VelocityAfter{
+		get
+		{
+			return this._velocityAfter;
+		}
+		set
+		{
+			this._velocityAfter = value;
+		}
+
 	}
 
 	public void setPosition(float position){
 		transform.position = new Vector3(position, transform.position.y, transform.position.z);
+	}
+
+	public void setMass(float mass){
+		rbody2d.mass = mass;
 	}
 }

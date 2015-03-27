@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
+using  System.Globalization;
 
 public class GameCollisionController : GameController {
 
@@ -69,8 +70,6 @@ public class GameCollisionController : GameController {
         adjustCamToFit();     
     }
 
-
-
 	public void adjustCamToFit(){
 		Vector3 old_vec3 = cam.transform.position;
 		cam.transform.position = Vector3.SmoothDamp(
@@ -112,15 +111,15 @@ public class GameCollisionController : GameController {
 	public override void SetProperty(string name, string arg){
 
 		if(name == "Car A Position"){
-			pos_a = float.Parse(arg);
+			pos_a = float.Parse(arg, CultureInfo.InvariantCulture);
 			car_A_control.setPosition(pos_a);
 		} else if (name == "Car B Position"){
 			pos_b = float.Parse(arg);
 			car_B_control.setPosition(pos_b);
 		} else if (name == "Car B Velocity"){
-			car_B_control.updateSpeed(float.Parse(arg));
+			velocity_b = float.Parse(arg);
 		} else if (name == "Car A Velocity"){
-			car_A_control.updateSpeed(float.Parse(arg));
+			velocity_a = float.Parse(arg);
 		}
 	}
 

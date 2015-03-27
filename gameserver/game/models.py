@@ -246,7 +246,7 @@ def post_save_question(sender, instance=None, created=False, **kwargs):
         FloatingPointValue.objects.create(question=instance, name="Player Distance", order=0, min_value=10.0, max_value=150.0)
         FloatingPointValue.objects.create(question=instance, name="Player Height", order=1, min_value=0, max_value=8.0)
         FloatingPointValue.objects.create(question=instance, name="Player Angle", order=2, min_value=0.0, max_value=90.0)
-        FloatingPointValue.objects.create(question=instance, name="Player Velocity", order=3, min_value=10, max_velocity=50)
+        FloatingPointValue.objects.create(question=instance, name="Player Velocity", order=3, min_value=10, max_value=50)
         FloatingPointValue.objects.create(question=instance, name="Target Height", order=4, min_value=0, max_value=8.0)
         FloatingPointValue.objects.create(question=instance, name="Gravity", order=5, value=-9.8, min_value=-100, max_value=0)
     elif instance.question_type == Question.COLLISION:

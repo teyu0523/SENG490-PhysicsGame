@@ -3,6 +3,8 @@ using System;
 
 public class EggController : MonoBehaviour {
 
+	public GameObject explosionPrefab;
+
 	public AudioSource source;
 	public float compressPct = 0.0f;
 	public float springConstant = 10.0f;
@@ -10,11 +12,11 @@ public class EggController : MonoBehaviour {
 	public float mass = 1.0f;
 	public Boolean springFlag = false;
 
-	Rigidbody2D eggRigidbody;
+	private Vector3 m_initial_position = Vector3.zero;
 
 	void Awake(){
-		eggRigidbody = GetComponent<Rigidbody2D> ();
 		source = GetComponent<AudioSource>();
+		m_initial_position = transform.position;
 	}
 
 	void Update(){
@@ -46,6 +48,17 @@ public class EggController : MonoBehaviour {
 		float distance = compression*springLength;
 		float energy = springConstant * distance * distance;
 		float velocity = (float)Math.Sqrt(energy / mass);
-		eggRigidbody.velocity = new Vector2(0.0f, velocity);
+		rigidbody2D.velocity = new Vector2(0.0f, velocity);
+	}
+
+	public void resetEgg() {
+		transform.position = m_initial_position;
+		rigidbody.velocity = Vector2.zero;
+	}
+
+	public void breakEgg() {
+		GameObject explosion = Instantiate(explosionPrefab) as GameObject;
+		explosion.transform.position = transform.position;
+		gameObject.SetActive(false);
 	}
 }

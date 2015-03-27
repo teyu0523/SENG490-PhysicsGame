@@ -2,14 +2,11 @@
 using System.Collections;
 
 public class ShipController : MonoBehaviour {
-
-	public Sprite explosionSprite;
 	public SpriteRenderer spriteRenderer;
 	public AudioSource source1;
 	public AudioSource source2;
 
 	void Start(){
-		explosionSprite = Resources.Load<Sprite> ("explosion");
 		spriteRenderer = GetComponent<SpriteRenderer> ();
 
 		AudioSource[] sources = GetComponents<AudioSource>();
@@ -18,12 +15,14 @@ public class ShipController : MonoBehaviour {
 	}
 
 	void OnCollisionEnter2D(Collision2D col){
-		Destroy (col.gameObject);
 		if(col.relativeVelocity.magnitude > 5){
-			spriteRenderer.sprite = explosionSprite;
 			source1.Play();
+			col.gameObject.SetActive(false);
+			(GameController.Instance as SpringGameController).OnSuccess();
 		} else {
+			col.gameObject.GetComponent<EggController>().breakEgg();
 			source2.Play();
+			(GameController.Instance as SpringGameController).OnFailure();
 		}
 	}
 }

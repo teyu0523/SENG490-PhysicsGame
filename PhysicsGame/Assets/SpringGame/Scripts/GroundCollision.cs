@@ -16,7 +16,7 @@ public class GroundCollision : MonoBehaviour {
 
 	void OnCollisionEnter2D(Collision2D col){
 		if(col.relativeVelocity.magnitude > 5){
-			Destroy (col.gameObject);
+			col.gameObject.GetComponent<EggController>().breakEgg();
 		}
 	}
 }

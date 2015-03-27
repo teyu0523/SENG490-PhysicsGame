@@ -14,32 +14,28 @@ public class TankController : MonoBehaviour {
 	public Transform barrelTransform;
 
 	private float velocity = 25f;
-	private bool movementControls = true;
-	private bool angleControls = true;
-	private bool velocityControls = true;
+	private bool tankControls = true;
 
 
 	Vector2 movement;
 	Rigidbody2D tankRigidbody;
+	Transform tankTransform;
 	GameObject bullet;
 
 
 	void Awake(){
 		tankRigidbody = GetComponent<Rigidbody2D> ();
-		
+		tankTransform = GetComponent<Transform> ();
 	}
 
 	void Update(){
-		
-		if(Input.GetButton("Jump")){
 
-			if (bullet == null){
-				bullet = (GameObject) Instantiate(projectile, projectileSpawn.position, projectileSpawn.transform.rotation);
-				bullet.rigidbody2D.velocity = (Quaternion.Euler(0, 0, currentBarrelAngle) * Vector3.right) * velocity;
+		if (tankControls == true) {
+			if (Input.GetButton ("Jump")) {
+
+				Fire ();
 			}
-		}
 
-		if (velocityControls == true) {
 			VelocityChange ();
 		}
 
@@ -47,18 +43,14 @@ public class TankController : MonoBehaviour {
 
 	void FixedUpdate () {
 
-		float h = Input.GetAxisRaw ("Horizontal");
-		float z = Input.GetAxisRaw ("Vertical");
-		if (movementControls == true) {
+		if (tankControls == true) {
+			float h = Input.GetAxisRaw ("Horizontal");
+			float z = Input.GetAxisRaw ("Vertical");
 			Move (h);
-
-		}
-		if (angleControls == true) {
 			Rotate (z);
 		}
-
-		
 	}
+
 
 	void VelocityChange (){
 		if(Input.GetKeyDown ("e")){
@@ -98,17 +90,16 @@ public class TankController : MonoBehaviour {
 		}
 	}
 
-	public void DisableMovementControls(){
-		movementControls = false;
+	void Fire(){
+		if (bullet == null) {
+			bullet = (GameObject)Instantiate (projectile, projectileSpawn.position, projectileSpawn.transform.rotation);
+			bullet.rigidbody2D.velocity = (Quaternion.Euler (0, 0, currentBarrelAngle) * Vector3.right) * velocity;
+		}
 	}
-
-	public void DisableAngleControls(){
-		angleControls = false;
-	}
-
-	public void DisableVelocityControls(){
-		velocityControls = false;
-	}
+	
+	public void DisableTankControls(){
+		tankControls = false;
+	} 
 
 	public void SetVelocity (float v){
 		velocity = v;
@@ -128,6 +119,15 @@ public class TankController : MonoBehaviour {
 		return currentBarrelAngle;
 	}
 
+	public void SetDistance(float d){
+
+		Vector3 newPosition = tankTransform.position;
+
+		newPosition.x = (d) * (-1f);
+		tankTransform.position = newPosition;
+
+
+	}
 
 
 }

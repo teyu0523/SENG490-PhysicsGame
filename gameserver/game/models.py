@@ -206,10 +206,10 @@ def pre_save_question(sender, instance=None, **kwargs):
         # Remove the old question extension entry
         if old_instance.question_type != instance.question_type:
             old_instance.answers.all().delete()
-            IntegerValue.objects.get(question__pk=old_instance.id).delete()
-            FloatingPointValue.objects.get(question__pk=old_instance.id).delete()
-            StringValue.objects.get(question__pk=old_instance.id).delete()
-            ParagraphValue.objects.get(question__pk=old_instance.id).delete()
+            IntegerValue.objects.filter(question__pk=old_instance.id).delete()
+            FloatingPointValue.objects.filter(question__pk=old_instance.id).delete()
+            StringValue.objects.filter(question__pk=old_instance.id).delete()
+            ParagraphValue.objects.filter(question__pk=old_instance.id).delete()
 
         # Handle change in owning lesson
         if old_instance.lesson_id != instance.lesson_id:

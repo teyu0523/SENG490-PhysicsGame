@@ -114,6 +114,7 @@ public abstract class GameController : MonoBehaviour {
 
 	public virtual void OnMenuChanged(JSONNode answer) {}
 	public virtual void OnSubmit() {}
+	public virtual void SetProperty(string name, string arg){}
 
 	/// <summary>
 	/// Exits the current lesson.

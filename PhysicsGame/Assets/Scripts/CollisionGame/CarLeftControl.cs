@@ -14,12 +14,12 @@ public class CarLeftControl : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if(!hit){
+		/*if(!hit){
 			car_A_pos = transform.position;
 			transform.position = new Vector3(car_A_pos.x + (speed_left + (acc_left * Time.time)), car_A_pos.y, car_A_pos.z);
 		} else {
 			// do animation for collision
-		}
+		}*/
 	}
 
 	void OnCollisionEnter2D(Collision2D col){
@@ -33,7 +33,7 @@ public class CarLeftControl : MonoBehaviour {
 	}
 
 	public void updateSpeed(float new_speed){
-		rbody2d.angularVelocity = new_speed;
+		rbody2d.velocity = new Vector2(new_speed, rbody2d.velocity.y) ;
 	}
 
 	public void updateAcc(float new_acc){
@@ -45,6 +45,6 @@ public class CarLeftControl : MonoBehaviour {
 	}
 
 	public void setPosition(float position){
-		transform.position = new Vector3(position, car_A_pos.y, car_A_pos.z);
+		transform.position = new Vector3(position, transform.position.y, transform.position.z);
 	}
 }

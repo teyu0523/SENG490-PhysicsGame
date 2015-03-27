@@ -14,13 +14,17 @@ public class TankController : MonoBehaviour {
 	public Transform barrelTransform;
 
 	private float velocity = 25f;
-	private bool tankControls = true;
+	private bool fireControls = true;
+	private bool moveControls = true;
+	private bool angleControls = true;
+	private bool velocityControls = true;
 
 	public GameObject m_up_button;
 	public GameObject m_down_button;
 	public GameObject m_left_button;
 	public GameObject m_right_button;
 	public GameObject m_fire_button;
+	public GameObject m_scroll_bar;
 
 	private bool m_up_pressed = false;
 	private bool m_down_pressed = false;
@@ -41,12 +45,15 @@ public class TankController : MonoBehaviour {
 
 	void Update(){
 
-		if (tankControls == true && !bullet) {
+		if (fireControls == true && !bullet) {
 			if (Input.GetButton ("Jump") || m_fire_pressed) {
 
 				Fire ();
 			}
 
+
+		}
+		if (velocityControls == true && !bullet) {
 			VelocityChange ();
 		}
 
@@ -54,10 +61,13 @@ public class TankController : MonoBehaviour {
 
 	void FixedUpdate () {
 
-		if (tankControls == true && !bullet) {
+		if (moveControls == true && !bullet) {
 			float h = Input.GetAxisRaw ("Horizontal") + ((m_left_pressed) ? -1.0f : 0.0f) + ((m_right_pressed) ? 1.0f : 0.0f);
-			float z = Input.GetAxisRaw ("Vertical") + ((m_up_pressed) ? 1.0f : 0.0f) + ((m_down_pressed) ? -1.0f : 0.0f);
 			Move (h);
+
+		}
+		if (angleControls == true && !bullet) {
+			float z = Input.GetAxisRaw ("Vertical") + ((m_up_pressed) ? 1.0f : 0.0f) + ((m_down_pressed) ? -1.0f : 0.0f);
 			Rotate (z);
 		}
 	}
@@ -108,10 +118,35 @@ public class TankController : MonoBehaviour {
 		}
 	}
 
-	public void DisableTankControls(){
-		tankControls = false;
-	} 
 
+
+	public void DisableMoveControls(){
+		moveControls = false;
+		m_right_button.SetActive (false);
+		m_left_button.SetActive (false);
+	}
+
+
+	public void DisableAngleControls(){
+		angleControls = false;
+		m_up_button.SetActive (false);
+		m_down_button.SetActive (false);
+	}
+
+	public void DisableVelocityControls(){
+		velocityControls = false;
+		m_scroll_bar.SetActive (false);
+
+	}
+
+	public void DisableAllControls(){
+		DisableMoveControls ();
+		DisableAngleControls ();
+		DisableVelocityControls ();
+		fireControls = false;
+		m_fire_button.SetActive (false);
+	}
+	
 	public void SetVelocity (float v){
 		velocity = v;
 	}

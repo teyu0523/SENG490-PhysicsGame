@@ -10,10 +10,10 @@ public class GameTankController : GameController {
 	public GameObject Target;
 
 	private StatsDisplayPanelController m_question_hint = null;
-
-	private int m_expected_answer = 0;
+	
 	private int m_max_tries = 0;
 	private int m_number_tries = 0;
+
 
 	private JSONNode m_answer;
 
@@ -30,53 +30,94 @@ public class GameTankController : GameController {
 
 		Debug.Log (question);
 		Debug.Log (previous_answer);
-
-		Vector3 newPosition;
 		
 		m_max_tries = question ["max_tries"].AsInt;
 		side_menu.Tries = m_max_tries - m_number_tries;
 
-		//setting up game environment if it is a question
-		if (question ["playable"].Value.Equals("false")) {
 
-			//disable keyboard controls for tank game
-			Tank.GetComponent<TankController>().DisableTankControls();
-			
-			//setting player distance
+		if (question ["playable"].Value.Equals("false")) {
+			Debug.Log ("DISABLING EVERTHING");
+			Tank.GetComponent<TankController> ().DisableAllControls ();
+		} else {
+			Debug.Log ("DISABLING SOME EVERTHINGS");
 			if(!question["values"]["Player Distance"]["editable"].AsBool){
-				newPosition = Tank.transform.position;
-				newPosition.x = (question["values"]["Player Distance"]["value"].AsFloat)*(-1f);
-				Tank.transform.position = newPosition;
+				Tank.GetComponent<TankController>().DisableMoveControls();
 			}
-			//setting player's height level
 			if(!question["values"]["Player Height"]["editable"].AsBool){
-				newPosition = Tank.transform.position;
-				newPosition.y = (question["values"]["Player Height"]["value"].AsFloat);
-				Tank.transform.position = newPosition;
+				//not implemented
 			}
-			//setting player's angle
 			if(!question["values"]["Player Angle"]["editable"].AsBool){
-				Tank.GetComponent<TankController>().SetAngle(question["values"]["Player Angle"]["value"].AsFloat);
+				Tank.GetComponent<TankController>().DisableAngleControls();
 			}
-			//setting player's projectile velocity
 			if(!question["values"]["Player Velocity"]["editable"].AsBool){
-				Tank.GetComponent<TankController>().SetVelocity(question["values"]["Player Velocity"]["value"].AsFloat);
+				Tank.GetComponent<TankController>().DisableVelocityControls();
 			}
-			//setting target's height level
 			if(!question["values"]["Target Height"]["editable"].AsBool){
-				newPosition = Target.transform.position;
-				newPosition.y = (question["values"]["Target Height"]["value"].AsFloat);
-				Target.transform.position = newPosition;
+				//Not implemented
 			}
-			//setting ame's gravity
 			if(!question["values"]["Gravity"]["editable"].AsBool){
-				Physics.gravity = new Vector3(0, question["values"]["Gravity"]["value"].AsFloat, 0);
-			}
+				//Not implemented
+			}	
 		}
+
+		//setting player distance and height level
+		Tank.transform.position = new Vector3 ((question ["values"] ["Player Distance"] ["value"].AsFloat) * (-1f),
+		                                       (question["values"]["Player Height"]["value"].AsFloat), Tank.transform.position.z);
+
+		//setting player's angle
+		Tank.GetComponent<TankController>().SetAngle(question["values"]["Player Angle"]["value"].AsFloat);
+
+		//setting player's projectile velocity
+		Tank.GetComponent<TankController>().SetVelocity(question["values"]["Player Velocity"]["value"].AsFloat);
+
+		//setting target's height level
+		Target.transform.position = new Vector3 (Target.transform.position.x,
+		                                        (question ["values"] ["Target Height"] ["value"].AsFloat), Target.transform.position.z);
+
+		//setting ame's gravity
+		Physics.gravity = new Vector3(0, question["values"]["Gravity"]["value"].AsFloat, 0);
+		
+//		//setting up game environment if it is a question
+//		if (question ["playable"].Value.Equals("false")) {
+//
+//			//disable keyboard controls for tank game
+//			Tank.GetComponent<TankController>().DisableTankControls();
+//			
+//			//setting player distance
+//			if(!question["values"]["Player Distance"]["editable"].AsBool){
+//				newPosition = Tank.transform.position;
+//				newPosition.x = (question["values"]["Player Distance"]["value"].AsFloat)*(-1f);
+//				Tank.transform.position = newPosition;
+//			}
+//			//setting player's height level
+//			if(!question["values"]["Player Height"]["editable"].AsBool){
+//				newPosition = Tank.transform.position;
+//				newPosition.y = (question["values"]["Player Height"]["value"].AsFloat);
+//				Tank.transform.position = newPosition;
+//			}
+//			//setting player's angle
+//			if(!question["values"]["Player Angle"]["editable"].AsBool){
+//				Tank.GetComponent<TankController>().SetAngle(question["values"]["Player Angle"]["value"].AsFloat);
+//			}
+//			//setting player's projectile velocity
+//			if(!question["values"]["Player Velocity"]["editable"].AsBool){
+//				Tank.GetComponent<TankController>().SetVelocity(question["values"]["Player Velocity"]["value"].AsFloat);
+//			}
+//			//setting target's height level
+//			if(!question["values"]["Target Height"]["editable"].AsBool){
+//				newPosition = Target.transform.position;
+//				newPosition.y = (question["values"]["Target Height"]["value"].AsFloat);
+//				Target.transform.position = newPosition;
+//			}
+//			//setting ame's gravity
+//			if(!question["values"]["Gravity"]["editable"].AsBool){
+//				Physics.gravity = new Vector3(0, question["values"]["Gravity"]["value"].AsFloat, 0);
+//			}
+//		}
 
 		//spawning info box to tank
 		m_question_hint = (GameObject.Instantiate(m_stats_prefab) as GameObject).GetComponent<StatsDisplayPanelController>();
-		m_question_hint.AddTextItem ("Tank Height", "Tank Height: " + Tank.transform.position.y.ToString() + " m");
+		m_question_hint.AddTextItem ("Tank Height", "Tank Height: " + (Tank.transform.position.y).ToString() + " m");
 		m_question_hint.AddTextItem ("Angle", "Tank Angle: " + Tank.GetComponent<TankController>().GetAngle().ToString() + " degrees");
 		m_question_hint.AddTextItem ("Velocity", "Projectile Veloicty: " + Tank.GetComponent<TankController>().GetVelocity().ToString() + " m/s");
 		m_question_hint.AddTextItem ("Distance", "Distance to Target: " + (Tank.transform.position.x*(-1f)).ToString() + " m");
@@ -96,7 +137,7 @@ public class GameTankController : GameController {
 		// or new position is different from old position
 		side_menu.setString(name, arg); // this well set whatever is change on game to pause menu;
 		***********************************************/
-		m_question_hint ["Tank Height"].text = "Tank Height: " + Tank.transform.position.y.ToString () + " m";
+		m_question_hint ["Tank Height"].text = "Tank Height: " + (Tank.transform.position.y).ToString () + " m";
 		m_question_hint ["Angle"].text = "Tank Angle: " + Tank.GetComponent<TankController> ().GetAngle ().ToString () + " degrees"; 
 		m_question_hint ["Velocity"].text = "Projectile Veloicty: " + Tank.GetComponent<TankController> ().GetVelocity ().ToString () + " m/s";
 		m_question_hint ["Distance"].text = "Distance to Target: " + (Tank.transform.position.x * (-1f)).ToString () + " m";
@@ -105,7 +146,7 @@ public class GameTankController : GameController {
 
 		if (Input.GetKeyDown ("p")) {
 			side_menu.setString("Player Distance", (Tank.transform.position.x * (-1f)).ToString ());
-			side_menu.setString("Player Height", Tank.transform.position.y.ToString ());
+			side_menu.setString("Player Height", (Tank.transform.position.y).ToString ());
 			side_menu.setString("Player Angle", Tank.GetComponent<TankController> ().GetAngle ().ToString ());
 			side_menu.setString("Player Velocity", Tank.GetComponent<TankController> ().GetVelocity ().ToString ());
 			side_menu.setString("Target Height", Target.transform.position.y.ToString ());

@@ -15,7 +15,7 @@ public class LessonReviewController : MonoBehaviour {
 	public void populateResults(JSONNode lesson_results)
 	{
 		m_title_label.text = lesson_results["name"].Value;
-		m_mark_label.text = lesson_results["grade"].Value + "%";
+		m_mark_label.text = Mathf.Round(lesson_results["grade"].AsFloat*10)*0.1f + "%";
 		foreach (JSONNode node in lesson_results["answers"].AsArray) {
 			GameObject new_answer = Instantiate (m_answer_prefab) as GameObject;
 			AnswerDisplayContainer container = new_answer.GetComponent<AnswerDisplayContainer>();

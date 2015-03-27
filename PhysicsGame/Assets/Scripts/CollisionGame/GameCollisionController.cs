@@ -7,7 +7,6 @@ public class GameCollisionController : GameController {
 
 	public GameObject car_left;
 	public GameObject car_right;
-	public GameObject canvas;
 
 	//public GameObject car_right;
 	public float speed_left;
@@ -21,7 +20,6 @@ public class GameCollisionController : GameController {
 
 	private CarRightControl car_right_control;
 	private CarLeftControl car_left_control;
-	private SideMenu side_menu;
 
 	private Vector3 car_left_pos;
 	private Vector3 car_right_pos;
@@ -31,19 +29,10 @@ public class GameCollisionController : GameController {
 
 
 	public override void initializeGame(JSONNode question, JSONNode previous_answer){
+		base.initializeGame(question, previous_answer);
 		if(question != null){
 			m_answer = previous_answer;
 			this.question = question;
-			if(canvas){
-				side_menu = canvas.GetComponent(typeof(SideMenu)) as SideMenu;
-				if(side_menu == null){
-					Debug.LogWarning("Script not found: SideMenu");
-				} else {
-					side_menu.parseJSON(question, previous_answer);
-				}
-			} else {
-				Debug.LogWarning("GameObject not found: canvas");
-			}
 
 			if(car_left){
 				car_left_control = car_left.GetComponent(typeof(CarLeftControl)) as CarLeftControl;
@@ -80,22 +69,9 @@ public class GameCollisionController : GameController {
 		car_left_control.updateAcc(acc_left);
 		car_right_control.updateAcc(acc_right);*/
 
-		/*if (Input.GetKeyDown(KeyCode.P) ){
-			side_menu.pause();
-
-		}*/
-		if (Input.GetKeyDown(KeyCode.P) || Input.touchCount == 4) {
-			if(!m_touch_started) {
-				side_menu.pause();
-			}
-			
-			m_touch_started = true;
-		} else {
-			m_touch_started = false;
-		}
 	}
 
-	public void setAnswer(JSONNode answer){
+	public override void OnMenuChanged(JSONNode answer){
 		m_answer = answer;
 		Debug.Log(m_answer);
 	}

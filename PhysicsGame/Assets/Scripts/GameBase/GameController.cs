@@ -6,13 +6,15 @@ using SimpleJSON;
 public abstract class GameController : MonoBehaviour {
 
 	public GameObject m_stats_prefab = null;
+	public SideMenu side_menu;
 
 	private LessonController m_assignment_controller = null;
 	private static GameController m_instance = null;
 
 	private List<StatsDisplayPanelController> m_stats_displays;
 	private bool m_displaying_stats = false;
-	private bool m_touch_started = false;
+	private bool m_stats_touch_started = false;
+	private bool m_menu_touch_started = false;
 
 	/// <summary>
 	/// Used to get the controller for the currently running game.
@@ -42,7 +44,18 @@ public abstract class GameController : MonoBehaviour {
 	/// </summary>
 	/// <param name="question">The JSON data for the question.</param>
 	/// <param name="previous_answer">The JSON data containing the user's previous answer.</param>
-	public abstract void initializeGame(JSONNode question, JSONNode previous_answer);
+	public virtual void initializeGame(JSONNode question, JSONNode previous_answer)
+	{
+		if(side_menu != null)
+		{
+			side_menu.parseJSON(question, previous_answer);
+			side_menu.gameController = this;
+		}
+		else
+		{
+			Debug.LogWarning("Sidemenu not set on game controller.");
+		}
+	}
 
 
 	/// <summary>
@@ -76,19 +89,30 @@ public abstract class GameController : MonoBehaviour {
 	public virtual void Update()
 	{
 		if (Input.GetKeyDown("i") || Input.touchCount == 3) {
-			if(!m_touch_started) {
+			if(!m_stats_touch_started) {
 				m_displaying_stats = !m_displaying_stats;
 				foreach(StatsDisplayPanelController display in m_stats_displays) {
 					display.display(m_displaying_stats);
 				}
 			}
 
-			m_touch_started = true;
+			m_stats_touch_started = true;
 		} else {
-			m_touch_started = false;
+			m_stats_touch_started = false;
+		}
+
+		if (Input.GetKeyDown(KeyCode.P) || Input.touchCount == 4) {
+			if(!m_menu_touch_started) {
+				side_menu.pause();
+			}
+			
+			m_menu_touch_started = true;
+		} else {
+			m_menu_touch_started = false;
 		}
 	}
 
+	public virtual void OnMenuChanged(JSONNode answer) {}
 	public virtual void OnSubmit() {}
 
 	/// <summary>

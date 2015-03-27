@@ -41,6 +41,8 @@ public class GameNumericController : GameController {
 
 	public override void initializeGame(JSONNode question, JSONNode previous_answer)
 	{
+		base.initializeGame(question, previous_answer);
+
 		m_answer = previous_answer;
 
 		m_question_id = question["id"].AsInt;
@@ -62,7 +64,7 @@ public class GameNumericController : GameController {
 		m_question_hint.AddTextItem("hint", question["values"]["Question Hint"]["value"]);
 		m_question_hint.Attach(m_question_text.gameObject, new Vector2(1.0f, 0.5f));
 	}
-
+		
 	public override void Update()
 	{
 		base.Update();
@@ -116,9 +118,9 @@ public class GameNumericController : GameController {
 	/// </summary>
 	public void OnSubmitButtonPressed()
 	{
-		m_number_tries++;
 		if( m_current_answer != m_expected_answer )
 		{
+			m_number_tries++;
 			m_tries_text.text = "Tries Left: " + (m_max_tries - m_number_tries);
 			m_background_color_target = m_background_color_incorrect;
 			m_flash_time = 0.0f;

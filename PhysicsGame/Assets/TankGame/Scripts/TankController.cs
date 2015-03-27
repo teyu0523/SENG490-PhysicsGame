@@ -28,7 +28,6 @@ public class TankController : MonoBehaviour {
 	private bool m_right_pressed = false;
 	private bool m_fire_pressed = false;
 
-
 	Vector2 movement;
 	Rigidbody2D tankRigidbody;
 	Transform tankTransform;
@@ -156,5 +155,8 @@ public class TankController : MonoBehaviour {
 	}
 	public void OnFirePressed(bool down) {
 		m_fire_pressed = down;
+	}
+	public void OnSliderChanged(float value) {
+		SetVelocity(15f + value*35f);
 	}
 }

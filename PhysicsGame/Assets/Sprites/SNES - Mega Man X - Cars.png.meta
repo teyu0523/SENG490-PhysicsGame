@@ -58,8 +58,8 @@ TextureImporter:
         y: 60
         width: 101
         height: 41
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 4
+      pivot: {x: 0, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: SNES - Mega Man X - Cars_1
       rect:
@@ -68,7 +68,7 @@ TextureImporter:
         y: 59
         width: 101
         height: 42
-      alignment: 0
+      alignment: 4
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: SNES - Mega Man X - Cars_2
@@ -78,7 +78,7 @@ TextureImporter:
         y: 64
         width: 78
         height: 33
-      alignment: 0
+      alignment: 4
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: SNES - Mega Man X - Cars_3
@@ -88,7 +88,7 @@ TextureImporter:
         y: 64
         width: 78
         height: 32
-      alignment: 0
+      alignment: 4
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: SNES - Mega Man X - Cars_4
@@ -98,8 +98,8 @@ TextureImporter:
         y: 0
         width: 80
         height: 47
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 4
+      pivot: {x: 0, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: SNES - Mega Man X - Cars_5
       rect:
@@ -108,8 +108,8 @@ TextureImporter:
         y: 0
         width: 80
         height: 46
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 4
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: SNES - Mega Man X - Cars_6
       rect:
@@ -118,8 +118,8 @@ TextureImporter:
         y: 0
         width: 80
         height: 47
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 4
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: SNES - Mega Man X - Cars_7
       rect:
@@ -128,8 +128,8 @@ TextureImporter:
         y: 0
         width: 80
         height: 46
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 4
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 

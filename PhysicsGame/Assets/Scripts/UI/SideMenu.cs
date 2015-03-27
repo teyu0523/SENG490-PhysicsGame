@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Collections.Generic;
 using SimpleJSON;
+using System;
 
 public class SideMenu : MonoBehaviour {
 	
@@ -62,10 +63,14 @@ public class SideMenu : MonoBehaviour {
 				}
 				qsp.question.text = node["name"].Value;
 				qsp.type = node["type"].Value;
-				if(node["type"].Value == "float"){
+				if(qsp.type == "float" || qsp.type == "integer"){
 					qsp.answer.contentType = InputField.ContentType.DecimalNumber;
-				} else if (node["type"].Value == "string"){
+					qsp.maxBound = float.Parse(node["max_value"]);
+					qsp.minBound = float.Parse(node["min_value"]);
+				} else if (qsp.type == "string" || qsp.type == "paragraph"){
 					qsp.answer.contentType = InputField.ContentType.Standard;
+					qsp.maxLength = int.Parse(node["max_length"]);
+					qsp.answer.characterLimit = qsp.maxLength;
 				} else {
 					Debug.LogWarning(" Add the new type");
 				}
@@ -76,8 +81,12 @@ public class SideMenu : MonoBehaviour {
 				}
 				qsp.answer.name = node["name"].Value;
 				list.Add(qsp.answer);
-				qsp.answer.onValueChange.AddListener((string value) => submitString(qsp.question.text, value, qsp.type));
-				//qsp.answer.onEndEdit.AddListener((string value) => submitString(qsp.question.text, value, qsp.type));
+				//qsp.answer.onValueChange.AddListener((string value) => submitString(qsp.question.text, value, qsp.type));
+				if(qsp.type == "float" || qsp.type == "integer"){
+					qsp.answer.onValueChange.AddListener((string value) => submitString(qsp.question.text, value, qsp.maxBound, qsp.minBound, qsp.type));
+				} else if (qsp.type == "string" || qsp.type == "paragraph"){
+					qsp.answer.onEndEdit.AddListener((string value) => submitString(qsp.question.text, value, qsp.maxLength, qsp.type));
+				}
 				questionSet.transform.SetParent(questionPanelList.transform);
 				questionSet.transform.localScale = new Vector3(1f, 1f, 1f);
 			}
@@ -131,17 +140,44 @@ public class SideMenu : MonoBehaviour {
 		gameController.OnSubmit(answers);
 	}
 
-	public void submitString(string name, string arg, string type){
-		answers["values"][name]["value"] = arg;
+	public void submitString(string name, string arg, int maxLength, string type){
+		answers["value"][name]["value"] = arg;
 		gameController.OnMenuChanged(answers);
 		gameController.SetProperty(name, arg);
-		/*if(type == "float"){
-			gameController.SetProperty(name, float.parse(arg));
-		} else if (type == "string") {
+	}
+
+	public void submitString(string name, string arg, float max, float min, string type){
+		if(arg.Equals("-")){
+			return;
+		}
+		try{
+			float val = float.Parse(arg);
+			if(val < min){
+				arg = min.ToString();
+				setString(name, arg);
+			} else if (val > max){
+				arg = max.ToString();
+				setString(name, arg);
+			}
+			// this freeze the program but will fix 0s infront of numbers
+			/*if(!arg.Equals(val.ToString())){
+				arg = val.ToString();
+				setString(name, arg);
+			}*/
+			
+			answers["values"][name]["value"] = arg;
+			gameController.OnMenuChanged(answers);
 			gameController.SetProperty(name, arg);
-		} else {
-			Debug.Log("Please add new data type.");
-		}*/
+			
+		} catch (FormatException){
+			return;
+			answers["value"][name]["value"] = "0.0";
+			gameController.OnMenuChanged(answers);
+			gameController.SetProperty(name, "0.0");
+			setString(name, "0.0");
+		} catch (OverflowException) {
+
+		}
 	}
 
 	public void setString(string name, string arg){

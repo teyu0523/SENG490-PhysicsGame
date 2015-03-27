@@ -89,10 +89,18 @@ public class TankController : MonoBehaviour {
 
 	//move tank left or right
 	void Move (float h){
-		
-		movement.Set (h, 0f);
-		movement = movement.normalized * speed * Time.deltaTime;
-		tankRigidbody.MovePosition (tankRigidbody.position + movement);
+
+		if ((projectileSpawn.position.x + h) > -10f) {
+			SetDistance(10f);
+		}
+		else if ((projectileSpawn.position.x + h) < -150f) {
+			SetDistance(150f);
+		}
+		else{
+			movement.Set (h, 0f);
+			movement = movement.normalized * speed * Time.deltaTime;
+			tankRigidbody.MovePosition (tankRigidbody.position + movement);
+		}
 		
 		
 	}

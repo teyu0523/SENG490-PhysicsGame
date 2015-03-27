@@ -7,13 +7,17 @@ public class GameCollisionController : GameController {
 
 	public GameObject car_left; // A
 	public GameObject car_right; // B
+	public Camera cam;
 
 	//public GameObject car_right;
 	public float speed_left;
 	public float speed_right;
 	public float acc_right;
 	public float acc_left;
-
+ 
+	public float pos_b;
+	public float pos_a;
+	private Vector3 velocity = Vector3.zero;
 	private JSONNode question;
 
 	private bool m_touch_started = false;
@@ -29,6 +33,7 @@ public class GameCollisionController : GameController {
 
 
 	public override void initializeGame(JSONNode question, JSONNode previous_answer){
+
 		base.initializeGame(question, previous_answer);
 		if(question != null){
 			m_answer = previous_answer;
@@ -55,9 +60,35 @@ public class GameCollisionController : GameController {
 		Debug.Log(question["values"]);
 		Debug.Log(question["values"]["Car A Position"]["value"].Value);
 		Debug.Log(float.Parse(question["values"]["Car A Position"]["value"].Value));
-		car_left_control.setPosition(float.Parse(question["values"]["Car A Position"]["value"].Value));
-		car_right_control.setPosition(float.Parse(question["values"]["Car B Position"]["value"].Value));
+		pos_a = float.Parse(question["values"]["Car A Position"]["value"].Value);
+		pos_b = float.Parse(question["values"]["Car B Position"]["value"].Value);
+		car_left_control.setPosition(pos_a);
+		car_right_control.setPosition(pos_b);
+		
 	}
+
+	public void adjustCamToFit(){
+		Vector3 old_vec3 = cam.transform.position;
+		cam.transform.position = Vector3.SmoothDamp(
+			new Vector3(
+				old_vec3.x, 
+				old_vec3.y, 
+				old_vec3.z
+				), 
+			new Vector3(
+				(pos_a+pos_b)/2,
+				old_vec3.y,
+				old_vec3.z),
+			ref velocity,
+			0.3F
+			);
+	}
+
+	public void OnSubmit(JSONNode answers){
+		m_answer = answers;
+		adjustCamToFit();
+	}
+
 
 	public override void Awake() {
 		base.Awake ();
@@ -69,6 +100,7 @@ public class GameCollisionController : GameController {
 	public override void Update()
 	{
 		base.Update();
+		adjustCamToFit();
 		/*car_left_control.updateSpeed(speed_left);
 		car_right_control.updateSpeed(speed_right);
 		car_left_control.updateAcc(acc_left);
@@ -77,10 +109,13 @@ public class GameCollisionController : GameController {
 	}
 	public override void SetProperty(string name, string arg){
 		if(name == "Car A Position"){
-			car_left_control.setPosition(float.Parse(arg));
+			pos_a = float.Parse(arg);
+			car_left_control.setPosition(pos_a);
 		} else if (name == "Car B Position"){
-			car_right_control.setPosition(float.Parse(arg));
+			pos_b = float.Parse(arg);
+			car_right_control.setPosition(pos_b);
 		}
+		//cam.transform.position = new Vector3((pos_a+pos_b)/2,cam.transform.position.y,cam.transform.position.z);
 	}
 
 	public override void OnMenuChanged(JSONNode answer){

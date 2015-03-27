@@ -61,7 +61,12 @@ public class SideMenu : MonoBehaviour {
 				} else {
 					Debug.LogWarning(" Add the new type");
 				}
-				qsp.answerText.text = node["value"];
+				qsp.answer.text  = node["value"].Value;
+
+				if (node["editable"].Value.Equals("false")) {
+					Debug.Log(node["editable"]);
+					qsp.answer.interactable = false;
+				}
 				qsp.answer.onValueChange.AddListener((string value) => submitString(qsp.question.text, value, qsp.type));
 				//qsp.answer.onEndEdit.AddListener((string value) => submitString(qsp.question.text, value, qsp.type));
 				questionSet.transform.SetParent(questionPanelList.transform);

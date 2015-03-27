@@ -19,29 +19,8 @@ public class EggController : MonoBehaviour {
 		source = GetComponent<AudioSource>();
 		m_initial_position = transform.position;
 	}
-
-	void Update(){
-		if(Input.GetAxisRaw("Vertical") > 0){
-			compressPct += Time.deltaTime*0.25f; //compress by 25% per second
-			if(compressPct > 1.0)
-			{
-				compressPct = 1.0f;
-			}
-		} else if(Input.GetAxisRaw("Vertical") < 0){
-			compressPct -= Time.deltaTime*0.25f; //compress by 25% per second
-			if(compressPct < 0.0)
-			{
-				compressPct = 0.0f;
-			}
-		} else if(Input.GetAxisRaw("Jump") > 0 && !launched){
-			Input.ResetInputAxes();
-			Launch(compressPct);
-			compressPct = 0.0f;
-		}
-	}
-
-	//Launch the egg
-	void Launch (float compression){
+	
+	public void Launch (float compression){
 		if(compression > 0.01){
 			source.Play ();
 		}

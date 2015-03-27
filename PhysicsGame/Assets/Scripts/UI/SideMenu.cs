@@ -9,13 +9,19 @@ public class SideMenu : MonoBehaviour {
 	public GameObject questionPanelList;
 	public GameObject questionsPrefab;
 	public GameObject submitButton;
-	public GameObject gameController;
+	public Button backButton;
+	public GameController gameController;
 
 	public JSONNode answers;
 	private bool buttonOn = false;
 	private bool buttonPress = false;
 	private bool showSide = false;
 	private Vector2 scrollPosition = Vector2.zero;
+
+	public void Start()
+	{
+		backButton.onClick.AddListener(gameController.exitLesson);
+	}
 
 	public void parseJSON(JSONNode questions, JSONNode answers){
 
@@ -66,12 +72,12 @@ public class SideMenu : MonoBehaviour {
 
 	public void submit(){
 		Debug.Log(answers);
-		GameCollisionController gameCollisionCon = gameController.GetComponent(typeof(GameCollisionController)) as GameCollisionController;
-		gameCollisionCon.setAnswer(answers);
+		gameController.OnSubmit();
 	}
 
 	public void submitString(string name, string arg){
 		answers["values"][name]["value"] = arg;
+		gameController.OnMenuChanged(answers);
 	}
 	// Update is called once per frame
 	void Update () {

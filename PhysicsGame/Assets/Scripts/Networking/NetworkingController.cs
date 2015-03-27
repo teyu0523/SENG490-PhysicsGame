@@ -16,7 +16,7 @@ public class NetworkingController : MonoBehaviour {
 		// If this is the first networking controller it becomes the singleton
 		// The first networking controller will not be destroyed on a scene change.
 		if(m_instance == null) {
-			Debug.Log ("First networking controller spawned");
+			log("First networking controller spawned");
 			m_instance = this;
 			DontDestroyOnLoad(gameObject);
 		} else {

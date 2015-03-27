@@ -171,10 +171,12 @@ class Question(models.Model):
     NUMERIC = 'NUM'
     CANNONS = 'CAN'
     COLLISION = 'COL'
+    SPRING = 'SPR'
     QUESTION_TYPES = (
         (NUMERIC, "Numeric"),
         (CANNONS, "Cannons"),
         (COLLISION, "Collision"),
+        (SPRING, "Spring"),
     )
     name = models.CharField(max_length=128, default="")
     description = models.TextField(max_length=4096, default="")
@@ -248,14 +250,20 @@ def post_save_question(sender, instance=None, created=False, **kwargs):
         FloatingPointValue.objects.create(question=instance, name="Target Height", order=4)
         FloatingPointValue.objects.create(question=instance, name="Gravity", order=5, value=-9.8, min_value=-10, max_value=10)
     elif instance.question_type == Question.COLLISION:
-        FloatingPointValue.objects.create(question=instance, name="Car A Position", order=0)
-        FloatingPointValue.objects.create(question=instance, name="Car A Velocity", order=1)
-        FloatingPointValue.objects.create(question=instance, name="Car A Mass", order=2)
-        FloatingPointValue.objects.create(question=instance, name="Car B Position", order=3)
-        FloatingPointValue.objects.create(question=instance, name="Car B Velocity", order=4)
-        FloatingPointValue.objects.create(question=instance, name="Car B Mass", order=5)
-        FloatingPointValue.objects.create(question=instance, name="Collision Time Result", order=6)
-        FloatingPointValue.objects.create(question=instance, name="Collision Position Result", order=7)
+        FloatingPointValue.objects.create(question=instance, name="Car A Position", order=0, min_value=-1000, max_value=1000)
+        FloatingPointValue.objects.create(question=instance, name="Car A Velocity", order=1, min_value=0.0, max_value=10.0)
+        FloatingPointValue.objects.create(question=instance, name="Car A Mass", order=2, min_value=0.0, max_value=10.0)
+        FloatingPointValue.objects.create(question=instance, name="Car B Position", order=3, min_value=-1000, max_value=1000)
+        FloatingPointValue.objects.create(question=instance, name="Car B Velocity", order=4, min_value=-10.0, max_value=0.0)
+        FloatingPointValue.objects.create(question=instance, name="Car B Mass", order=5, min_value=0.0, max_value=10.0)
+        FloatingPointValue.objects.create(question=instance, name="Collision Time Result", order=6, min_value=0.0, max_value=10.0)
+        FloatingPointValue.objects.create(question=instance, name="Collision Position Result", order=7, min_value=-1000, max_value=1000)
+    elif instance.question_type == Question.SPRING:
+        FloatingPointValue.objects.create(question=instance, name="Spring Constant", order=0, min_value=0, max_value=1000)
+        FloatingPointValue.objects.create(question=instance, name="Compression Distance", order=1, min_value=0, max_value=1)
+        FloatingPointValue.objects.create(question=instance, name="Target Height", order=2, min_value=0, max_value=100)
+        FloatingPointValue.objects.create(question=instance, name="Mass", order=3, min_value=0.1, max_value=1000)
+        FloatingPointValue.objects.create(question=instance, name="Gravity", order=4, min_value=-1000, max_value=0)
     # elif:
 
 
@@ -420,6 +428,12 @@ def post_save_answer(sender, instance=None, created=False, **kwargs):
             FloatingPointAnswer.objects.create(answer=instance, name="Car B Mass")
             FloatingPointAnswer.objects.create(answer=instance, name="Collision Time Result")
             FloatingPointAnswer.objects.create(answer=instance, name="Collision Position Result")
+        elif instance.question.question_type == Question.SPRING:
+            FloatingPointAnswer.objects.create(answer=instance, name="Spring Constant")
+            FloatingPointAnswer.objects.create(answer=instance, name="Compression Distance")
+            FloatingPointAnswer.objects.create(answer=instance, name="Target Height")
+            FloatingPointAnswer.objects.create(answer=instance, name="Mass")
+            FloatingPointAnswer.objects.create(answer=instance, name="Gravity")
 
 
 class IntegerAnswer(models.Model):

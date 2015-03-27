@@ -65,7 +65,7 @@ public class GameTankController : GameController {
 			//setting target's height level
 			if(!question["values"]["Target Height"]["editable"].AsBool){
 				newPosition = Target.transform.position;
-				newPosition.y = (question["values"]["Player Height"]["value"].AsFloat);
+				newPosition.y = (question["values"]["Target Height"]["value"].AsFloat);
 				Target.transform.position = newPosition;
 			}
 			//setting ame's gravity

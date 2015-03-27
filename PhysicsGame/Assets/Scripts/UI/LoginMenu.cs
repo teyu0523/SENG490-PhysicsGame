@@ -38,8 +38,6 @@ public class LoginMenu : MonoBehaviour {
 	public void login(){
 		draw_gui = false;
 		LoadingController.Instance.show();
-		Debug.Log(password);
-		Debug.Log(username);
 		NetworkingController.Instance.Login(username, password, (login_result, login_error) => {
 			LoadingController.Instance.hide();
 			if(login_result == "success") {

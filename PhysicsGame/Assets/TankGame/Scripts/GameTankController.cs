@@ -46,7 +46,8 @@ public class GameTankController : GameController {
 			Debug.LogWarning("GameObject not found: canvas");
 		}
 		
-		
+		m_max_tries = question ["max_tries"].AsInt;
+
 		//setting up game environment if it is a question
 		if (question ["playable"].Value.Equals("false")) {
 
@@ -79,7 +80,7 @@ public class GameTankController : GameController {
 				newPosition.y = (question["values"]["Player Height"]["value"].AsFloat);
 				Target.transform.position = newPosition;
 			}
-			//setting game's gravity
+			//setting ame's gravity
 			if(!question["values"]["Gravity"]["editable"].AsBool){
 				Physics.gravity = new Vector3(0, question["values"]["Gravity"]["value"].AsFloat, 0);
 			}
@@ -112,18 +113,42 @@ public class GameTankController : GameController {
 			
 		}
 	}
+
+	public void CheckGameStatus(){
+		OnSubmitButtonPressed ();
+
+	}
 	
 	
 	public void OnSubmitButtonPressed()
 	{
-		//increament number of tries 
-		m_number_tries++;
+		bool targetStatus = Target.GetComponent<DestoryOnContact> ().IsTargetDead ();
 
-		//if target was hit or max tries reached
-			
-			
+		//if target was not hit
+		if (!targetStatus) {
+			//increament number of tries
+			m_number_tries++;
+			//update number of tries text
 
-		
+			Debug.Log(m_number_tries);
+			Debug.Log(m_max_tries);
+		}
+		//else if target was hit or max tries reached
+		if (targetStatus || m_number_tries == m_max_tries) {
+			JSONNode answer_node = m_answer;
+
+			// save game data to answer json
+			answer_node["total_tries"].AsInt = m_number_tries;
+			answer_node["values"]["Player Distance"]["value"].AsFloat = Tank.transform.position.x * (-1f);
+			answer_node["values"]["Gravity"]["value"].AsFloat = Physics.gravity.y;
+			answer_node["values"]["Player Angle"]["value"].AsFloat = Tank.GetComponent<TankController>().GetAngle();
+			answer_node["values"]["Target Height"]["value"].AsFloat = Target.transform.position.y;
+			answer_node["values"]["Player Velocity"]["value"].AsFloat = Tank.GetComponent<TankController>().GetVelocity();
+			answer_node["values"]["Player Height"]["value"].AsFloat = Tank.transform.position.y;
+			//call complete game with answer json
+			completeGame(answer_node);
+
+		}
 	}
 
 	public void setAnswer(JSONNode answer){

@@ -4,7 +4,7 @@ using System.Collections;
 public class CarRightControl : MonoBehaviour {
 	private float acc_right = 0;
 	private float speed_right = 0;
-	private Vector3 car_right_pos;
+	private Vector3 car_B_pos;
 	private bool hit;
 	// Use this for initialization
 	void Start () {
@@ -14,9 +14,9 @@ public class CarRightControl : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if(!hit){
-			car_right_pos = transform.position;
+			car_B_pos = transform.position;
 
-			transform.position = new Vector3(car_right_pos.x + (speed_right + (acc_right * Time.time)), car_right_pos.y, car_right_pos.z);
+			transform.position = new Vector3(car_B_pos.x + (speed_right + (acc_right * Time.time)), car_B_pos.y, car_B_pos.z);
 		} else {
 			// do animation for collision
 		}
@@ -45,7 +45,7 @@ public class CarRightControl : MonoBehaviour {
 	}
 
 	public void setPosition(float position){
-		//car_right_pos.x = position;
-		transform.position = new Vector3(position, car_right_pos.y, car_right_pos.z);
+		//car_B_pos.x = position;
+		transform.position = new Vector3(position, car_B_pos.y, car_B_pos.z);
 	}
 }

@@ -5,11 +5,11 @@ using SimpleJSON;
 
 public class GameCollisionController : GameController {
 
-	public GameObject car_left; // A
-	public GameObject car_right; // B
+	public GameObject car_A; // A
+	public GameObject car_B; // B
 	public Camera cam;
 
-	//public GameObject car_right;
+	//public GameObject car_B;
 	public float speed_left;
 	public float speed_right;
 	public float acc_right;
@@ -22,35 +22,34 @@ public class GameCollisionController : GameController {
 
 	private bool m_touch_started = false;
 
-	private CarRightControl car_right_control;
-	private CarLeftControl car_left_control;
+	private CarRightControl car_B_control;
+	private CarLeftControl car_A_control;
 
-	private Vector3 car_left_pos;
-	private Vector3 car_right_pos;
+	private Vector3 car_A_pos;
+	private Vector3 car_B_pos;
 	private bool is_collision = false;
 
 	private JSONNode m_answer;
 
 
 	public override void initializeGame(JSONNode question, JSONNode previous_answer){
-
 		base.initializeGame(question, previous_answer);
 		if(question != null){
 			m_answer = previous_answer;
 			this.question = question;
 
-			if(car_left){
-				car_left_control = car_left.GetComponent(typeof(CarLeftControl)) as CarLeftControl;
+			if(car_A){
+				car_A_control = car_A.GetComponent(typeof(CarLeftControl)) as CarLeftControl;
 
-				if(car_left_control == null){
+				if(car_A_control == null){
 					Debug.LogWarning("Script not found: CarLeftControl");
 				}	
 			} else {
 				Debug.LogWarning("GameObject not found: CarLeft");
 			}
-			if(car_right){
-				car_right_control = car_right.GetComponent(typeof(CarRightControl)) as CarRightControl;
-				if(car_right_control == null){
+			if(car_B){
+				car_B_control = car_B.GetComponent(typeof(CarRightControl)) as CarRightControl;
+				if(car_B_control == null){
 					Debug.LogWarning("Script not found: CarRightControl");
 				}	
 			} else {
@@ -62,14 +61,16 @@ public class GameCollisionController : GameController {
 		Debug.Log(float.Parse(question["values"]["Car A Position"]["value"].Value));
 		pos_a = float.Parse(question["values"]["Car A Position"]["value"].Value);
 		pos_b = float.Parse(question["values"]["Car B Position"]["value"].Value);
-		car_left_control.setPosition(pos_a);
-		car_right_control.setPosition(pos_b);
-		
-	}
+		car_A_control.setPosition(pos_a);
+		//car_A_control.updateSpeed(float.Parse(question["values"]["Car B Position"]["value"].Value));
+		car_B_control.setPosition(pos_b);
+		//car_B_control.updateSpeed(float.Parse(question["values"]["Car B Position"]["value"].Value));
+
+        adjustCamToFit();     
+    }
 
 	public void adjustCamToFit(){
 		Vector3 old_vec3 = cam.transform.position;
-		//cam.orthographicSize = 
 		cam.transform.position = Vector3.SmoothDamp(
 			new Vector3(
 				old_vec3.x, 
@@ -94,22 +95,30 @@ public class GameCollisionController : GameController {
 	/// Updates once every tick. Looks for touch input or keyboard input to display scenario information.
 	/// </summary>
 	public override void Update()
-	{
+	{	
+
 		base.Update();
-		adjustCamToFit();
-		/*car_left_control.updateSpeed(speed_left);
-		car_right_control.updateSpeed(speed_right);
-		car_left_control.updateAcc(acc_left);
-		car_right_control.updateAcc(acc_right);*/
+
+
+		/*car_A_control.updateSpeed(speed_left);
+		car_B_control.updateSpeed(speed_right);
+		car_A_control.updateAcc(acc_left);
+		car_B_control.updateAcc(acc_right);*/
 
 	}
+
 	public override void SetProperty(string name, string arg){
+
 		if(name == "Car A Position"){
 			pos_a = float.Parse(arg);
-			car_left_control.setPosition(pos_a);
+			car_A_control.setPosition(pos_a);
 		} else if (name == "Car B Position"){
 			pos_b = float.Parse(arg);
-			car_right_control.setPosition(pos_b);
+			car_B_control.setPosition(pos_b);
+		} else if (name == "Car B Velocity"){
+			car_B_control.updateSpeed(float.Parse(arg));
+		} else if (name == "Car A Velocity"){
+			car_A_control.updateSpeed(float.Parse(arg));
 		}
 	}
 

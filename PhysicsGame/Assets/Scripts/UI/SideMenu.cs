@@ -11,8 +11,9 @@ public class SideMenu : MonoBehaviour {
 	public GameObject submitButton;
 	public Button backButton;
 	public GameController gameController;
-
+	public Text numTries;
 	public JSONNode answers;
+	public int _tries = 0;
 
 	private InputField[] list;
 	private bool buttonOn = false;
@@ -48,6 +49,8 @@ public class SideMenu : MonoBehaviour {
 		this.answers = answers;
 		GameObject questionSet;
 		if(questions != null){
+			_tries = int.Parse(questions["max_tries"].Value);
+			numTries.text = questions["max_tries"].Value;
 			foreach(JSONNode node in questions["values"].Childs){
 				questionSet = Instantiate (questionsPrefab) as GameObject;
 				questionSetProperty qsp = questionSet.GetComponent <questionSetProperty>();
@@ -89,9 +92,19 @@ public class SideMenu : MonoBehaviour {
 		
 		
 	}
+	public int Tries
+    {
+		get
+		{
+		    return this._tries;
+		}
+		set
+		{
+		    this._tries = value;
+		}
+    }
 
 	public void pause(){
-		Debug.Log("im here");
 		if(buttonOn){
 			questionPanel.SetActive(false);
 			buttonOn = false;
@@ -106,6 +119,7 @@ public class SideMenu : MonoBehaviour {
 
 	public void submit(){
 		Debug.Log(answers);
+		pause();
 		gameController.OnSubmit(answers);
 	}
 
@@ -134,6 +148,6 @@ public class SideMenu : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
-	
+		numTries.text = _tries.ToString();
 	}
 }

@@ -97,6 +97,7 @@ class IntegerAnswerSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.value = int(validated_data.get('value', instance.value))
         instance.submitted = True
+        instance.save()
         return instance
 
     def validate(self, data):
@@ -112,6 +113,7 @@ class FloatingPointAnswerSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.value = float(validated_data.get('value', instance.value))
         instance.submitted = True
+        instance.save()
         return instance
 
     def validate(self, data):
@@ -127,6 +129,7 @@ class StringAnswerSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.value = validated_data.get('value', instance.value)
         instance.submitted = True
+        instance.save()
         return instance
 
     def validate(self, data):
@@ -142,6 +145,7 @@ class ParagraphAnswerSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.value = validated_data.get('value', instance.value)
         instance.submitted = True
+        instance.save()
         return instance
 
     def validate(self, data):

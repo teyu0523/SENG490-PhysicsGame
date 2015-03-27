@@ -73,8 +73,6 @@ class StudentLessonDetails(APIView):
         return LessonGrade.objects.get(course_grade__student_id=request.user.id, lesson_id=lesson_id, course_grade__course_id=course_id)
 
     def get(self, request, course_id, lesson_id, format=None):
-        print(course_id, lesson_id)
-
         lesson_grade = self.getLesson(request, course_id, lesson_id)
         if lesson_grade is None:
             return HttpResponseBadRequest("Student is not signed up for this lesson!")
@@ -212,9 +210,6 @@ class StudentAnswer(APIView):
         return JsonResponse(answer_structure)
 
     def post(self, request, course_id, question_id, format=None):
-        print(question_id)
-        print(request.DATA)
-
         try:
             LessonGrade.objects.get(course_grade__student_id=request.user.id, lesson_id=Question.objects.get(id=question_id).lesson_id, course_grade__course_id=course_id)
         except:
@@ -232,9 +227,7 @@ class StudentAnswer(APIView):
 
         for value in request.DATA['values'].values():
             if value['type'] == 'integer':
-                print(answer.integer_answers.get(id=value['id']))
                 serializer = game.serializers.IntegerAnswerSerializer(answer.integer_answers.get(id=value['id']), data=value)
-                print(serializer)
                 if(serializer.is_valid()):
                     serializer.save(answer=answer)
             elif value['type'] == 'float':

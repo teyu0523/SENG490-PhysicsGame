@@ -24,20 +24,41 @@ public class SideMenu : MonoBehaviour {
 	}
 
 	public void parseJSON(JSONNode questions, JSONNode answers){
+		if(questionPanel == null){
+			Debug.LogWarning("Missing: questionPanel");
 
+		}
+		if(questionPanelList == null){
+			Debug.LogWarning("Missing: questionPanelList");
+
+		}
+		if(questionsPrefab == null){
+			Debug.LogWarning("Missing: questionsPrefab");
+
+		}
+		if (submitButton == null){
+			Debug.LogWarning("Missing: submitButton");
+
+		}
+		if (gameController == null){
+			Debug.LogWarning("Missing: gameController");
+		}
 		this.answers = answers;
 		GameObject questionSet;
 		if(questions != null){
 			foreach(JSONNode node in questions["values"].Childs){
 				questionSet = Instantiate (questionsPrefab) as GameObject;
 				questionSetProperty qsp = questionSet.GetComponent <questionSetProperty>();
+				if(qsp == null){
+					Debug.LogWarning("qsp null.");
+				}
 				qsp.question.text = node["name"];
 				if(node["type"].Value == "float"){
 					qsp.answer.contentType = InputField.ContentType.DecimalNumber;
 				} else if (node["type"].Value == "string"){
 					qsp.answer.contentType = InputField.ContentType.Standard;
 				} else {
-					Debug.Log(" Add the new type");
+					Debug.LogWarning(" Add the new type");
 				}
 				qsp.answerText.text = node["value"];
 				qsp.answer.onEndEdit.AddListener((string value) => submitString(qsp.question.text, value));
@@ -58,6 +79,7 @@ public class SideMenu : MonoBehaviour {
 
 
 	public void pause(){
+		Debug.Log("im here");
 		if(buttonOn){
 			questionPanel.SetActive(false);
 			buttonOn = false;

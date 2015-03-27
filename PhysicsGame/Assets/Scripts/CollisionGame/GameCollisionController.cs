@@ -68,6 +68,7 @@ public class GameCollisionController : GameController {
 		car_right_control.updateSpeed(speed_right);
 		car_left_control.updateAcc(acc_left);
 		car_right_control.updateAcc(acc_right);*/
+
 	}
 
 	public override void OnMenuChanged(JSONNode answer){

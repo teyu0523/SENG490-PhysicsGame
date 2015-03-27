@@ -69,6 +69,7 @@ public class GameCollisionController : GameController {
 
 	public void adjustCamToFit(){
 		Vector3 old_vec3 = cam.transform.position;
+		//cam.orthographicSize = 
 		cam.transform.position = Vector3.SmoothDamp(
 			new Vector3(
 				old_vec3.x, 
@@ -110,7 +111,6 @@ public class GameCollisionController : GameController {
 			pos_b = float.Parse(arg);
 			car_right_control.setPosition(pos_b);
 		}
-		//cam.transform.position = new Vector3((pos_a+pos_b)/2,cam.transform.position.y,cam.transform.position.z);
 	}
 
 	public override void OnMenuChanged(JSONNode answer){

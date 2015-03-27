@@ -84,11 +84,6 @@ public class GameCollisionController : GameController {
 			);
 	}
 
-	public void OnSubmit(JSONNode answers){
-		m_answer = answers;
-		adjustCamToFit();
-	}
-
 
 	public override void Awake() {
 		base.Awake ();
@@ -123,8 +118,9 @@ public class GameCollisionController : GameController {
 		Debug.Log(m_answer);
 	}
 
-	public override void OnSubmit (){
-
+	public override void OnSubmit(JSONNode answers){
+		m_answer = answers;
+		adjustCamToFit();
 	}
 
 }

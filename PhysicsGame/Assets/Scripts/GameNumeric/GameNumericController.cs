@@ -108,7 +108,7 @@ public class GameNumericController : GameController {
 		}
 	}
 
-	public override void OnSubmit ()
+	public override void OnSubmit (JSONNode answers)
 	{
 		OnSubmitButtonPressed();
 	}

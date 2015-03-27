@@ -16,6 +16,18 @@ public class TankController : MonoBehaviour {
 	private float velocity = 25f;
 	private bool tankControls = true;
 
+	public GameObject m_up_button;
+	public GameObject m_down_button;
+	public GameObject m_left_button;
+	public GameObject m_right_button;
+	public GameObject m_fire_button;
+
+	private bool m_up_pressed = false;
+	private bool m_down_pressed = false;
+	private bool m_left_pressed = false;
+	private bool m_right_pressed = false;
+	private bool m_fire_pressed = false;
+
 
 	Vector2 movement;
 	Rigidbody2D tankRigidbody;
@@ -31,7 +43,7 @@ public class TankController : MonoBehaviour {
 	void Update(){
 
 		if (tankControls == true && !bullet) {
-			if (Input.GetButton ("Jump")) {
+			if (Input.GetButton ("Jump") || m_fire_pressed) {
 
 				Fire ();
 			}
@@ -44,8 +56,8 @@ public class TankController : MonoBehaviour {
 	void FixedUpdate () {
 
 		if (tankControls == true && !bullet) {
-			float h = Input.GetAxisRaw ("Horizontal");
-			float z = Input.GetAxisRaw ("Vertical");
+			float h = Input.GetAxisRaw ("Horizontal") + ((m_left_pressed) ? -1.0f : 0.0f) + ((m_right_pressed) ? 1.0f : 0.0f);
+			float z = Input.GetAxisRaw ("Vertical") + ((m_up_pressed) ? 1.0f : 0.0f) + ((m_down_pressed) ? -1.0f : 0.0f);
 			Move (h);
 			Rotate (z);
 		}
@@ -129,5 +141,20 @@ public class TankController : MonoBehaviour {
 
 	}
 
-
+	// Touch Input Functions
+	public void OnUpPressed(bool down) {
+		m_up_pressed = down;
+	}
+	public void OnDownPressed(bool down) {
+		m_down_pressed = down;
+	}
+	public void OnLeftPressed(bool down) {
+		m_left_pressed = down;
+	}
+	public void OnRightPressed(bool down) {
+		m_right_pressed = down;
+	}
+	public void OnFirePressed(bool down) {
+		m_fire_pressed = down;
+	}
 }

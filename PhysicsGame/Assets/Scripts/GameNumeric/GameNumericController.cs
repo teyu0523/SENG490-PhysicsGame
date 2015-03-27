@@ -8,7 +8,6 @@ public class GameNumericController : GameController {
 	public Text m_question_text = null;
 	public InputField m_input_field = null;
 	public Button m_submit_button = null;
-	public Text m_tries_text = null;
 	public Image m_background_image = null;
 
 	public float m_color_flash_time = 0.1f;
@@ -53,7 +52,7 @@ public class GameNumericController : GameController {
 		m_expected_answer = question["values"]["Expected Answer"]["value"].AsInt;
 
 		m_max_tries = question["max_tries"].AsInt;
-		m_tries_text.text = "Tries Left: " + m_max_tries;
+		side_menu.Tries = m_max_tries;
 
 		m_number_tries = 0;
 
@@ -97,14 +96,14 @@ public class GameNumericController : GameController {
 		if(input != "" && int.TryParse(input, out m_current_answer))
 		{
 			m_submit_button.interactable = true;
+			if(side_menu != null)
+				side_menu.setString("Submitted Answer", m_current_answer.ToString());
 		}
 		else
 		{
 			m_current_answer = 0;
 			m_submit_button.interactable = false;
 		}
-		if(side_menu != null)
-			side_menu.setString("Submitted Answer", m_current_answer.ToString());
 	}
 
 	public override void OnMenuChanged (JSONNode answer)
@@ -128,7 +127,7 @@ public class GameNumericController : GameController {
 		if( m_current_answer != m_expected_answer )
 		{
 			m_number_tries++;
-			m_tries_text.text = "Tries Left: " + (m_max_tries - m_number_tries);
+			side_menu.Tries = (m_max_tries - m_number_tries);
 			m_background_color_target = m_background_color_incorrect;
 			m_flash_time = 0.0f;
 		}

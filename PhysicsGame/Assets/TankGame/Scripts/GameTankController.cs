@@ -40,7 +40,7 @@ public class GameTankController : GameController {
 		if (question ["playable"].Value.Equals("false")) {
 
 			//disable keyboard controls for tank game
-			//Tank.GetComponent<TankController>().DisableTankControls();
+			Tank.GetComponent<TankController>().DisableTankControls();
 			
 			//setting player distance
 			if(!question["values"]["Player Distance"]["editable"].AsBool){
@@ -65,7 +65,7 @@ public class GameTankController : GameController {
 			//setting target's height level
 			if(!question["values"]["Target Height"]["editable"].AsBool){
 				newPosition = Target.transform.position;
-				newPosition.y = (question["values"]["Player Height"]["value"].AsFloat);
+				newPosition.y = (question["values"]["Target Height"]["value"].AsFloat);
 				Target.transform.position = newPosition;
 			}
 			//setting ame's gravity
@@ -102,6 +102,17 @@ public class GameTankController : GameController {
 		m_question_hint ["Distance"].text = "Distance to Target: " + (Tank.transform.position.x * (-1f)).ToString () + " m";
 		m_question_hint ["Target Height"].text = "Target Height: " + Target.transform.position.y.ToString () + " m";
 		m_question_hint ["Gravity"].text = "Gravity: " + Physics.gravity.y.ToString () + " (m/s)/s";
+
+		if (Input.GetKeyDown ("p")) {
+			side_menu.setString("Player Distance", (Tank.transform.position.x * (-1f)).ToString ());
+			side_menu.setString("Player Height", Tank.transform.position.y.ToString ());
+			side_menu.setString("Player Angle", Tank.GetComponent<TankController> ().GetAngle ().ToString ());
+			side_menu.setString("Player Velocity", Tank.GetComponent<TankController> ().GetVelocity ().ToString ());
+			side_menu.setString("Target Height", Target.transform.position.y.ToString ());
+			side_menu.setString("Gravity", Physics.gravity.y.ToString ());
+
+
+		}
 	}
 
 
@@ -161,7 +172,6 @@ public class GameTankController : GameController {
 	
 	public override void OnSubmit(JSONNode answer){
 		Tank.GetComponent<TankController> ().Fire ();
-		side_menu.pause ();
 	}
 	
 	public void GameDone()

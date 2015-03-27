@@ -53,6 +53,9 @@ public class SideMenu : MonoBehaviour {
 			_tries = int.Parse(questions["max_tries"].Value);
 			numTries.text = questions["max_tries"].Value;
 			foreach(JSONNode node in questions["values"].Childs){
+				if(!node["menu"].AsBool) {
+					continue;
+				}
 				questionSet = Instantiate (questionsPrefab) as GameObject;
 				questionSetProperty qsp = questionSet.GetComponent <questionSetProperty>();
 				if(qsp == null){

@@ -14,7 +14,8 @@ public class SideMenu : MonoBehaviour {
 	public GameController gameController;
 	public Text numTries;
 	public JSONNode answers;
-
+	public Text descriptions;
+	public GameObject descriptionsImage;
 	private List<InputField> list = new List<InputField>();
 	private bool _pause = false;
 	private int _tries = 0;
@@ -52,6 +53,11 @@ public class SideMenu : MonoBehaviour {
 		if(questions != null){
 			_tries = int.Parse(questions["max_tries"].Value);
 			numTries.text = questions["max_tries"].Value;
+			if(!questions["description"].Value.Equals("")){
+				descriptions.text = questions["description"].Value;
+			} else {
+				descriptionsImage.SetActive(false);
+			}
 			foreach(JSONNode node in questions["values"].Childs){
 				if(!node["menu"].AsBool) {
 					continue;

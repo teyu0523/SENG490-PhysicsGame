@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
 using  System.Globalization;
-
+using System;
 public class GameCollisionController : GameController {
 
 	public GameObject car_A; // A
@@ -89,6 +89,9 @@ public class GameCollisionController : GameController {
 		car_B_control.setMass(mass_b);
 		momentum_b = mass_b * velocity_b;
 		momentum_a = mass_a * velocity_a;
+		momentum_net = momentum_b + momentum_a;
+		Debug.Log(momentum_a);
+		Debug.Log(momentum_b);
 
         adjustCamToFit();     
     }
@@ -172,18 +175,28 @@ public class GameCollisionController : GameController {
 			mass_b = float.Parse(arg);
 			car_B_control.setMass(mass_b);
 			momentum_b = mass_b * velocity_b;
-		} else if (name == "Car A Velocity After") {
-			//velocity_after_a = float.Parse(arg);
-			//car_A_control.VelocityAfter = velocity_after_a;
-		} else if (name == "Car B Velocity After") {
-			//velocity_after_b = float.Parse(arg);
-			//car_B_control.VelocityAfter = velocity_after_b;
 		} else if (name == "Result Momentum") {
 			momentum_net_user = float.Parse(arg);
 		}
 		momentum_net = momentum_b + momentum_a;
-		velocity_after_a = momentum_net/mass_a;
-		velocity_after_b = momentum_net/mass_b;
+		Debug.Log(momentum_net);
+		/*if (name == "Car A Velocity After") {
+			Debug.Log("mass_a: " + mass_a);
+			Debug.Log("momentum_net "+momentum_net);
+			velocity_after_a = momentum_net/mass_a;
+			Debug.Log("velocity_after_a "+velocity_after_a);
+			//velocity_after_a = float.Parse(arg);
+			//car_A_control.VelocityAfter = velocity_after_a;
+		} else if (name == "Car B Velocity After") {
+			Debug.Log(mass_b);
+			Debug.Log("momentum_net "+momentum_net);
+			velocity_after_b = momentum_net/mass_b;
+			Debug.Log("velocity_after_b "+velocity_after_b);
+
+			//velocity_after_b = float.Parse(arg);
+			//car_B_control.VelocityAfter = velocity_after_b;
+		} */
+
 	}
 
 	public override void OnMenuChanged(JSONNode answer){
@@ -192,6 +205,8 @@ public class GameCollisionController : GameController {
 	}
 
 	public override void OnSubmit(JSONNode answers){
+						Debug.Log(momentum_net);
+
 		m_answer = answers;
 		if(question["values"]["Result Momentum"]["editable"].Value.Equals("true")){
 			if(momentum_net_user != momentum_net){
@@ -203,15 +218,27 @@ public class GameCollisionController : GameController {
 			}
 		}
 		Debug.Log(question);
-		if(question["values"]["Car B Velocity After"]["menu"].Equals("true") || 
-			question["values"]["Car A Velocity After"]["menu"].Equals("true"))
+		if(question["values"]["Car B Velocity After"]["menu"].Value.Equals("true") && 
+			question["values"]["Car B Velocity After"]["menu"].Value.Equals("true"))
 		{
-			Debug.Log(m_answer["values"]["Car A Velocity After"]["value"]);
-			Debug.Log(velocity_after_a);
-			Debug.Log("im hereeeee");
-			if(velocity_after_a != float.Parse(m_answer["values"]["Car A Velocity After"]["value"]) || 
-			   velocity_after_b != float.Parse(m_answer["values"]["Car B Velocity After"]["value"]))
+
+			if(question["values"]["Car B Velocity After"]["editable"].Value.Equals("true") && 
+				question["values"]["Car B Velocity After"]["editable"].Value.Equals("true"))
 			{
+				velocity_after_a = momentum_net/(mass_b+mass_a);
+				velocity_after_b = momentum_net/(mass_b+mass_a);
+			}else if(question["values"]["Car B Velocity After"]["editable"].Value.Equals("true")){
+				velocity_after_b = (momentum_net+(mass_a * velocity_after_a))/mass_b;
+			}else if(question["values"]["Car A Velocity After"]["editable"].Value.Equals("true")){
+				velocity_after_a = (momentum_net+(mass_b * velocity_after_b))/mass_b;
+			}
+			if(velocity_after_a != float.Parse(m_answer["values"]["Car A Velocity After"]["value"].Value) || 
+			   velocity_after_b != float.Parse(m_answer["values"]["Car B Velocity After"]["value"].Value))
+			{
+				Debug.Log(Math.Round(velocity_after_b, 1));
+				Debug.Log(Math.Round(velocity_after_a, 1));
+				Debug.Log(float.Parse(m_answer["values"]["Car A Velocity After"]["value"].Value));
+				Debug.Log(float.Parse(m_answer["values"]["Car B Velocity After"]["value"].Value));
 				wrong = true;
 			}
 		}

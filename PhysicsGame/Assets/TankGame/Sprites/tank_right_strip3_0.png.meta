@@ -69,8 +69,8 @@ TextureImporter:
     - name: tank_right_strip3_0_2
       rect:
         serializedVersion: 2
-        x: 69
-        y: 104
+        x: 70
+        y: 103
         width: 45
         height: 14
       alignment: 0

@@ -9,8 +9,6 @@ public class GameTankController : GameController {
 	public GameObject Tank;
 	public GameObject Target;
 
-	private SideMenu side_menu;
-
 	private StatsDisplayPanelController m_question_hint = null;
 
 	private int m_expected_answer = 0;
@@ -36,6 +34,7 @@ public class GameTankController : GameController {
 		Vector3 newPosition;
 		
 		m_max_tries = question ["max_tries"].AsInt;
+		side_menu.Tries = m_max_tries - m_number_tries;
 
 		//setting up game environment if it is a question
 		if (question ["playable"].Value.Equals("false")) {
@@ -66,7 +65,7 @@ public class GameTankController : GameController {
 			//setting target's height level
 			if(!question["values"]["Target Height"]["editable"].AsBool){
 				newPosition = Target.transform.position;
-				newPosition.y = (question["values"]["Player Height"]["value"].AsFloat);
+				newPosition.y = (question["values"]["Target Height"]["value"].AsFloat);
 				Target.transform.position = newPosition;
 			}
 			//setting ame's gravity
@@ -82,7 +81,9 @@ public class GameTankController : GameController {
 		m_question_hint.AddTextItem ("Velocity", "Projectile Veloicty: " + Tank.GetComponent<TankController>().GetVelocity().ToString() + " m/s");
 		m_question_hint.AddTextItem ("Distance", "Distance to Target: " + (Tank.transform.position.x*(-1f)).ToString() + " m");
 		m_question_hint.AddTextItem ("Target Height", "Target Height: " + Target.transform.position.y.ToString() + " m");
-		m_question_hint.Attach(Tank.gameObject, new Vector2(2.0f, 1.0f));
+		m_question_hint.AddTextItem ("Gravity", "Gravity: " + Physics.gravity.y.ToString() + " (m/s)/s");
+
+		m_question_hint.Attach(Tank.gameObject, new Vector2(-4.0f, 1.0f));
 
 
 	}
@@ -100,54 +101,99 @@ public class GameTankController : GameController {
 		m_question_hint ["Velocity"].text = "Projectile Veloicty: " + Tank.GetComponent<TankController> ().GetVelocity ().ToString () + " m/s";
 		m_question_hint ["Distance"].text = "Distance to Target: " + (Tank.transform.position.x * (-1f)).ToString () + " m";
 		m_question_hint ["Target Height"].text = "Target Height: " + Target.transform.position.y.ToString () + " m";
+		m_question_hint ["Gravity"].text = "Gravity: " + Physics.gravity.y.ToString () + " (m/s)/s";
+
+		if (Input.GetKeyDown ("p")) {
+			side_menu.setString("Player Distance", (Tank.transform.position.x * (-1f)).ToString ());
+			side_menu.setString("Player Height", Tank.transform.position.y.ToString ());
+			side_menu.setString("Player Angle", Tank.GetComponent<TankController> ().GetAngle ().ToString ());
+			side_menu.setString("Player Velocity", Tank.GetComponent<TankController> ().GetVelocity ().ToString ());
+			side_menu.setString("Target Height", Target.transform.position.y.ToString ());
+			side_menu.setString("Gravity", Physics.gravity.y.ToString ());
+
+
+		}
 	}
 
-	public void CheckGameStatus(){
-		OnSubmitButtonPressed ();
 
-	}
 	
 	/* Set the property on tank game from input values on pause menu */
 	public override void SetProperty(string name, string arg){
 
+		Vector3 newPosition;
+
+		if (name == "Player Distance") {
+			newPosition = Tank.transform.position;
+			newPosition.x = (float.Parse(arg))*(-1f);
+			Tank.transform.position = newPosition;
+		}
+		if (name == "Player Height") {
+			newPosition = Tank.transform.position;
+			newPosition.y = float.Parse(arg);
+			Tank.transform.position = newPosition;
+		}
+		if (name == "Player Angle") {
+			Tank.GetComponent<TankController>().SetAngle(float.Parse(arg));
+		}
+		if (name == "Target Velocity") {
+			Tank.GetComponent<TankController>().SetVelocity(float.Parse(arg));
+		}
+		if (name == "Target Height") {
+			newPosition = Target.transform.position;
+			newPosition.y = (float.Parse(arg));
+			Target.transform.position = newPosition;
+		}
+		if (name == "Gravity") {
+			Physics.gravity = new Vector3(0, float.Parse(arg), 0);
+		}
+
 	}
 
+	public void CheckGameStatus(){
 
-
-	public void OnSubmitButtonPressed()
-	{
 		bool targetStatus = Target.GetComponent<DestoryOnContact> ().IsTargetDead ();
-
 		//if target was not hit
 		if (!targetStatus) {
 			//increament number of tries
 			m_number_tries++;
+			side_menu.Tries = m_max_tries - m_number_tries;
 			//update number of tries text
-
+			
 			Debug.Log(m_number_tries);
 			Debug.Log(m_max_tries);
 		}
-		//else if target was hit or max tries reached
+		//if target was hit or max tries reached
 		if (targetStatus || m_number_tries == m_max_tries) {
-			JSONNode answer_node = m_answer;
-
-			// save game data to answer json
-			answer_node["total_tries"].AsInt = m_number_tries;
-			answer_node["values"]["Player Distance"]["value"].AsFloat = Tank.transform.position.x * (-1f);
-			answer_node["values"]["Gravity"]["value"].AsFloat = Physics.gravity.y;
-			answer_node["values"]["Player Angle"]["value"].AsFloat = Tank.GetComponent<TankController>().GetAngle();
-			answer_node["values"]["Target Height"]["value"].AsFloat = Target.transform.position.y;
-			answer_node["values"]["Player Velocity"]["value"].AsFloat = Tank.GetComponent<TankController>().GetVelocity();
-			answer_node["values"]["Player Height"]["value"].AsFloat = Tank.transform.position.y;
-			//call complete game with answer json
-			completeGame(answer_node);
-
+			StartCoroutine(Delay());
+			GameDone ();
 		}
+		
+	}
+	
+	public override void OnSubmit(JSONNode answer){
+		Tank.GetComponent<TankController> ().Fire ();
+	}
+	
+	public void GameDone()
+	{
+
+		JSONNode answer_node = m_answer;
+
+		// save game data to answer json
+		answer_node["total_tries"].AsInt = m_number_tries;
+		answer_node["values"]["Player Distance"]["value"].AsFloat = Tank.transform.position.x * (-1f);
+		answer_node["values"]["Gravity"]["value"].AsFloat = Physics.gravity.y;
+		answer_node["values"]["Player Angle"]["value"].AsFloat = Tank.GetComponent<TankController>().GetAngle();
+		answer_node["values"]["Target Height"]["value"].AsFloat = Target.transform.position.y;
+		answer_node["values"]["Player Velocity"]["value"].AsFloat = Tank.GetComponent<TankController>().GetVelocity();
+		answer_node["values"]["Player Height"]["value"].AsFloat = Tank.transform.position.y;
+		//call complete game with answer json
+		completeGame(answer_node);
+
 	}
 
-	public void setAnswer(JSONNode answer){
-		m_answer = answer;
-		Debug.Log(m_answer);
+	IEnumerator Delay(){
+		yield return new WaitForSeconds(2f);
 	}
 	
 }

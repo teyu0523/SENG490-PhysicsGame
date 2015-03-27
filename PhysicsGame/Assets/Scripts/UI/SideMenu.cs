@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
+using System.Collections.Generic;
 using SimpleJSON;
 
 public class SideMenu : MonoBehaviour {
@@ -11,9 +11,12 @@ public class SideMenu : MonoBehaviour {
 	public GameObject submitButton;
 	public Button backButton;
 	public GameController gameController;
-
+	public Text numTries;
 	public JSONNode answers;
-	private bool buttonOn = false;
+
+	private List<InputField> list = new List<InputField>();
+	private bool _pause = false;
+	private int _tries = 0;
 	private bool buttonPress = false;
 	private bool showSide = false;
 	private Vector2 scrollPosition = Vector2.zero;
@@ -46,13 +49,18 @@ public class SideMenu : MonoBehaviour {
 		this.answers = answers;
 		GameObject questionSet;
 		if(questions != null){
+			_tries = int.Parse(questions["max_tries"].Value);
+			numTries.text = questions["max_tries"].Value;
 			foreach(JSONNode node in questions["values"].Childs){
+				if(!node["menu"].AsBool) {
+					continue;
+				}
 				questionSet = Instantiate (questionsPrefab) as GameObject;
 				questionSetProperty qsp = questionSet.GetComponent <questionSetProperty>();
 				if(qsp == null){
 					Debug.LogWarning("qsp null.");
 				}
-				qsp.question.text = node["name"];
+				qsp.question.text = node["name"].Value;
 				qsp.type = node["type"].Value;
 				if(node["type"].Value == "float"){
 					qsp.answer.contentType = InputField.ContentType.DecimalNumber;
@@ -61,12 +69,13 @@ public class SideMenu : MonoBehaviour {
 				} else {
 					Debug.LogWarning(" Add the new type");
 				}
-				qsp.answer.text  = node["value"].Value;
-
+				qsp.answer.text = node["value"].Value;
 				if (node["editable"].Value.Equals("false")) {
 					Debug.Log(node["editable"]);
 					qsp.answer.interactable = false;
 				}
+				qsp.answer.name = node["name"].Value;
+				list.Add(qsp.answer);
 				qsp.answer.onValueChange.AddListener((string value) => submitString(qsp.question.text, value, qsp.type));
 				//qsp.answer.onEndEdit.AddListener((string value) => submitString(qsp.question.text, value, qsp.type));
 				questionSet.transform.SetParent(questionPanelList.transform);
@@ -83,23 +92,42 @@ public class SideMenu : MonoBehaviour {
 		button.transform.localScale = new Vector3(1f, 1f, 1f);
 		questionPanel.SetActive(false);
 	}
+	public bool Pause
+    {
+		get
+		{
+		    return this._pause;
+		}
+    }
+
+	public int Tries
+    {
+		get
+		{
+		    return this._tries;
+		}
+		set
+		{
+		    this._tries = value;
+		}
+    }
 
 	public void pause(){
-		Debug.Log("im here");
-		if(buttonOn){
+		if(_pause){
 			questionPanel.SetActive(false);
-			buttonOn = false;
+			_pause = false;
 			Time.timeScale = 1.0f;     
 
 		} else {
 			questionPanel.SetActive(true);	
-			buttonOn = true;
+			_pause = true;
 			Time.timeScale = 0.0f;     
 		}	
 	}
 
 	public void submit(){
 		Debug.Log(answers);
+		pause();
 		gameController.OnSubmit(answers);
 	}
 
@@ -118,11 +146,16 @@ public class SideMenu : MonoBehaviour {
 
 	public void setString(string name, string arg){
 		answers["values"][name]["value"] = arg;
-		
+		foreach(InputField inputF in list){
+			if(inputF.name.Equals (name)){
+				inputF.text = arg;
+				break;
+			}
+		}
 	}
 
 	// Update is called once per frame
 	void Update () {
-	
+		numTries.text = _tries.ToString();
 	}
 }

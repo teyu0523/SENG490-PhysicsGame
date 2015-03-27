@@ -8,15 +8,13 @@ public class GameNumericController : GameController {
 	public Text m_question_text = null;
 	public InputField m_input_field = null;
 	public Button m_submit_button = null;
-	public Text m_tries_text = null;
 	public Image m_background_image = null;
 
 	public float m_color_flash_time = 0.1f;
 	public float m_color_pause_time = 0.2f;
 
 	private StatsDisplayPanelController m_question_hint = null;
-
-	private int m_question_id = 0;
+	
 	private int m_expected_answer = 0;
 	private int m_max_tries = 0;
 
@@ -45,7 +43,6 @@ public class GameNumericController : GameController {
 
 		m_answer = previous_answer;
 
-		m_question_id = question["id"].AsInt;
 		// Displaying differently on mobile platforms.
 		if(Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.BlackBerryPlayer) {
 			m_question_text.text = question["values"]["Question Text Mobile"]["value"];
@@ -55,7 +52,7 @@ public class GameNumericController : GameController {
 		m_expected_answer = question["values"]["Expected Answer"]["value"].AsInt;
 
 		m_max_tries = question["max_tries"].AsInt;
-		m_tries_text.text = "Tries Left: " + m_max_tries;
+		side_menu.Tries = m_max_tries;
 
 		m_number_tries = 0;
 
@@ -96,10 +93,11 @@ public class GameNumericController : GameController {
 	/// <param name="input">The string input as an answer by the user.</param>
 	public void OnInputValueChanged(string input)
 	{
-		if(input != "" && input != "-")
+		if(input != "" && int.TryParse(input, out m_current_answer))
 		{
-			m_current_answer = int.Parse(input);
 			m_submit_button.interactable = true;
+			if(side_menu != null)
+				side_menu.setString("Submitted Answer", m_current_answer.ToString());
 		}
 		else
 		{
@@ -108,8 +106,16 @@ public class GameNumericController : GameController {
 		}
 	}
 
+	public override void OnMenuChanged (JSONNode answer)
+	{
+		OnInputValueChanged(answer["values"]["Submitted Answer"]["value"].Value);
+		m_input_field.text = answer["values"]["Submitted Answer"]["value"].Value;
+	}
+
 	public override void OnSubmit (JSONNode answers)
 	{
+		OnInputValueChanged(answers["values"]["Submitted Answer"]["value"].Value);
+		m_input_field.text = answers["values"]["Submitted Answer"]["value"].Value;
 		OnSubmitButtonPressed();
 	}
 
@@ -121,7 +127,7 @@ public class GameNumericController : GameController {
 		if( m_current_answer != m_expected_answer )
 		{
 			m_number_tries++;
-			m_tries_text.text = "Tries Left: " + (m_max_tries - m_number_tries);
+			side_menu.Tries = (m_max_tries - m_number_tries);
 			m_background_color_target = m_background_color_incorrect;
 			m_flash_time = 0.0f;
 		}

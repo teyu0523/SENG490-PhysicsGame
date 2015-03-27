@@ -13,6 +13,8 @@ public class SideMenu : MonoBehaviour {
 	public GameController gameController;
 
 	public JSONNode answers;
+
+	private InputField[] list;
 	private bool buttonOn = false;
 	private bool buttonPress = false;
 	private bool showSide = false;
@@ -52,7 +54,7 @@ public class SideMenu : MonoBehaviour {
 				if(qsp == null){
 					Debug.LogWarning("qsp null.");
 				}
-				qsp.question.text = node["name"];
+				qsp.question.text = node["name"].Value;
 				qsp.type = node["type"].Value;
 				if(node["type"].Value == "float"){
 					qsp.answer.contentType = InputField.ContentType.DecimalNumber;
@@ -61,12 +63,12 @@ public class SideMenu : MonoBehaviour {
 				} else {
 					Debug.LogWarning(" Add the new type");
 				}
-				qsp.answer.text  = node["value"].Value;
-
+				qsp.answer.text = node["value"].Value;
 				if (node["editable"].Value.Equals("false")) {
 					Debug.Log(node["editable"]);
 					qsp.answer.interactable = false;
 				}
+				qsp.answer.name = node["name"].Value;
 				qsp.answer.onValueChange.AddListener((string value) => submitString(qsp.question.text, value, qsp.type));
 				//qsp.answer.onEndEdit.AddListener((string value) => submitString(qsp.question.text, value, qsp.type));
 				questionSet.transform.SetParent(questionPanelList.transform);
@@ -82,6 +84,10 @@ public class SideMenu : MonoBehaviour {
 		button.transform.SetParent(questionPanelList.transform);
 		button.transform.localScale = new Vector3(1f, 1f, 1f);
 		questionPanel.SetActive(false);
+
+		list = questionPanelList.GetComponentsInChildren<InputField>();
+		
+		
 	}
 
 	public void pause(){
@@ -118,7 +124,12 @@ public class SideMenu : MonoBehaviour {
 
 	public void setString(string name, string arg){
 		answers["values"][name]["value"] = arg;
-		
+		foreach(InputField inputF in list){
+			if(inputF.name == name){
+				inputF.text = arg;
+				break;
+			}
+		}
 	}
 
 	// Update is called once per frame

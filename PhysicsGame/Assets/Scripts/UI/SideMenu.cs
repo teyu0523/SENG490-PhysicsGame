@@ -76,14 +76,13 @@ public class SideMenu : MonoBehaviour {
 				}
 				qsp.answer.text = node["value"].Value;
 				if (node["editable"].Value.Equals("false")) {
-					Debug.Log(node["editable"]);
 					qsp.answer.interactable = false;
 				}
 				qsp.answer.name = node["name"].Value;
 				list.Add(qsp.answer);
 				//qsp.answer.onValueChange.AddListener((string value) => submitString(qsp.question.text, value, qsp.type));
 				if(qsp.type == "float" || qsp.type == "integer"){
-					qsp.answer.onValueChange.AddListener((string value) => submitString(qsp.question.text, value, qsp.maxBound, qsp.minBound, qsp.type));
+					qsp.answer.onEndEdit.AddListener((string value) => submitString(qsp.question.text, value, qsp.maxBound, qsp.minBound, qsp.type));
 				} else if (qsp.type == "string" || qsp.type == "paragraph"){
 					qsp.answer.onEndEdit.AddListener((string value) => submitString(qsp.question.text, value, qsp.maxLength, qsp.type));
 				}
@@ -147,9 +146,9 @@ public class SideMenu : MonoBehaviour {
 	}
 
 	public void submitString(string name, string arg, float max, float min, string type){
-		if(arg.Equals("-")){
+		/*if(arg.Equals("-")){
 			return;
-		}
+		}*/
 		try{
 			float val = float.Parse(arg);
 			if(val < min){
@@ -170,11 +169,12 @@ public class SideMenu : MonoBehaviour {
 			gameController.SetProperty(name, arg);
 			
 		} catch (FormatException){
+			setString(name, answers["values"][name]["value"].Value);
 			return;
-			answers["value"][name]["value"] = "0.0";
+			/*answers["value"][name]["value"] = "0.0";
 			gameController.OnMenuChanged(answers);
 			gameController.SetProperty(name, "0.0");
-			setString(name, "0.0");
+			setString(name, "0.0");*/
 		} catch (OverflowException) {
 
 		}

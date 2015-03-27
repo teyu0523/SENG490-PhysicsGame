@@ -27,6 +27,8 @@ public class GameCollisionController : GameController {
 	public float momentum_b;
 	public float momentum_net;
 	public float momentum_net_user;
+	public bool correct_net_momentum;
+
 	private bool wrong; // check for incorrect sumbission
 	private bool submitted = false;
 	private Vector3 velocity = Vector3.zero;
@@ -46,6 +48,7 @@ public class GameCollisionController : GameController {
 
 	public override void initializeGame(JSONNode question, JSONNode previous_answer){
 		base.initializeGame(question, previous_answer);
+		correct_net_momentum = false;
 		if(question != null){
 			m_answer = previous_answer;
 			this.question = question;
@@ -68,18 +71,17 @@ public class GameCollisionController : GameController {
 				Debug.LogWarning("GameObject not found: CarRight");
 			}
 		}
-		Debug.Log(question["values"]);
-		Debug.Log(question["values"]["Car A Position"]["value"].Value);
-		Debug.Log(float.Parse(question["values"]["Car A Position"]["value"].Value));
+
 
 		pos_a = float.Parse(question["values"]["Car A Position"]["value"].Value);
 		velocity_a = float.Parse(question["values"]["Car A Velocity"]["value"].Value);
 		mass_a = float.Parse(question["values"]["Car A Mass"]["value"].Value);
-
+		velocity_after_a = float.Parse(question["values"]["Car A Velocity After"]["value"].Value); 
 
 		pos_b = float.Parse(question["values"]["Car B Position"]["value"].Value);
 		velocity_b = float.Parse(question["values"]["Car B Velocity"]["value"].Value);
 		mass_b = float.Parse(question["values"]["Car B Mass"]["value"].Value);
+		velocity_after_b = float.Parse(question["values"]["Car B Velocity After"]["value"].Value); 
 
 		car_A_control.setPosition(pos_a);
 		car_A_control.setMass(mass_a);
@@ -112,6 +114,11 @@ public class GameCollisionController : GameController {
 		base.Awake ();
 	}
 
+	private IEnumerator delayCompletion(float time) {
+        yield return new WaitForSeconds(time);
+        completeGame(m_answer);
+    }
+
 	/// <summary>
 	/// Updates once every tick. Looks for touch input or keyboard input to display scenario information.
 	/// </summary>
@@ -119,7 +126,23 @@ public class GameCollisionController : GameController {
 	{	
 		base.Update();
 		if (car_A_control.Hit == true && car_B_control.Hit == true){
-			Debug.Log("im here");
+			car_A_control.Hit = false;
+			car_B_control.Hit = false;
+			car_A_control.updateSpeed(0);
+			car_B_control.updateSpeed(0);
+			if(submitted && momentum_net != 0 && (
+				question["values"]["Car B Velocity After"]["menu"].Equals("true") || 
+				question["values"]["Car A Velocity After"]["menu"].Equals("true")
+				)
+			){
+				
+				car_B_control.VelocityAfter = velocity_after_b;
+				StartCoroutine(delayCompletion(5));
+			} else {
+				completeGame(m_answer);
+			}
+			
+
 		}
 		/*car_A_control.updateSpeed(speed_left);
 		car_B_control.updateSpeed(speed_right);
@@ -150,15 +173,17 @@ public class GameCollisionController : GameController {
 			car_B_control.setMass(mass_b);
 			momentum_b = mass_b * velocity_b;
 		} else if (name == "Car A Velocity After") {
-			velocity_after_a = float.Parse(arg);
-			car_A_control.VelocityAfter = velocity_after_a;
+			//velocity_after_a = float.Parse(arg);
+			//car_A_control.VelocityAfter = velocity_after_a;
 		} else if (name == "Car B Velocity After") {
-			velocity_after_b = float.Parse(arg);
-			car_B_control.VelocityAfter = velocity_after_b;
+			//velocity_after_b = float.Parse(arg);
+			//car_B_control.VelocityAfter = velocity_after_b;
 		} else if (name == "Result Momentum") {
 			momentum_net_user = float.Parse(arg);
 		}
 		momentum_net = momentum_b + momentum_a;
+		velocity_after_a = momentum_net/mass_a;
+		velocity_after_b = momentum_net/mass_b;
 	}
 
 	public override void OnMenuChanged(JSONNode answer){
@@ -168,7 +193,6 @@ public class GameCollisionController : GameController {
 
 	public override void OnSubmit(JSONNode answers){
 		m_answer = answers;
-		
 		if(question["values"]["Result Momentum"]["editable"].Value.Equals("true")){
 			if(momentum_net_user != momentum_net){
 				wrong = true;
@@ -178,15 +202,31 @@ public class GameCollisionController : GameController {
 				wrong = true;
 			}
 		}
+		Debug.Log(question);
+		if(question["values"]["Car B Velocity After"]["menu"].Equals("true") || 
+			question["values"]["Car A Velocity After"]["menu"].Equals("true"))
+		{
+			Debug.Log(m_answer["values"]["Car A Velocity After"]["value"]);
+			Debug.Log(velocity_after_a);
+			Debug.Log("im hereeeee");
+			if(velocity_after_a != float.Parse(m_answer["values"]["Car A Velocity After"]["value"]) || 
+			   velocity_after_b != float.Parse(m_answer["values"]["Car B Velocity After"]["value"]))
+			{
+				wrong = true;
+			}
+		}
 		if(wrong){
 			side_menu.Tries -= 1;
 			side_menu.pause();
-			if(side_menu.Tries == 0){
+			if(side_menu.Tries < 0){
+				side_menu.Tries = 0;
+				m_answer["total_tries"] = question["max_tries"];
 				completeGame(m_answer);
 			}
 			wrong = false;
-			// return;
+			return;
 		}
+		m_answer["total_tries"] = (float.Parse(question["max_tries"]) - side_menu.Tries).ToString();
 		car_A_control.updateSpeed(velocity_a);
 		car_B_control.updateSpeed(velocity_b);
 		adjustCamToFit();

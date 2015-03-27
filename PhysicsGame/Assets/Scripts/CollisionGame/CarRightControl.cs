@@ -28,6 +28,10 @@ public class CarRightControl : MonoBehaviour {
 		{
 		    return this._hit;
 		}
+		set 
+		{
+			this._hit = value;
+		}
 	}
 
 	void OnCollisionEnter2D(Collision2D col){

@@ -208,22 +208,22 @@ class LessonAdmin(admin.ModelAdmin):
 
 class IntegerValueInline(EditOnlyTabularInline):
     model = IntegerValue
-    readonly_fields = ('name', 'menu', 'order')
+    readonly_fields = ('name', 'order')
 
 
 class FloatingPointValueInline(EditOnlyTabularInline):
     model = FloatingPointValue
-    readonly_fields = ('name', 'menu', 'order')
+    readonly_fields = ('name', 'order')
 
 
 class StringValueInline(EditOnlyTabularInline):
     model = StringValue
-    readonly_fields = ('name', 'menu', 'order')
+    readonly_fields = ('name', 'order')
 
 
 class ParagraphValueInline(EditOnlyTabularInline):
     model = ParagraphValue
-    readonly_fields = ('name', 'menu', 'order')
+    readonly_fields = ('name', 'order')
 
 
 @admin.register(Question)

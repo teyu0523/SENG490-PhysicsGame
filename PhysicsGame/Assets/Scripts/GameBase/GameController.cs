@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
 using SimpleJSON;
@@ -88,7 +89,7 @@ public abstract class GameController : MonoBehaviour {
 	/// </summary>
 	public virtual void Update()
 	{
-		if (Input.GetKeyDown("i") || Input.touchCount == 3) {
+		if ( (Input.GetKeyDown("i") && EventSystem.current.currentSelectedGameObject == null) || Input.touchCount == 3) {
 			if(!m_stats_touch_started) {
 				m_displaying_stats = !m_displaying_stats;
 				foreach(StatsDisplayPanelController display in m_stats_displays) {
@@ -101,7 +102,7 @@ public abstract class GameController : MonoBehaviour {
 			m_stats_touch_started = false;
 		}
 
-		if (Input.GetKeyDown(KeyCode.P) || Input.touchCount == 4) {
+		if ( (Input.GetKeyDown(KeyCode.P) && EventSystem.current.currentSelectedGameObject == null) || Input.touchCount == 4) {
 			if(!m_menu_touch_started) {
 				side_menu.pause();
 			}

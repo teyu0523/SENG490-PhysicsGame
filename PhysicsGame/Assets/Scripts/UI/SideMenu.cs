@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
+using System.Collections.Generic;
 using SimpleJSON;
 
 public class SideMenu : MonoBehaviour {
@@ -14,7 +14,7 @@ public class SideMenu : MonoBehaviour {
 
 	public JSONNode answers;
 
-	private InputField[] list;
+	private List<InputField> list = new List<InputField>();
 	private bool buttonOn = false;
 	private bool buttonPress = false;
 	private bool showSide = false;
@@ -69,6 +69,7 @@ public class SideMenu : MonoBehaviour {
 					qsp.answer.interactable = false;
 				}
 				qsp.answer.name = node["name"].Value;
+				list.Add(qsp.answer);
 				qsp.answer.onValueChange.AddListener((string value) => submitString(qsp.question.text, value, qsp.type));
 				//qsp.answer.onEndEdit.AddListener((string value) => submitString(qsp.question.text, value, qsp.type));
 				questionSet.transform.SetParent(questionPanelList.transform);
@@ -84,10 +85,6 @@ public class SideMenu : MonoBehaviour {
 		button.transform.SetParent(questionPanelList.transform);
 		button.transform.localScale = new Vector3(1f, 1f, 1f);
 		questionPanel.SetActive(false);
-
-		list = questionPanelList.GetComponentsInChildren<InputField>();
-		
-		
 	}
 
 	public void pause(){
@@ -125,7 +122,7 @@ public class SideMenu : MonoBehaviour {
 	public void setString(string name, string arg){
 		answers["values"][name]["value"] = arg;
 		foreach(InputField inputF in list){
-			if(inputF.name == name){
+			if(inputF.name.Equals (name)){
 				inputF.text = arg;
 				break;
 			}

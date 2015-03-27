@@ -2,6 +2,7 @@
 using System.Collections;
 
 public class CarRightControl : MonoBehaviour {
+	public Rigidbody2D rbody2d;
 	private float acc_right = 0;
 	private float speed_right = 0;
 	private Vector3 car_B_pos;
@@ -15,7 +16,6 @@ public class CarRightControl : MonoBehaviour {
 	void Update () {
 		if(!hit){
 			car_B_pos = transform.position;
-
 			transform.position = new Vector3(car_B_pos.x + (speed_right + (acc_right * Time.time)), car_B_pos.y, car_B_pos.z);
 		} else {
 			// do animation for collision
@@ -33,7 +33,7 @@ public class CarRightControl : MonoBehaviour {
 	}
 
 	public void updateSpeed(float new_speed){
-		speed_right = new_speed;
+		rbody2d.angularVelocity = new_speed;
 	}
 
 	public void updateAcc(float new_acc){

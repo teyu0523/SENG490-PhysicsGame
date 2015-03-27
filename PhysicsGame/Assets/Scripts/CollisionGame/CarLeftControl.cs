@@ -2,6 +2,7 @@
 using System.Collections;
 
 public class CarLeftControl : MonoBehaviour {
+	public Rigidbody2D rbody2d;
 	private float acc_left = 0;
 	private float speed_left = 0;
 	private Vector3 car_A_pos;
@@ -32,7 +33,7 @@ public class CarLeftControl : MonoBehaviour {
 	}
 
 	public void updateSpeed(float new_speed){
-		speed_left = new_speed;
+		rbody2d.angularVelocity = new_speed;
 	}
 
 	public void updateAcc(float new_acc){

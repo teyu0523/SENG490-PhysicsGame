@@ -11,6 +11,7 @@ public class EggController : MonoBehaviour {
 	public float springLength = 15.0f;
 	public float mass = 1.0f;
 	public Boolean springFlag = false;
+	public Boolean launched = false;
 
 	private Vector3 m_initial_position = Vector3.zero;
 
@@ -32,11 +33,10 @@ public class EggController : MonoBehaviour {
 			{
 				compressPct = 0.0f;
 			}
-		} else if(Input.GetAxisRaw("Jump") > 0){
+		} else if(Input.GetAxisRaw("Jump") > 0 && !launched){
 			Input.ResetInputAxes();
 			Launch(compressPct);
 			compressPct = 0.0f;
-			springFlag = true;
 		}
 	}
 
@@ -49,11 +49,14 @@ public class EggController : MonoBehaviour {
 		float energy = springConstant * distance * distance;
 		float velocity = (float)Math.Sqrt(energy / mass);
 		rigidbody2D.velocity = new Vector2(0.0f, velocity);
+		launched = true;
 	}
 
 	public void resetEgg() {
+		gameObject.SetActive(true);
 		transform.position = m_initial_position;
-		rigidbody.velocity = Vector2.zero;
+		rigidbody2D.velocity = Vector2.zero;
+		launched = false;
 	}
 
 	public void breakEgg() {

@@ -15,8 +15,9 @@ public class GroundCollision : MonoBehaviour {
 	}
 
 	void OnCollisionEnter2D(Collision2D col){
-		if(col.relativeVelocity.magnitude > 5){
+		if(col.gameObject.GetComponent<EggController>().launched){
 			col.gameObject.GetComponent<EggController>().breakEgg();
+			(GameController.Instance as SpringGameController).OnFailure();
 		}
 	}
 }

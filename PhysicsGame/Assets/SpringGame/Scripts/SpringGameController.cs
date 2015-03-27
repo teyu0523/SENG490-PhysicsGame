@@ -21,7 +21,11 @@ public class SpringGameController : GameController {
 		side_menu.Tries = m_max_tries;
 		m_number_tries = 0;
 
-		//m_egg.
+		m_egg.springConstant = question["values"]["Spring Constant"]["value"].AsFloat;
+		m_egg.compressPct = question["values"]["Compression Distance"]["value"].AsFloat;
+		m_egg.mass = question["values"]["Mass"]["value"].AsFloat;
+		m_ship.transform.position = new Vector3(m_ship.transform.position.x, question["values"]["Target Height"]["value"].AsFloat, m_ship.transform.position.z);
+		Physics2D.gravity = new Vector2(0.0f, question["values"]["Gravity"]["value"].AsFloat);
 	}
 
 	public override void Update()
@@ -49,6 +53,9 @@ public class SpringGameController : GameController {
 		m_number_tries++;
 		if(m_number_tries >= m_max_tries) {
 			OnSuccess();
+		}
+		else {
+			m_egg.resetEgg();
 		}
 	}
 }

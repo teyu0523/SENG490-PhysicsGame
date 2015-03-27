@@ -11,18 +11,18 @@ public class ShipController : MonoBehaviour {
 
 		AudioSource[] sources = GetComponents<AudioSource>();
 		source1 = sources[0];
-		source2 = sources[1];
+		//source2 = sources[1];
 	}
 
 	void OnCollisionEnter2D(Collision2D col){
 		if(col.relativeVelocity.magnitude > 5){
 			source1.Play();
+			col.gameObject.GetComponent<EggController>().breakEgg();
+			(GameController.Instance as SpringGameController).OnFailure();
+		} else {
+			//source2.Play();
 			col.gameObject.SetActive(false);
 			(GameController.Instance as SpringGameController).OnSuccess();
-		} else {
-			col.gameObject.GetComponent<EggController>().breakEgg();
-			source2.Play();
-			(GameController.Instance as SpringGameController).OnFailure();
 		}
 	}
 }

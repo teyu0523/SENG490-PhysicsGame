@@ -15,8 +15,7 @@ public class GameNumericController : GameController {
 	public float m_color_pause_time = 0.2f;
 
 	private StatsDisplayPanelController m_question_hint = null;
-
-	private int m_question_id = 0;
+	
 	private int m_expected_answer = 0;
 	private int m_max_tries = 0;
 
@@ -45,7 +44,6 @@ public class GameNumericController : GameController {
 
 		m_answer = previous_answer;
 
-		m_question_id = question["id"].AsInt;
 		// Displaying differently on mobile platforms.
 		if(Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.BlackBerryPlayer) {
 			m_question_text.text = question["values"]["Question Text Mobile"]["value"];
@@ -96,9 +94,8 @@ public class GameNumericController : GameController {
 	/// <param name="input">The string input as an answer by the user.</param>
 	public void OnInputValueChanged(string input)
 	{
-		if(input != "" && input != "-")
+		if(input != "" && int.TryParse(input, out m_current_answer))
 		{
-			m_current_answer = int.Parse(input);
 			m_submit_button.interactable = true;
 		}
 		else
@@ -106,10 +103,20 @@ public class GameNumericController : GameController {
 			m_current_answer = 0;
 			m_submit_button.interactable = false;
 		}
+		if(side_menu != null)
+			side_menu.setString("Submitted Answer", m_current_answer.ToString());
+	}
+
+	public override void OnMenuChanged (JSONNode answer)
+	{
+		OnInputValueChanged(answer["values"]["Submitted Answer"]["value"].Value);
+		m_input_field.text = answer["values"]["Submitted Answer"]["value"].Value;
 	}
 
 	public override void OnSubmit (JSONNode answers)
 	{
+		OnInputValueChanged(answers["values"]["Submitted Answer"]["value"].Value);
+		m_input_field.text = answers["values"]["Submitted Answer"]["value"].Value;
 		OnSubmitButtonPressed();
 	}
 

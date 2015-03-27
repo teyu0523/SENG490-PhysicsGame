@@ -112,9 +112,24 @@ public abstract class GameController : MonoBehaviour {
 		}
 	}
 
+	/// <summary>
+	/// Called whenever a value is changed from the pause menu, provides the entire contents of the menu.
+	/// </summary>
+	/// <param name="answer">The current set of answers from the pause menu.</param>
 	public virtual void OnMenuChanged(JSONNode answer) {}
+
+	/// <summary>
+	/// Called when the pause menu's submit button is pressed.
+	/// </summary>
+	/// <param name="answers">The current set of answers from the pause menu.</param>
 	public virtual void OnSubmit(JSONNode answers) {}
-	public virtual void SetProperty(string name, string arg){}
+
+	/// <summary>
+	/// Called when a value is changed in the pause menu.
+	/// </summary>
+	/// <param name="name">The name of the changed value.</param>
+	/// <param name="arg">The new value it was changed to.</param>
+	public virtual void SetProperty(string name, string arg) {}
 
 	/// <summary>
 	/// Exits the current lesson.

@@ -79,6 +79,11 @@ public class GameCollisionController : GameController {
 		car_right_control.updateSpeed(speed_right);
 		car_left_control.updateAcc(acc_left);
 		car_right_control.updateAcc(acc_right);*/
+
+		/*if (Input.GetKeyDown(KeyCode.P) ){
+			side_menu.pause();
+
+		}*/
 		if (Input.GetKeyDown(KeyCode.P) || Input.touchCount == 4) {
 			if(!m_touch_started) {
 				side_menu.pause();

@@ -8,8 +8,6 @@ public class GameTankController : GameController {
 	// publics for all game objects effected from question
 	public GameObject Tank;
 	public GameObject Target;
-	public Button m_submit_button;
-	public GameObject canvas;
 
 	private SideMenu side_menu;
 
@@ -28,23 +26,14 @@ public class GameTankController : GameController {
 	
 	public override void initializeGame(JSONNode question, JSONNode previous_answer)
 	{
+		base.initializeGame(question, previous_answer);
+
 		m_answer = previous_answer;
 
 		Debug.Log (question);
 		Debug.Log (previous_answer);
 
 		Vector3 newPosition;
-
-		if(canvas){
-			side_menu = canvas.GetComponent(typeof(SideMenu)) as SideMenu;
-			if(side_menu == null){
-				Debug.LogWarning("Script not found: SideMenu");
-			} else {
-				side_menu.parseJSON(question, previous_answer);
-			}
-		} else {
-			Debug.LogWarning("GameObject not found: canvas");
-		}
 		
 		m_max_tries = question ["max_tries"].AsInt;
 
@@ -107,11 +96,6 @@ public class GameTankController : GameController {
 		m_question_hint ["Velocity"].text = "Projectile Veloicty: " + Tank.GetComponent<TankController> ().GetVelocity ().ToString () + " m/s";
 		m_question_hint ["Distance"].text = "Distance to Target: " + (Tank.transform.position.x * (-1f)).ToString () + " m";
 		m_question_hint ["Target Height"].text = "Target Height: " + Target.transform.position.y.ToString () + " m";
-
-		if (Input.GetKeyDown(KeyCode.P) ){
-			side_menu.pause();
-			
-		}
 	}
 
 	public void CheckGameStatus(){

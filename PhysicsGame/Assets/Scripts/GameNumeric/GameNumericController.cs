@@ -50,6 +50,8 @@ public class GameNumericController : GameController {
 			m_question_text.text = question["values"]["Question Text"]["value"];
 		}
 		m_expected_answer = question["values"]["Expected Answer"]["value"].AsInt;
+		if(side_menu != null)
+			side_menu.setString("Submitted Answer", m_current_answer.ToString());
 
 		m_max_tries = question["max_tries"].AsInt;
 		side_menu.Tries = m_max_tries;

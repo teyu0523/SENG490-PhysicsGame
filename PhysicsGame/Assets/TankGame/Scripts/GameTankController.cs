@@ -34,6 +34,7 @@ public class GameTankController : GameController {
 		Vector3 newPosition;
 		
 		m_max_tries = question ["max_tries"].AsInt;
+		side_menu.Tries = m_max_tries - m_number_tries;
 
 		//setting up game environment if it is a question
 		if (question ["playable"].Value.Equals("false")) {
@@ -144,6 +145,7 @@ public class GameTankController : GameController {
 		if (!targetStatus) {
 			//increament number of tries
 			m_number_tries++;
+			side_menu.Tries = m_max_tries - m_number_tries;
 			//update number of tries text
 			
 			Debug.Log(m_number_tries);
